@@ -1,4 +1,5 @@
 "use client"
+import Link from "next/link";
 
 type HeroProps={
     title: string;
@@ -16,7 +17,9 @@ export default function Hero({title, subtitle, ctalabel='Начать'}: HeroPro
           {subtitle}
         </p>
         <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition cursor-pointer">
-          {ctalabel}
+          <Link href='/signup'>
+            {ctalabel}
+          </Link>
         </button>
     </section>
   );
