@@ -3,12 +3,13 @@ import { useUniversityForm } from "@/app/(context)/UniversityFormContext";
 
 export default function WrapperForm({ children }: { children: ReactNode }) {
     const { xPer, setXPer } = useUniversityForm();
-    const pagePer: number = 200
 
     return (
-        <div className={`w-[${pagePer}%] flex overflow-x-hidden mt-6 transition-transform duration-500 ease-in-out`}
-            style={{ transform: `translateX(${xPer}%)` }}>
+        <main className="w-[100%] min-h-[100vh] overflow-x-hidden overflow-y-auto relative">
+        <div className={` w-[300%] min-h-[100vh] flex overflow-x-hidden mt-6 transition-transform duration-500 ease-in-out`}
+            style={{ transform: `translateX(${-(xPer)*33.333333}%)` }}>
             {children}
         </div>
+        </main>
     )
 }

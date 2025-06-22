@@ -15,13 +15,10 @@ export const initialScaleMeta: Metadata = {
   },
 };
 
-
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ru">
-      <body className="overflow-x-hidden w-[100%]"
-      >
+    <html lang="ru" className="">
+      <body className="">
         {children}
       </body>
     </html>
