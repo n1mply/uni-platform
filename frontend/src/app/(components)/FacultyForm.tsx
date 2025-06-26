@@ -1,136 +1,154 @@
-'use client';
+'use client'
+import { useState, useEffect } from "react"
+import FloatingInput from "@/app/(components)/FloatingInput";
+import { useUniversityForm } from "@/app/(context)/UniversityFormContext";
+import DragNDrop from "@/app/(components)/DragNDrop";
+import { BriefcaseBusiness, X, BookDashed } from 'lucide-react'
 
-import { useState, useRef } from 'react';
-import FloatingInput from '@/app/(components)/FloatingInput';
-import { Inbox, AtSign, Smartphone, ImageIcon } from 'lucide-react';
 
 interface Faculty {
-  name: string;
-  icon: File | null;
-  address: string;
-  contactEmail: string;
-  contactPhone: string;
+  facultyName: string;
+  facultyIconURL: string;
 }
 
 export default function FacultyForm() {
-  const [faculties, setFaculties] = useState<Faculty[]>([]);
-  const [newFaculty, setNewFaculty] = useState<Faculty>({
-    name: '',
-    icon: null,
-    address: '',
-    contactEmail: '',
-    contactPhone: '',
-  });
+  const { xPer, setXPer } = useUniversityForm();
+  const { image, setImage } = useUniversityForm()
+  const [faculties, setFaculties] = useState<Faculty[]>([])
+  const [facultyName, setFacultyName] = useState('')
+  const [unactive, setUnactive] = useState(true)
+  const [nextStep, setNextStep] = useState(false)
 
-  const [dragOver, setDragOver] = useState(false);
-  const inputFileRef = useRef<HTMLInputElement | null>(null);
+  useEffect(() => {
+    const validateForm = async () => {
+      if (facultyName && image) {
+        console.log(image)
+        setUnactive(false)
+      }
+      else {
+        setUnactive(true)
+      }
+    }
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragOver(false);
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
-      setNewFaculty({ ...newFaculty, icon: file });
+    validateForm()
+  }, [facultyName, image])
+
+  useEffect(() => {
+    const validateFaculties = async () => {
+      if (faculties.length >= 1) {
+        setNextStep(true)
+      }
+      else {
+        setNextStep(false)
+      }
+    }
+
+    validateFaculties()
+  }, [faculties])
+
+
+  const handleContinue = () => {
+    if (faculties.length >= 1) {
+      setXPer(xPer + 1)
+    }
+  }
+
+  const updateFaculties = () => {
+
+    if (image && facultyName.trim()) {
+      const newFaculty: Faculty = {
+        facultyName: facultyName,
+        facultyIconURL: image.url,
+      };
+
+      setFaculties((prevFaculties) => [...prevFaculties, newFaculty]);
+      setFacultyName('');
+      setImage(null)
+
+    } else {
+      console.error("Image or faculty name is missing!");
     }
   };
 
-  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      setNewFaculty({ ...newFaculty, icon: file });
-    }
-  };
-
-  const addFaculty = () => {
-    if (!newFaculty.name || !newFaculty.contactEmail || !newFaculty.contactPhone) {
-      alert("Заполните все обязательные поля");
-      return;
-    }
-    setFaculties([...faculties, newFaculty]);
-    setNewFaculty({ name: '', icon: null, address: '', contactEmail: '', contactPhone: '' });
-  };
 
   return (
-    <section className="w-screen flex justify-center flex-col text-center px-4 mb-10">
-      <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Факультеты</h1>
-      <p className="text-lg text-gray-600 mb-8">
-        Укажите основную информацию факультета. Добавьте иконку, адрес и контактные данные. Вы можете создать несколько факультетов.
-      </p>
-
-      <div className="w-full max-w-2xl mx-auto mb-6 space-y-4">
-
-        <FloatingInput
-          label="Название факультета"
-          id="faculty-name"
-          value={newFaculty.name}
-          onChange={(val) => setNewFaculty({ ...newFaculty, name: val })}
-        />
-
-        <FloatingInput
-          label="Адрес факультета"
-          id="faculty-address"
-          value={newFaculty.address}
-          onChange={(val) => setNewFaculty({ ...newFaculty, address: val })}
-        />
-
-        <FloatingInput
-          label="Email факультета"
-          id="faculty-email"
-          type="email"
-          value={newFaculty.contactEmail}
-          onChange={(val) => setNewFaculty({ ...newFaculty, contactEmail: val })}
-        />
-
-        <FloatingInput
-          label="Телефон факультета"
-          id="faculty-phone"
-          type="tel"
-          value={newFaculty.contactPhone}
-          onChange={(val) => setNewFaculty({ ...newFaculty, contactPhone: val })}
-        />
-
-        {/* drag'n'drop иконки */}
-        <div
-          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-          onDragLeave={() => setDragOver(false)}
-          onDrop={handleDrop}
-          onClick={() => inputFileRef.current?.click()}
-          className={`border-2 border-dashed rounded p-6 text-gray-500 cursor-pointer transition hover:border-blue-400 ${
-            dragOver ? 'border-blue-600 bg-blue-50' : ''
-          }`}
-        >
-          <input
-            type="file"
-            accept="image/*"
-            hidden
-            ref={inputFileRef}
-            onChange={handleFileInput}
-          />
-          {newFaculty.icon ? (
-            <div className="flex flex-col items-center gap-2">
-              <ImageIcon className="w-6 h-6" />
-              <p>{newFaculty.icon.name}</p>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-2">
-              <Inbox className="w-6 h-6" />
-              <p>Перетащите иконку сюда или нажмите, чтобы выбрать</p>
-            </div>
-          )}
+    <div className="w-screen flex gap-[100px] flex-row text-center px-4">
+      <div className="w-1/2 mx-2.5">
+        <h1 className="text-4xl md:text-5xl text-left absolute font-bold text-gray-900 mb-6">Факультеты</h1>
+        <p className="text-lg text-gray-600 mb-8 text-left mt-15">
+          Укажите основную информацию о факультетах: иконка и название.
+          Вы можете создать несколько факультетов
+        </p>
+        <div className="flex items-start gap-5">
+          <DragNDrop />
+          <p className="text-gray-600 text-left w-2/3 mt-0">
+            Добавьте иконку факультету<br />
+            Перетащите её сюда или нажмите, чтобы выбрать. Доступен предпросмотр
+          </p>
         </div>
-
+        <FloatingInput
+          tabIndex={xPer !== 1 ? -1 : 0}
+          id={`name`}
+          label={'Название факультета'}
+          type={'text'}
+          value={facultyName}
+          onChange={e => setFacultyName(e)}
+        />
         <button
-          onClick={addFaculty}
-          className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition"
+          tabIndex={xPer !== 1 ? -1 : 0}
+          onClick={() => updateFaculties()}
+          disabled={unactive ? true : false}
+          className={`w-full max-w-2xl mb-2 mx-auto ${unactive ? 'bg-gray-500' : 'bg-blue-600'} text-white px-6 py-3 rounded-lg ${unactive ? 'hover:bg-gray-500' : 'hover:bg-blue-700'} ${unactive ? 'cursor-not-allowed' : 'cursor-pointer'}  transition text-center block`}
         >
           Добавить факультет
         </button>
+        <button
+          tabIndex={xPer !== 1 ? -1 : 0}
+          onClick={() => handleContinue()}
+          disabled={!nextStep ? true : false}
+          className={`w-full max-w-2xl mb-2 mx-auto mt-18 ${!nextStep ? 'bg-gray-500' : 'bg-blue-600'} text-white px-6 py-3 rounded-lg ${!nextStep ? 'hover:bg-gray-500' : 'hover:bg-blue-700'} ${!nextStep ? 'cursor-not-allowed' : 'cursor-pointer'}  transition text-center block`}
+        >
+          Продолжить
+        </button>
+        <p className="text-m text-gray-600 mb-8 text-left">Для продолжения создайте минимум один факультет, в будущем вы сможете добавить больше и создать кафедры со специальностями </p>
       </div>
 
-      {/* Вывод списка факультетов (пока просто JSON) */}
-      <pre className="text-left text-sm bg-gray-100 p-4 rounded max-w-2xl mx-auto mt-6 overflow-x-auto">
-        {JSON.stringify(faculties, null, 2)}
-      </pre>
-    </section>
-  );
+      <div className="w-1/2">
+        <p className="text-lg text-gray-600 mb-8 text-left mt-15">
+          Предпросмотр. Здесь появятся созданные вами факультеты
+          для препросмотра его карточки(тестовые данные)
+        </p>
+        <div className={`h-[500px] ${faculties.length === 0 ? 'overflow-y-auto' : 'overflow-y-scroll'} `}>
+          {faculties.length === 0 ? (
+            <div className="flex flex-col justify-center items-center h-full">
+              <BookDashed color="#4a5565" size={98}  className="mx-auto"/>
+              <p className="text-lg text-gray-600 mb-8 text-center mt-3">Список факультетов пока пуст</p>
+            </div>
+          ) : (
+            faculties.map((f, i) => (
+              <div
+                key={i}
+                className="flex items-center bg-white rounded-lg p-4 mb-4 shadow-sm"
+              >
+                <div className="w-16 h-16 flex-shrink-0 mr-4">
+                  <img src={f.facultyIconURL} alt={f.facultyName} width={64} height={64} className="rounded" />
+                </div>
+                <div className="flex-1 text-left">
+                  <h3 className="font-medium">{f.facultyName}</h3>
+                  <div className="flex gap-2 items-center">
+                    <BriefcaseBusiness color="#6a7282" size={18} />
+                    <p className="text-sm text-gray-500 font-medium">3 специальности</p>
+                  </div>
+                  <a href="#" className="text-blue-600 text-sm hover:underline">Подробнее</a>
+                </div>
+                <button >
+                  <X />
+                </button>
+              </div>
+            )))
+          }
+        </div>
+      </div>
+    </div>
+  )
 }

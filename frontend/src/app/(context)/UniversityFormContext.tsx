@@ -8,6 +8,11 @@ export type Contact = {
     contactValue: string;
 };
 
+export type ImageState = {
+    name: string;
+    url: string;
+} | null;
+
 type UniversityFormData = {
     contacts: Contact[];
     setContacts: (contacts: Contact[]) => void;
@@ -21,6 +26,8 @@ type UniversityFormData = {
     setDescription: (description: string) => void;
     address: string;
     setAddress: (address: string) => void;
+    image: ImageState;
+    setImage: (image: ImageState) => void;
 };
 
 const UniversityFormContext = createContext<UniversityFormData | null>(null);
@@ -32,9 +39,10 @@ export function UniversityFormProvider({ children }: { children: ReactNode }) {
     const [shortName, setShortName] = useState("");
     const [description, setDescription] = useState("");
     const [address, setAddress] = useState("");
+    const [image, setImage] = useState<ImageState>(null);
 
     return (
-        <UniversityFormContext.Provider value={{ contacts, setContacts, xPer, setXPer, fullName, setFullName, shortName, setShortName, description, setDescription, address, setAddress}}>
+        <UniversityFormContext.Provider value={{ contacts, setContacts, xPer, setXPer, fullName, setFullName, shortName, setShortName, description, setDescription, address, setAddress, image, setImage}}>
             {children}
         </UniversityFormContext.Provider>
     );

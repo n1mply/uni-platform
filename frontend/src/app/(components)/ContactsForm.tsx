@@ -115,6 +115,7 @@ export default function ContactsForm() {
 
             <div className="flex gap-4 justify-between mb-8 flex-wrap mx-auto">
                 <button
+                    tabIndex={xPer !== 1 ? -1 : 0}
                     onClick={() => addContact("phone")}
                     className="bg-blue-600 text-white w-full max-w-2xl mx-auto px-6 py-3 rounded hover:bg-blue-700 transition"
                 >
@@ -122,6 +123,7 @@ export default function ContactsForm() {
                     Добавить номер
                 </button>
                 <button
+                    tabIndex={xPer !== 1 ? -1 : 0}
                     onClick={() => addContact("email")}
                     className="bg-blue-600 text-white w-full max-w-2xl mx-auto px-6 py-3 rounded hover:bg-blue-700 transition"
                 >
@@ -139,6 +141,7 @@ export default function ContactsForm() {
              border-b border-transparent transition duration-200
              hover:border-b hover:border-gray-400"
                             type="text"
+                            tabIndex={xPer !== 1 ? -1 : 0}
                             value={contact.contactName}
                             placeholder={`Контакт ${index + 1}`}
                             onChange={(e) => updateContact(index, "contactName", e.target.value)}
@@ -146,6 +149,7 @@ export default function ContactsForm() {
                         />
 
                         <FloatingInput
+                            tabIndex={xPer !== 1 ? -1 : 0}
                             id={`value-${index}`}
                             label={contact.contactType === "phone" ? "Номер телефона" : "Адрес электронной почты"}
                             type={contact.contactType === "phone" ? "tel" : "email"}
@@ -184,6 +188,7 @@ export default function ContactsForm() {
             </AnimatePresence>
 
             <button
+                tabIndex={xPer !== 1 ? -1 : 0}
                 onClick={() => handleContinue()}
                 disabled={unactive ? true : false}
                 className={`w-full max-w-2xl mb-2 mx-auto mt-10 ${unactive ? 'bg-gray-500' : 'bg-blue-600'} text-white px-6 py-3 rounded-lg ${unactive ? 'hover:bg-gray-500' : 'hover:bg-blue-700'} ${unactive ? 'cursor-not-allowed' : 'cursor-pointer'}  transition text-center block`}
