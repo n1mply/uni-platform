@@ -27,17 +27,17 @@ export default function ContactsForm() {
         }
 
         contacts.forEach((contact, index) => {
-            if (!contact.contactName.trim()) {
+            if (!contact.name.trim()) {
                 errors.push(`Контакт ${index + 1}: Название не указано`);
             }
 
-            if (contact.contactType === "email") {
-                const res = emailSchema.safeParse(contact.contactValue);
+            if (contact.type === "email") {
+                const res = emailSchema.safeParse(contact.value);
                 if (!res.success) errors.push(`Контакт ${index + 1}: ${res.error.issues[0].message}`);
             }
 
-            if (contact.contactType === "phone") {
-                const res = phoneSchema.safeParse(contact.contactValue);
+            if (contact.type === "phone") {
+                const res = phoneSchema.safeParse(contact.value);
                 if (!res.success) errors.push(`Контакт ${index + 1}: ${res.error.issues[0].message}`);
             }
         });
@@ -58,10 +58,10 @@ export default function ContactsForm() {
             let hasPhone = false;
 
             for (let contact of contacts) {
-                if (contact.contactType === 'email' && contact.contactName && contact.contactValue) {
+                if (contact.type === 'email' && contact.name && contact.value) {
                     hasEmail = true;
                 }
-                else if (contact.contactType === 'phone' && contact.contactName && contact.contactValue) {
+                else if (contact.type === 'phone' && contact.name && contact.value) {
                     hasPhone = true;
                 }
 
@@ -77,18 +77,18 @@ export default function ContactsForm() {
     const addContact = (type: "phone" | "email") => {
         setContacts([
             ...contacts,
-            { contactName: "", contactType: type, contactValue: "" }
+            { name: "", type: type, value: "" }
         ]);
     };
 
     const updateContact = (
         index: number,
-        field: "contactName" | "contactValue" | "contactType",
+        field: "name" | "value" | "type",
         value: string | "phone" | "email"
     ) => {
         const updated = [...contacts];
 
-        if (field === "contactType") {
+        if (field === "type") {
             if (value === "phone" || value === "email") {
                 updated[index][field] = value;
             } else {
@@ -142,19 +142,19 @@ export default function ContactsForm() {
              hover:border-b hover:border-gray-400"
                             type="text"
                             tabIndex={xPer !== 1 ? -1 : 0}
-                            value={contact.contactName}
+                            value={contact.name}
                             placeholder={`Контакт ${index + 1}`}
-                            onChange={(e) => updateContact(index, "contactName", e.target.value)}
+                            onChange={(e) => updateContact(index, "name", e.target.value)}
                             id={`name-${index}`}
                         />
 
                         <FloatingInput
                             tabIndex={xPer !== 1 ? -1 : 0}
                             id={`value-${index}`}
-                            label={contact.contactType === "phone" ? "Номер телефона" : "Адрес электронной почты"}
-                            type={contact.contactType === "phone" ? "tel" : "email"}
-                            value={contact.contactValue}
-                            onChange={(val) => updateContact(index, "contactValue", val)}
+                            label={contact.type === "phone" ? "Номер телефона" : "Адрес электронной почты"}
+                            type={contact.type === "phone" ? "tel" : "email"}
+                            value={contact.value}
+                            onChange={(val) => updateContact(index, "value", val)}
                             className={'relative w-full max-w-2xl mx-auto mb-0'}
                         />
                     </div>

@@ -3,9 +3,9 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 
 export type Contact = {
-    contactName: string;
-    contactType: "phone" | "email";
-    contactValue: string;
+    name: string;
+    type: "phone" | "email";
+    value: string;
 };
 
 export type ImageState = {
@@ -14,8 +14,8 @@ export type ImageState = {
 } | null;
 
 export interface Faculty {
-  name: string;
-  iconURL: ImageState;
+    name: string;
+    iconURL: ImageState;
 }
 
 export interface Employee {
@@ -69,16 +69,16 @@ export function UniversityFormProvider({ children }: { children: ReactNode }) {
     const [departments, setDepartments] = useState<Department[]>([])
 
     return (
-        <UniversityFormContext.Provider value={{ 
-        contacts, setContacts, 
-        xPer, setXPer, 
-        fullName, setFullName, 
-        shortName, setShortName, 
-        description, setDescription, 
-        address, setAddress, 
-        image, setImage,
-        faculties, setFaculties,
-        departments, setDepartments,
+        <UniversityFormContext.Provider value={{
+            contacts, setContacts,
+            xPer, setXPer,
+            fullName, setFullName,
+            shortName, setShortName,
+            description, setDescription,
+            address, setAddress,
+            image, setImage,
+            faculties, setFaculties,
+            departments, setDepartments,
         }}>
             {children}
         </UniversityFormContext.Provider>
