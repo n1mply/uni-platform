@@ -10,6 +10,7 @@ type Props = {
   className?: string;
   error?: boolean;
   tabIndex?: number;
+  disabled?: boolean;
 };
 
 export default function FloatingInput({
@@ -21,7 +22,8 @@ export default function FloatingInput({
   required = false,
   className = '',
   error = false,
-  tabIndex = 0
+  tabIndex = 0,
+  disabled = false,
 }: Props) {
   return (
     <div className={className === '' ? "relative w-full max-w-2xl mx-auto mb-6" : className}>
@@ -32,11 +34,12 @@ export default function FloatingInput({
         required={required}
         onChange={(e) => onChange(e.target.value)}
         tabIndex={tabIndex}
-        className={`peer block w-full appearance-none border ${!error ? "border-gray-300" : "border-red-800"} rounded px-4 pt-6 pb-2 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0`}
+        disabled={disabled}
+        className={`${disabled ? 'cursor-not-allowed bg-gray-100  ' : ''} peer block w-full appearance-none border ${!error ? "border-gray-300" : "border-red-800"} rounded px-4 pt-6 pb-2 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0`}
       />
       <label
         htmlFor={id}
-        className={`absolute left-4 transition-all duration-200 select-none
+        className={`absolute left-4 transition-all duration-200 select-none pointer-events-none
       ${value
             ? 'top-2 text-sm text-blue-600'
             : 'top-3 text-base text-gray-400'

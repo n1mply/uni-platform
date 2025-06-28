@@ -13,6 +13,27 @@ export type ImageState = {
     url: string;
 } | null;
 
+export interface Faculty {
+  name: string;
+  iconURL: ImageState;
+}
+
+export interface Employee {
+    position: string;
+    academicDegree?: string;
+    fullName: string;
+    photoURL?: ImageState;
+}
+
+export interface Department {
+    name: string;
+    phone: string;
+    email: string;
+    address: string;
+    depHead?: Employee;
+}
+
+
 type UniversityFormData = {
     contacts: Contact[];
     setContacts: (contacts: Contact[]) => void;
@@ -28,6 +49,10 @@ type UniversityFormData = {
     setAddress: (address: string) => void;
     image: ImageState;
     setImage: (image: ImageState) => void;
+    faculties: Faculty[];
+    setFaculties: (faculties: Faculty[] | ((prev: Faculty[]) => Faculty[])) => void;
+    departments: Department[];
+    setDepartments: (departments: Department[] | ((prev: Department[]) => Department[])) => void;
 };
 
 const UniversityFormContext = createContext<UniversityFormData | null>(null);
@@ -40,9 +65,21 @@ export function UniversityFormProvider({ children }: { children: ReactNode }) {
     const [description, setDescription] = useState("");
     const [address, setAddress] = useState("");
     const [image, setImage] = useState<ImageState>(null);
+    const [faculties, setFaculties] = useState<Faculty[]>([])
+    const [departments, setDepartments] = useState<Department[]>([])
 
     return (
-        <UniversityFormContext.Provider value={{ contacts, setContacts, xPer, setXPer, fullName, setFullName, shortName, setShortName, description, setDescription, address, setAddress, image, setImage}}>
+        <UniversityFormContext.Provider value={{ 
+        contacts, setContacts, 
+        xPer, setXPer, 
+        fullName, setFullName, 
+        shortName, setShortName, 
+        description, setDescription, 
+        address, setAddress, 
+        image, setImage,
+        faculties, setFaculties,
+        departments, setDepartments,
+        }}>
             {children}
         </UniversityFormContext.Provider>
     );

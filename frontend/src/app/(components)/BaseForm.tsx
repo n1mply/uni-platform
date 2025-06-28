@@ -39,7 +39,7 @@ export default function BaseForm() {
                 fields[1]=true
             }
             if (!info && index === 2) {
-                errors.push('Укажите адресс (например: Минск, )')
+                errors.push('Укажите адресс (например: 246746, Республика Беларусь, г. Гомель, пр-т Декабря, 62, корпус 2, каб. 351)')
                 fields[2]=true
             }
             if (!info && index === 3) {
@@ -78,7 +78,7 @@ export default function BaseForm() {
                         className="bg-red-100 text-red-800 p-4 rounded w-full max-w-2xl mx-auto mt-4 mb-7 text-left shadow"
                     >
                         <h2 className="font-bold mb-2">Пожалуйста, исправьте ошибки:</h2>
-                        <ul className="list-disc list-inside text-sm space-y-1">
+                        <ul className="list-disc list-inside text-sm space-y-1 w-[75%]">
                             {errorMessages.map((msg, i) => (
                                 <motion.li
                                     key={i}
@@ -101,26 +101,30 @@ export default function BaseForm() {
                 value={fullName}
                 onChange={setFullName}
                 required
-                error={errorFields[0]} />
+                error={errorFields[0]}
+                tabIndex={xPer !== 1 ? -1 : 0} />
             <FloatingInput
                 id="shortName"
                 label="Сокращённое название"
                 value={shortName}
                 onChange={setShortName}
                 required
-                error={errorFields[1]} />
+                error={errorFields[1]}
+                tabIndex={xPer !== 0 ? -1 : 0} />
             <FloatingInput
                 id="address"
                 label="Полный адрес"
                 value={address}
                 onChange={setAddress}
                 error={errorFields[2]}
+                tabIndex={xPer !== 0 ? -1 : 0}
             />
             <div className="relative w-full max-w-2xl mx-auto mb-6">
                 <textarea
                     id="description"
                     rows={4}
                     value={description}
+                    tabIndex={xPer !== 0 ? -1 : 0}
                     onChange={(e) => setDescription(e.target.value)}
                     className={`peer block w-full border ${!errorFields[3]? "border-gray-300" : "border-red-800"} rounded px-4 pt-8 pb-2 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 resize-none`}
                     placeholder=" "
@@ -144,6 +148,7 @@ export default function BaseForm() {
 
             <button
                 onClick={() => handleContinue()}
+                tabIndex={xPer !== 0 ? -1 : 0}
                 className={`w-full max-w-2xl mb-2 mx-auto mt-10 ${unactive ? 'bg-gray-500' : 'bg-blue-600'} text-white px-6 py-3 rounded-lg ${unactive ? 'hover:bg-gray-500' : 'hover:bg-blue-700'} cursor-pointer  transition text-center block`}
             >
                 Далее

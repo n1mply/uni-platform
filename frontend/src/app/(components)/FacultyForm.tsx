@@ -2,26 +2,22 @@
 import { useState, useEffect } from "react"
 import FloatingInput from "@/app/(components)/FloatingInput";
 import { useUniversityForm } from "@/app/(context)/UniversityFormContext";
+import { Faculty } from "@/app/(context)/UniversityFormContext";
 import DragNDrop from "@/app/(components)/DragNDrop";
 import { BriefcaseBusiness, X, BookDashed } from 'lucide-react'
 
 
-interface Faculty {
-  facultyName: string;
-  facultyIconURL: string;
-}
-
 export default function FacultyForm() {
   const { xPer, setXPer } = useUniversityForm();
   const { image, setImage } = useUniversityForm()
-  const [faculties, setFaculties] = useState<Faculty[]>([])
-  const [facultyName, setFacultyName] = useState('')
+  const { faculties, setFaculties } = useUniversityForm()
+  const [name, setName] = useState('')
   const [unactive, setUnactive] = useState(true)
   const [nextStep, setNextStep] = useState(false)
 
   useEffect(() => {
     const validateForm = async () => {
-      if (facultyName && image) {
+      if (name && image) {
         console.log(image)
         setUnactive(false)
       }
@@ -31,7 +27,7 @@ export default function FacultyForm() {
     }
 
     validateForm()
-  }, [facultyName, image])
+  }, [name, image])
 
   useEffect(() => {
     const validateFaculties = async () => {
@@ -53,16 +49,22 @@ export default function FacultyForm() {
     }
   }
 
+  const deleteFaculties = (index: number) => {
+    setFaculties(prevFaculties =>
+      prevFaculties.filter((_, i) => i !== index)
+    );
+  };
+
   const updateFaculties = () => {
 
-    if (image && facultyName.trim()) {
+    if (image && name.trim()) {
       const newFaculty: Faculty = {
-        facultyName: facultyName,
-        facultyIconURL: image.url,
+        name: name,
+        iconURL: image,
       };
 
       setFaculties((prevFaculties) => [...prevFaculties, newFaculty]);
-      setFacultyName('');
+      setName('');
       setImage(null)
 
     } else {
@@ -91,14 +93,14 @@ export default function FacultyForm() {
           id={`name`}
           label={'Название факультета'}
           type={'text'}
-          value={facultyName}
-          onChange={e => setFacultyName(e)}
+          value={name}
+          onChange={e => setName(e)}
         />
         <button
           tabIndex={xPer !== 1 ? -1 : 0}
           onClick={() => updateFaculties()}
           disabled={unactive ? true : false}
-          className={`w-full max-w-2xl mb-2 mx-auto ${unactive ? 'bg-gray-500' : 'bg-blue-600'} text-white px-6 py-3 rounded-lg ${unactive ? 'hover:bg-gray-500' : 'hover:bg-blue-700'} ${unactive ? 'cursor-not-allowed' : 'cursor-pointer'}  transition text-center block`}
+          className={`w-full max-w-2xl mb-2 mx-auto ${unactive ? 'bg-gray-500' : 'bg-blue-600 active:scale-[0.99]'} text-white px-6 py-3 rounded-lg ${unactive ? 'hover:bg-gray-500' : 'hover:bg-blue-700'} ${unactive ? 'cursor-not-allowed' : 'cursor-pointer'}  transition text-center block`}
         >
           Добавить факультет
         </button>
@@ -106,7 +108,7 @@ export default function FacultyForm() {
           tabIndex={xPer !== 1 ? -1 : 0}
           onClick={() => handleContinue()}
           disabled={!nextStep ? true : false}
-          className={`w-full max-w-2xl mb-2 mx-auto mt-18 ${!nextStep ? 'bg-gray-500' : 'bg-blue-600'} text-white px-6 py-3 rounded-lg ${!nextStep ? 'hover:bg-gray-500' : 'hover:bg-blue-700'} ${!nextStep ? 'cursor-not-allowed' : 'cursor-pointer'}  transition text-center block`}
+          className={`w-full max-w-2xl mb-2 mx-auto mt-18 ${!nextStep ? 'bg-gray-500' : 'bg-blue-600 active:scale-[0.99]'} text-white px-6 py-3 rounded-lg ${!nextStep ? 'hover:bg-gray-500' : 'hover:bg-blue-700'} ${!nextStep ? 'cursor-not-allowed' : 'cursor-pointer'}  transition text-center block`}
         >
           Продолжить
         </button>
@@ -121,27 +123,27 @@ export default function FacultyForm() {
         <div className={`h-[500px] ${faculties.length === 0 ? 'overflow-y-auto' : 'overflow-y-scroll'} `}>
           {faculties.length === 0 ? (
             <div className="flex flex-col justify-center items-center h-full">
-              <BookDashed color="#4a5565" size={98}  className="mx-auto"/>
+              <BookDashed color="#4a5565" size={98} className="mx-auto" />
               <p className="text-lg text-gray-600 mb-8 text-center mt-3">Список факультетов пока пуст</p>
             </div>
           ) : (
             faculties.map((f, i) => (
               <div
                 key={i}
-                className="flex items-center bg-white rounded-lg p-4 mb-4 shadow-sm"
+                className="flex items-cente bg-white relative rounded-lg shadow-sm border mb-4 border-gray-200 p-4 hover:shadow-md transition-shadow"
               >
                 <div className="w-16 h-16 flex-shrink-0 mr-4">
-                  <img src={f.facultyIconURL} alt={f.facultyName} width={64} height={64} className="rounded" />
+                  <img src={f.iconURL?.url} alt={f.name} width={64} height={64} className="rounded" />
                 </div>
                 <div className="flex-1 text-left">
-                  <h3 className="font-medium">{f.facultyName}</h3>
+                  <h3 className="font-medium">{f.name}</h3>
                   <div className="flex gap-2 items-center">
                     <BriefcaseBusiness color="#6a7282" size={18} />
                     <p className="text-sm text-gray-500 font-medium">3 специальности</p>
                   </div>
                   <a href="#" className="text-blue-600 text-sm hover:underline">Подробнее</a>
                 </div>
-                <button >
+                <button onClick={()=>deleteFaculties(i)} >
                   <X />
                 </button>
               </div>
