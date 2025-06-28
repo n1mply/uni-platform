@@ -6,8 +6,8 @@ export default function WrapperForm({ children }: { children: ReactNode }) {
 
     return (
         <main className="w-[100%] min-h-[100vh] overflow-x-hidden overflow-y-auto relative">
-        <div className={` w-[500%] min-h-[100vh] flex overflow-x-hidden mt-6 transition-transform duration-500 ease-in-out`}
-            style={{ transform: `translateX(${-(xPer)*20}%)` }}>
+        <div className={` w-[600%] min-h-[100vh] flex overflow-x-hidden mt-6 transition-transform duration-500 ease-in-out`}
+            style={{ transform: `translateX(${-(xPer)*16.6666667}%)` }}>
             {children}
         </div>
         </main>

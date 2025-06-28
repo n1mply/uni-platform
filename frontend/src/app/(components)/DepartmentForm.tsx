@@ -97,7 +97,7 @@ export default function DepartmentForm() {
                 />
                 <FloatingInput
                     tabIndex={xPer !== 3 ? -1 : 0}
-                    id={`name`}
+                    id={`phone`}
                     label={'Телефон'}
                     type={'tel'}
                     value={phone}
@@ -106,7 +106,7 @@ export default function DepartmentForm() {
                 />
                 <FloatingInput
                     tabIndex={xPer !== 3 ? -1 : 0}
-                    id={`name`}
+                    id={`email`}
                     label={'Адрес электронной почты'}
                     type={'email'}
                     value={email}
@@ -115,8 +115,8 @@ export default function DepartmentForm() {
                 />
                 <FloatingInput
                     tabIndex={xPer !== 3 ? -1 : 0}
-                    id={`name`}
-                    label={'Адресс'}
+                    id={`adres`}
+                    label={'Адрес'}
                     type={'text'}
                     value={address}
                     onChange={e => setAddress(e)}
@@ -124,7 +124,7 @@ export default function DepartmentForm() {
                 />
                 <FloatingInput
                     tabIndex={xPer !== 3 ? -1 : 0}
-                    id={`name`}
+                    id={`head`}
                     label={'Заведующий кафедрой'}
                     type={'text'}
                     value={''}

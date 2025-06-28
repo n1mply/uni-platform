@@ -6,6 +6,7 @@ import BaseForm from '@/app/(components)/BaseForm';
 import FacultyForm from '@/app/(components)/FacultyForm';
 import DepartmentForm from '../(components)/DepartmentForm';
 import EmployeeForm from '../(components)/EmployeeForm';
+import UniversityFinalForm from '../(components)/UniversityFinalForm';
 import { UniversityFormProvider } from "@/app/(context)/UniversityFormContext";
 
 
@@ -14,11 +15,12 @@ export default function Signup() {
     return (
         <UniversityFormProvider>
             <WrapperForm>
+                <UniversityFinalForm />
+                <EmployeeForm />
                 <BaseForm />
                 <ContactsForm />
                 <FacultyForm />
                 <DepartmentForm />
-                <EmployeeForm />
             </WrapperForm>
         </UniversityFormProvider>
     );

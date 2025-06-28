@@ -20,8 +20,9 @@ export interface Faculty {
 
 export interface Employee {
     position: string;
-    academicDegree?: string;
+    academicDegree: string;
     fullName: string;
+    isDepHead?: boolean;
     photoURL?: ImageState;
 }
 
@@ -53,6 +54,8 @@ type UniversityFormData = {
     setFaculties: (faculties: Faculty[] | ((prev: Faculty[]) => Faculty[])) => void;
     departments: Department[];
     setDepartments: (departments: Department[] | ((prev: Department[]) => Department[])) => void;
+    employee: Employee[];
+    setEmployee: (employee: Employee[] | ((prev: Employee[]) => Employee[])) => void;
 };
 
 const UniversityFormContext = createContext<UniversityFormData | null>(null);
@@ -66,7 +69,13 @@ export function UniversityFormProvider({ children }: { children: ReactNode }) {
     const [address, setAddress] = useState("");
     const [image, setImage] = useState<ImageState>(null);
     const [faculties, setFaculties] = useState<Faculty[]>([])
-    const [departments, setDepartments] = useState<Department[]>([])
+    const [departments, setDepartments] = useState<Department[]>([{
+        name: 'Информатика',
+        phone: '+3759927661788',
+        email: 'eugheu@nf.ssa',
+        address: 'dwdawdawd',
+    }])
+    const [employee, setEmployee] = useState<Employee[]>([])
 
     return (
         <UniversityFormContext.Provider value={{
@@ -79,6 +88,7 @@ export function UniversityFormProvider({ children }: { children: ReactNode }) {
             image, setImage,
             faculties, setFaculties,
             departments, setDepartments,
+            employee, setEmployee
         }}>
             {children}
         </UniversityFormContext.Provider>

@@ -1,17 +1,10 @@
 @import "tailwindcss";
 
-
-.signup-container {
-    width: 100%;
-    min-height: 100vh;
-    overflow-x: hidden; 
-    overflow-y: auto; 
-    position: relative;
+.scrollbar-hidden {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
 }
 
-.steps-wrapper {
-    display: flex;
-    width: 300%;
-    min-height: 100vh;
-    transition: transform 0.8s cubic-bezier(0.4, 0.0, 0.2, 1);
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
 }
