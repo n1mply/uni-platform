@@ -5,6 +5,7 @@ import { useUniversityForm } from "@/app/(context)/UniversityFormContext";
 import { Faculty } from "@/app/(context)/UniversityFormContext";
 import DragNDrop from "@/app/(components)/DragNDrop";
 import { BriefcaseBusiness, X, BookDashed } from 'lucide-react'
+import generateTag from "../(hooks)/generateTag";
 
 
 export default function FacultyForm() {
@@ -12,6 +13,7 @@ export default function FacultyForm() {
   const { image, setImage } = useUniversityForm()
   const { faculties, setFaculties } = useUniversityForm()
   const [name, setName] = useState('')
+  const [tag, setTag] = useState('')
   const [unactive, setUnactive] = useState(true)
   const [nextStep, setNextStep] = useState(false)
 
@@ -28,6 +30,13 @@ export default function FacultyForm() {
 
     validateForm()
   }, [name, image])
+
+  useEffect(()=>{
+    const createTag = async() =>{
+      generateTag(name, setTag)
+    }
+    createTag()
+  }, [name])
 
   useEffect(() => {
     const validateFaculties = async () => {
@@ -60,11 +69,13 @@ export default function FacultyForm() {
     if (image && name.trim()) {
       const newFaculty: Faculty = {
         name: name,
+        tag: tag,
         iconURL: image,
       };
 
       setFaculties((prevFaculties) => [...prevFaculties, newFaculty]);
       setName('');
+      setTag('');
       setImage(null)
 
     } else {
@@ -82,37 +93,48 @@ export default function FacultyForm() {
           Вы можете создать несколько факультетов
         </p>
         <div className="flex items-start gap-5">
-          <DragNDrop />
+          <DragNDrop tabIndex={xPer !== 2 ? -1 : 0} />
           <p className="text-gray-600 text-left w-2/3 mt-0">
             Добавьте иконку факультету<br />
             Перетащите её сюда или нажмите, чтобы выбрать. Доступен предпросмотр
           </p>
         </div>
         <FloatingInput
-          tabIndex={xPer !== 1 ? -1 : 0}
+          tabIndex={xPer !== 2 ? -1 : 0}
           id={`name`}
           label={'Название факультета'}
           type={'text'}
           value={name}
           onChange={e => setName(e)}
         />
+        <FloatingInput
+          tabIndex={xPer !== 2 ? -1 : 0}
+          id={`name`}
+          label={'Индентификатор факультета'}
+          type={'text'}
+          value={tag}
+          onChange={e => setTag(e)}
+        />
+        <p className="text-s ml-2 mb-4 text-gray-600 text-left">
+          Этот тэг будет использоваться в URL адресе для поиска и отображеиния вашего факультета
+        </p>
         <button
-          tabIndex={xPer !== 1 ? -1 : 0}
+          tabIndex={xPer !== 2 ? -1 : 0}
           onClick={() => updateFaculties()}
           disabled={unactive ? true : false}
-          className={`w-full max-w-2xl mb-2 mx-auto ${unactive ? 'bg-gray-500' : 'bg-blue-600 active:scale-[0.99]'} text-white px-6 py-3 rounded-lg ${unactive ? 'hover:bg-gray-500' : 'hover:bg-blue-700'} ${unactive ? 'cursor-not-allowed' : 'cursor-pointer'}  transition text-center block`}
+          className={`w-full max-w-2xl mx-auto ${unactive ? 'bg-gray-500' : 'bg-blue-600 active:scale-[0.99]'} text-white px-6 py-3 rounded-lg ${unactive ? 'hover:bg-gray-500' : 'hover:bg-blue-700'} ${unactive ? 'cursor-not-allowed' : 'cursor-pointer'}  transition text-center block`}
         >
           Добавить факультет
         </button>
         <button
-          tabIndex={xPer !== 1 ? -1 : 0}
+          tabIndex={xPer !== 2 ? -1 : 0}
           onClick={() => handleContinue()}
           disabled={!nextStep ? true : false}
-          className={`w-full max-w-2xl mb-2 mx-auto mt-18 ${!nextStep ? 'bg-gray-500' : 'bg-blue-600 active:scale-[0.99]'} text-white px-6 py-3 rounded-lg ${!nextStep ? 'hover:bg-gray-500' : 'hover:bg-blue-700'} ${!nextStep ? 'cursor-not-allowed' : 'cursor-pointer'}  transition text-center block`}
+          className={`w-full max-w-2xl mb-2 mx-auto mt-5 ${!nextStep ? 'bg-gray-500' : 'bg-blue-600 active:scale-[0.99]'} text-white px-6 py-3 rounded-lg ${!nextStep ? 'hover:bg-gray-500' : 'hover:bg-blue-700'} ${!nextStep ? 'cursor-not-allowed' : 'cursor-pointer'}  transition text-center block`}
         >
           Продолжить
         </button>
-        <p className="text-m text-gray-600 mb-8 text-left">Для продолжения создайте минимум один факультет, в будущем вы сможете добавить больше и создать кафедры со специальностями </p>
+        <p className="text-s ml-2 text-gray-600 mb-8 text-left">Для продолжения создайте минимум один факультет, в будущем вы сможете добавить больше и создать кафедры со специальностями </p>
       </div>
 
       <div className="w-1/2">
@@ -137,13 +159,13 @@ export default function FacultyForm() {
                 </div>
                 <div className="flex-1 text-left">
                   <h3 className="font-medium">{f.name}</h3>
+                   <p className="text-blue-600 text-s">@{f.tag}</p>
                   <div className="flex gap-2 items-center">
                     <BriefcaseBusiness color="#6a7282" size={18} />
-                    <p className="text-sm text-gray-500 font-medium">3 специальности</p>
+                    <p className="text-s text-gray-500 font-medium">3 специальности</p>
                   </div>
-                  <a href="#" className="text-blue-600 text-sm hover:underline">Подробнее</a>
                 </div>
-                <button onClick={()=>deleteFaculties(i)} >
+                <button tabIndex={xPer !== 2 ? -1 : 0} onClick={() => deleteFaculties(i)} >
                   <X />
                 </button>
               </div>

@@ -2,9 +2,12 @@ import { useState, useRef, useCallback } from 'react';
 import { Inbox, Trash2 } from 'lucide-react';
 import { useUniversityForm } from "@/app/(context)/UniversityFormContext";
 
+type DragConfig = {
+    tabIndex?: number;
+}
 
-export default function DragNDrop() {
-    const {image, setImage} = useUniversityForm()
+export default function DragNDrop({ tabIndex }: DragConfig) {
+    const { image, setImage } = useUniversityForm()
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -79,6 +82,7 @@ export default function DragNDrop() {
                 onChange={onFileChange}
                 className="hidden"
                 accept="image/*"
+                tabIndex={tabIndex}
             />
 
             {image ? (
@@ -89,6 +93,7 @@ export default function DragNDrop() {
                         className="max-h-full max-w-full object-contain rounded-lg"
                     />
                     <button
+                        tabIndex={tabIndex}
                         onClick={(e) => {
                             e.stopPropagation();
                             removeImage();

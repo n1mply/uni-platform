@@ -15,12 +15,12 @@ export default function Signup() {
     return (
         <UniversityFormProvider>
             <WrapperForm>
-                <UniversityFinalForm />
-                <EmployeeForm />
                 <BaseForm />
                 <ContactsForm />
                 <FacultyForm />
                 <DepartmentForm />
+                <EmployeeForm />
+                <UniversityFinalForm />
             </WrapperForm>
         </UniversityFormProvider>
     );

@@ -1,6 +1,7 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useMemo } from "react";
+import generateTag from "../(hooks)/generateTag";
 
 export type Contact = {
     name: string;
@@ -15,6 +16,7 @@ export type ImageState = {
 
 export interface Faculty {
     name: string;
+    tag: string;
     iconURL: ImageState;
 }
 
@@ -56,7 +58,37 @@ type UniversityFormData = {
     setDepartments: (departments: Department[] | ((prev: Department[]) => Department[])) => void;
     employee: Employee[];
     setEmployee: (employee: Employee[] | ((prev: Employee[]) => Employee[])) => void;
+    universityTag: string;
+    setUniversityTag: (universityTag: string) => void;
+    generatedPassword: string;
+    setGeneratedPassword: (generatedPassword: string) => void;
 };
+
+
+type University = {
+    baseInfo: {
+        fullName: string;
+        shortName: string;
+        description: string;
+        address: string;
+        image: ImageState;
+        universityTag: string;
+        contacts: Contact[];
+    };
+    structure: {
+        faculties: Faculty[];
+        departments: Department[];
+    };
+    employees: Employee[];
+    credentials: {
+        generatedPassword: string;
+    };
+    meta?: {
+        createdAt?: Date;
+        updatedAt?: Date;
+    };
+};
+
 
 const UniversityFormContext = createContext<UniversityFormData | null>(null);
 
@@ -69,27 +101,39 @@ export function UniversityFormProvider({ children }: { children: ReactNode }) {
     const [address, setAddress] = useState("");
     const [image, setImage] = useState<ImageState>(null);
     const [faculties, setFaculties] = useState<Faculty[]>([])
-    const [departments, setDepartments] = useState<Department[]>([{
-        name: 'Информатика',
-        phone: '+3759927661788',
-        email: 'eugheu@nf.ssa',
-        address: 'dwdawdawd',
-    }])
+    const [departments, setDepartments] = useState<Department[]>([])
     const [employee, setEmployee] = useState<Employee[]>([])
+    const [universityTag, setUniversityTag] = useState<string>("");
+    const [generatedPassword, setGeneratedPassword] = useState("");
+
+    useMemo(() => {
+        if (fullName) {
+            const tag = generateTag(fullName) || "";
+            setUniversityTag(tag);
+        }
+    }, [fullName]);
+
+    const value = useMemo(() => ({
+        contacts, setContacts,
+        xPer, setXPer,
+        fullName, setFullName,
+        shortName, setShortName,
+        description, setDescription,
+        address, setAddress,
+        image, setImage,
+        faculties, setFaculties,
+        departments, setDepartments,
+        employee, setEmployee,
+        universityTag, setUniversityTag,
+        generatedPassword, setGeneratedPassword
+    }), [
+        contacts, xPer, fullName, shortName,
+        description, address, image, faculties,
+        departments, employee, universityTag, generatedPassword
+    ]);
 
     return (
-        <UniversityFormContext.Provider value={{
-            contacts, setContacts,
-            xPer, setXPer,
-            fullName, setFullName,
-            shortName, setShortName,
-            description, setDescription,
-            address, setAddress,
-            image, setImage,
-            faculties, setFaculties,
-            departments, setDepartments,
-            employee, setEmployee
-        }}>
+        <UniversityFormContext.Provider value={value}>
             {children}
         </UniversityFormContext.Provider>
     );

@@ -136,7 +136,7 @@ export default function DepartmentForm() {
                     Сотрудники пока не созданы, скоро Вы сможете это сделать
                 </p>
                 <button
-                    tabIndex={xPer !== 1 ? -1 : 0}
+                    tabIndex={xPer !== 3 ? -1 : 0}
                     onClick={() => updateDepartments()}
                     className={`w-full max-w-2xl mt-2 mb-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 cursor-pointer active:scale-[0.99] transition text-center block`}
                 >
@@ -145,7 +145,7 @@ export default function DepartmentForm() {
                 <p className="text-s text-gray-600 text-left">Вы можете пропустить этот этап и создать кафедры, позже, в админ-панели</p>
                 <div className="w-full max-w-2xl flex justify-center items-center gap-2">
                     <button
-                        tabIndex={xPer !== 1 ? -1 : 0}
+                        tabIndex={xPer !== 3 ? -1 : 0}
                         onClick={() => skipStep()}
                         disabled={unactive ? false : true}
                         className={`w-1/2 max-w-2xl mt-2 mb-2  ${!unactive ? 'bg-gray-500' : 'bg-blue-600'} text-white px-6 py-3 rounded-lg ${!unactive ? 'hover:bg-gray-500' : 'hover:bg-blue-700'} ${!unactive ? 'cursor-not-allowed' : 'cursor-pointer active:scale-[0.99]'} transition text-center block`}
@@ -153,7 +153,7 @@ export default function DepartmentForm() {
                         Пропустить
                     </button>
                     <button
-                        tabIndex={xPer !== 1 ? -1 : 0}
+                        tabIndex={xPer !== 3 ? -1 : 0}
                         onClick={() => nextStep()}
                         disabled={unactive ? true : false}
                         className={`w-1/2 max-w-2xl mt-2 mb-2  ${unactive ? 'bg-gray-500' : 'bg-blue-600'} text-white px-6 py-3 rounded-lg ${unactive ? 'hover:bg-gray-500' : 'hover:bg-blue-700'} ${unactive ? 'cursor-not-allowed' : 'cursor-pointer active:scale-[0.99]'}  transition text-center block`}
@@ -197,6 +197,7 @@ export default function DepartmentForm() {
                                         </div>
                                         <a
                                             href={`mailto:${d.email}`}
+                                            tabIndex={xPer !== 3 ? -1 : 0}
                                             className="flex items-center text-sm text-gray-600 hover:text-blue-500 transition-colors"
                                         >
                                             <AtSign className="w-4 h-4 mr-2 text-gray-400" />
@@ -225,7 +226,7 @@ export default function DepartmentForm() {
                                     </div>
                                 </div>
 
-                                <button onClick={() => deleteDepartment(i)} className="absolute top-4 right-4">
+                                <button tabIndex={xPer !== 3 ? -1 : 0} onClick={() => deleteDepartment(i)} className="absolute top-4 right-4">
                                     <X />
                                 </button>
                             </div>

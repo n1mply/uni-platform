@@ -151,7 +151,7 @@ export default function EmployeeForm() {
                     </p>
                 </div>
                 <FloatingInput
-                    tabIndex={xPer !== 0 ? -1 : 0}
+                    tabIndex={xPer !== 4 ? -1 : 0}
                     id={`fullName`}
                     label={'ФИО'}
                     type={'text'}
@@ -161,6 +161,7 @@ export default function EmployeeForm() {
                 />
                 <SmartSelect
                     options={positions}
+                    tabIndex={xPer !== 4 ? -1 : 0}
                     id={'positions'}
                     label="Должность"
                     value={position}
@@ -168,6 +169,7 @@ export default function EmployeeForm() {
                 />
                 <SmartSelect
                     options={degrees}
+                    tabIndex={xPer !== 4 ? -1 : 0}
                     id={'positions'}
                     label="Учёная степень"
                     value={academicDegree}
@@ -178,6 +180,7 @@ export default function EmployeeForm() {
                     <p className="text-s text-gray-600 text-left">Назначить заведующим кафедры:</p>
                     <button
                         onClick={() => togleButton()}
+                        tabIndex={xPer !== 4 ? -1 : 0}
                         className={`relative flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${enabled ? 'bg-blue-600' : 'bg-gray-300'
                             }`}
                     >
@@ -197,7 +200,7 @@ export default function EmployeeForm() {
                     />
                 ) : (<div></div>)}
                 <button
-                    tabIndex={xPer !== 1 ? -1 : 0}
+                    tabIndex={xPer !== 4 ? -1 : 0}
                     onClick={() => updateEmployee()}
                     className={`w-full max-w-2xl mt-2 mb-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 cursor-pointer active:scale-[0.99] transition text-center block`}
                 >
@@ -207,7 +210,7 @@ export default function EmployeeForm() {
                     Для продолжения, добавьте хотя бы ректора
                 </p>
                 <button
-                    tabIndex={xPer !== 1 ? -1 : 0}
+                    tabIndex={xPer !== 4 ? -1 : 0}
                     onClick={() => validateEmployeers()}
                     disabled={unactive ? true : false}
                     className={`w-full max-w-2xl mb-2 mt-3 ${unactive ? 'bg-gray-500' : 'bg-blue-600'} text-white px-6 py-3 rounded-lg ${unactive ? 'hover:bg-gray-500' : 'hover:bg-blue-700'} ${unactive ? 'cursor-not-allowed' : 'cursor-pointer active:scale-[0.99]'}  transition text-center block`}
