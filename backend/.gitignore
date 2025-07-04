@@ -1,0 +1,16 @@
+# Файлы окружения
+.env
+.env.local
+.env.*
+*.env
+secrets.ini
+config.ini
+config.yml
+config.yaml
+Lib
+Scripts
+pyvenv.cfg
+
+__pycache__/
+*.py[cod]
+*$py.class
