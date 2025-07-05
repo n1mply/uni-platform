@@ -20,7 +20,6 @@ export default function FacultyForm() {
   useEffect(() => {
     const validateForm = async () => {
       if (name && image) {
-        console.log(image)
         setUnactive(false)
       }
       else {

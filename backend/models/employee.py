@@ -15,7 +15,7 @@ class Employee(Base):
     # Связь с Department (явно указываем foreign_keys)
     department_id: Mapped[int] = mapped_column(
         ForeignKey("departments.id", ondelete="CASCADE"), 
-        nullable=False
+        nullable=True
     )
     department: Mapped["Department"] = relationship(
         "Department", 

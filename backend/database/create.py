@@ -1,4 +1,6 @@
 import asyncio
+import pprint
+from sqlite3 import IntegrityError
 from sqlalchemy import inspect, select
 from security.password import hash_password
 from db import init_db, AsyncSessionLocal, engine
@@ -8,7 +10,7 @@ from models.faculty import Faculty
 from models.department import Department
 from models.employee import Employee
 from models.credentials import UniversityCredentials
-from schemas.university import UniversityModel
+from schemas.university_schema import UniversityModel
 
 async def check_tables_exist():
     """Проверка существования таблиц через асинхронный inspect"""
@@ -33,6 +35,7 @@ async def create_university(data: UniversityModel):
                 raise ValueError(f"Университет с тегом '{data.baseInfo.universityTag}' уже существует")
 
             # 🔹 Университет
+            pprint.pprint(data)
             uni = University(
                 full_name=data.baseInfo.fullName,
                 short_name=data.baseInfo.shortName,
@@ -88,7 +91,7 @@ async def create_university(data: UniversityModel):
                     academic_degree=e.academicDegree,
                     is_dep_head=e.isDepHead or False,
                     photo_path=e.photoURL.url if e.photoURL else None,
-                    department_id=None,  # можно назначить позже
+                    department_id=None,
                     university_id=uni.id
                 ) for e in data.employees
             ]

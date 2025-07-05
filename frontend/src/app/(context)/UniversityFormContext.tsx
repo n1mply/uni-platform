@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode, useMemo } from "react";
+import { createContext, useContext, useState, ReactNode, useMemo, useEffect } from "react";
 import generateTag from "../(hooks)/generateTag";
 
 export type Contact = {
@@ -105,6 +105,64 @@ export function UniversityFormProvider({ children }: { children: ReactNode }) {
     const [employee, setEmployee] = useState<Employee[]>([])
     const [universityTag, setUniversityTag] = useState<string>("");
     const [generatedPassword, setGeneratedPassword] = useState("");
+
+
+
+    useEffect(() => {
+        const createUniversity = async (): Promise<void> => {
+            if (xPer >= 6) {
+                try {
+                    // Собираем объект с данными из состояния
+                    const universityData = {
+                        baseInfo: {
+                            fullName,
+                            shortName,
+                            description,
+                            address,
+                            image,
+                            universityTag,
+                            contacts
+                        },
+                        structure: {
+                            faculties,
+                            departments
+                        },
+                        employees: employee,
+                        credentials: {
+                            generatedPassword
+                        },
+                        meta: {
+                            createdAt: new Date(),
+                            updatedAt: new Date()
+                        }
+                    };
+
+                    console.log("Отправляемые данные:", JSON.stringify(universityData, null, 2));
+
+                    const response = await fetch('/api/auth/signup/university', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(universityData)
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        console.error("Ошибка валидации:", errorData);
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    console.log('University created successfully:', data);
+                } catch (error) {
+                    console.error('Error creating university:', error);
+                }
+            }
+        };
+
+        createUniversity();
+    }, [xPer, fullName, shortName, description, address, image, universityTag, contacts, faculties, departments, employee, generatedPassword]);
 
     useMemo(() => {
         if (fullName) {

@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from "react";
 import { Clipboard, Check, ShieldAlert, Hash, RefreshCw } from "lucide-react";
 import { useUniversityForm } from "../(context)/UniversityFormContext";
