@@ -1,8 +1,6 @@
 from sqlalchemy import ForeignKey, String
-from database import Base
+from db import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from university import University
-from employee import Employee
 
 class Department(Base):
     __tablename__ = "departments"
@@ -18,4 +16,10 @@ class Department(Base):
 
     head_id: Mapped[int | None] = mapped_column(ForeignKey("employees.id", ondelete="SET NULL"), nullable=True)
     head: Mapped["Employee"] = relationship("Employee", foreign_keys=[head_id])
-
+    
+    # Отношение с сотрудниками (явно указываем foreign_keys)
+    employees: Mapped[list["Employee"]] = relationship(
+        "Employee", 
+        back_populates="department",
+        foreign_keys="[Employee.department_id]"  # Явное указание ключа
+    )

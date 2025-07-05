@@ -26,10 +26,24 @@ async def init_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     print("Таблицы созданы")
+    
+async def reset_db():
+    async with engine.begin() as conn:
+        from models.university import University
+        from models.contact import Contact, ContactTypeEnum
+        from models.faculty import Faculty
+        from models.department import Department
+        from models.employee import Employee
+        from models.credentials import UniversityCredentials
+        
+        
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
+    print("Таблицы удалены")
 
 async def main():
     await create_database()
-    await init_db()
+    # await reset_db()
 
 if __name__ == "__main__":
     asyncio.run(main())

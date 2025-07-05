@@ -1,8 +1,7 @@
 import enum
-from database import Base
+from db import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, ForeignKey, Enum
-from university import University
 
 class ContactTypeEnum(str, enum.Enum):
     phone = "phone"
@@ -19,4 +18,5 @@ class Contact(Base):
     university_id: Mapped[int] = mapped_column(
         ForeignKey("universities.id", ondelete="CASCADE"), nullable=False
     )
+    # Используем строку вместо прямого импорта
     university: Mapped["University"] = relationship("University", back_populates="contacts")

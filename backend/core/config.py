@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     db_password: str = "441788"
     db_host: str = "localhost"
     db_port: str = "5432"
-    db_name: str = "uniplaform"
+    db_name: str = "uniplatform"
 
     @property
     def sync_url(self):

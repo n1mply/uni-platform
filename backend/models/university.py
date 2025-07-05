@@ -1,12 +1,7 @@
 from datetime import datetime
-from database import Base
+from db import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, text
-from contact import Contact
-from department import Department
-from employee import Employee
-from faculty import Faculty
-
 
 class University(Base):
     __tablename__ = "universities"
@@ -25,10 +20,15 @@ class University(Base):
         onupdate=datetime.utcnow
     )
 
+    # Используем строки вместо прямых импортов
     contacts: Mapped[list["Contact"]] = relationship("Contact", back_populates="university", cascade="all, delete-orphan")
     faculties: Mapped[list["Faculty"]] = relationship("Faculty", back_populates="university", cascade="all, delete-orphan")
     departments: Mapped[list["Department"]] = relationship("Department", back_populates="university", cascade="all, delete-orphan")
     employees: Mapped[list["Employee"]] = relationship("Employee", back_populates="university", cascade="all, delete-orphan")
-
-
-
+    
+    credentials: Mapped["UniversityCredentials"] = relationship(
+        "UniversityCredentials",
+        back_populates="university",
+        uselist=False,
+        cascade="all, delete-orphan"
+)

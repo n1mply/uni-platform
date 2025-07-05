@@ -1,7 +1,6 @@
-from sqlalchemy import Boolean, String, Integer, ForeignKey
-from database import Base
+from sqlalchemy import Boolean, String, ForeignKey
+from db import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from department import Department
 
 class Employee(Base):
     __tablename__ = 'employees'
@@ -11,12 +10,22 @@ class Employee(Base):
     position: Mapped[str] = mapped_column(String(100), nullable=False)
     academic_degree: Mapped[str] = mapped_column(String(100), nullable=False)
     is_dep_head: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    image: Mapped[str] = mapped_column(String(255), nullable=True)
+    photo_path: Mapped[str] = mapped_column(String(255), nullable=True)
 
+    # Связь с Department (явно указываем foreign_keys)
     department_id: Mapped[int] = mapped_column(
-        ForeignKey("departments.id", ondelete="CASCADE"), nullable=False
+        ForeignKey("departments.id", ondelete="CASCADE"), 
+        nullable=False
     )
     department: Mapped["Department"] = relationship(
-        "Department",
-        back_populates="employees"
+        "Department", 
+        back_populates="employees",
+        foreign_keys=[department_id]  # Явно указываем, какой ключ использовать
     )
+
+    # Связь с University
+    university_id: Mapped[int] = mapped_column(
+        ForeignKey("universities.id", ondelete="CASCADE"), 
+        nullable=False
+    )
+    university: Mapped["University"] = relationship("University", back_populates="employees")
