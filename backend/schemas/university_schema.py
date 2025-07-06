@@ -1,17 +1,14 @@
 from pydantic import BaseModel, EmailStr
-from typing import Annotated
 from annotated_types import MinLen, MaxLen
-
-from pydantic import BaseModel, EmailStr, Field
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Annotated
 from datetime import datetime
 
 
 # 🔹 1. Контакт
 class ContactModel(BaseModel):
-    name: str = Field(..., min_length=2, max_length=100)
+    name: Annotated[str, MinLen(3), MaxLen(100)]
     type: Literal["phone", "email"]
-    value: str = Field(..., min_length=3, max_length=100)
+    value: Annotated[str, MinLen(3), MaxLen(100)]
 
 # 🔹 2. Изображение
 class ImageStateModel(BaseModel):
@@ -20,8 +17,8 @@ class ImageStateModel(BaseModel):
 
 # 🔹 3. Факультет
 class FacultyModel(BaseModel):
-    name: str = Field(..., min_length=2, max_length=100)
-    tag: str = Field(..., min_length=2, max_length=50)
+    name: Annotated[str, MinLen(3), MaxLen(100)]
+    tag: Annotated[str, MinLen(2), MaxLen(50)]
     iconURL: Optional[ImageStateModel]
 
 # 🔹 4. Сотрудник
@@ -34,15 +31,15 @@ class EmployeeModel(BaseModel):
 
 # 🔹 5. Кафедра
 class DepartmentModel(BaseModel):
-    name: str
-    phone: str
+    name: Annotated[str, MinLen(3), MaxLen(100)]
+    phone: Annotated[str, MinLen(8), MaxLen(100)]
     email: EmailStr
     address: str
     depHead: Optional[EmployeeModel]
 
 # 🔹 6. Данные доступа
 class CredentialsModel(BaseModel):
-    generatedPassword: str = Field(..., min_length=6)
+    name: Annotated[str, MinLen(8), MaxLen(100)]
 
 # 🔹 7. Метаданные (опционально)
 class MetaModel(BaseModel):
@@ -51,12 +48,12 @@ class MetaModel(BaseModel):
 
 # 🔹 8. Основная информация о ВУЗе
 class BaseInfoModel(BaseModel):
-    fullName: str = Field(..., min_length=2, max_length=255)
-    shortName: str = Field(..., min_length=2, max_length=100)
-    description: Optional[str] = Field(None, max_length=500)
-    address: Optional[str] = Field(None, max_length=255)
-    image: Optional[ImageStateModel]
-    universityTag: str = Field(..., min_length=2, max_length=100)
+    fullName: Annotated[str, MinLen(3), MaxLen(255)]
+    shortName: Annotated[str, MinLen(2), MaxLen(100)]
+    description: Annotated[str, MinLen(60), MaxLen(300)]
+    address: Annotated[str, MinLen(10), MaxLen(255)]
+    universityImage: Optional[ImageStateModel]
+    universityTag: Annotated[str, MinLen(3), MaxLen(100)]
     contacts: List[ContactModel]
 
 # 🔹 9. Структура: факультеты и кафедры

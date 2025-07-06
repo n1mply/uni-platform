@@ -26,7 +26,7 @@ export default function FloatingInput({
   disabled = false,
 }: Props) {
   return (
-    <div className={className === '' ? "relative w-full max-w-2xl mx-auto mb-6" : className}>
+    <div className={className === '' ? "relative w-full lg:max-w-2xl mx-auto mb-6" : className}>
       <input
         id={id}
         type={type}

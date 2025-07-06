@@ -41,7 +41,7 @@ async def create_university(data: UniversityModel):
                 short_name=data.baseInfo.shortName,
                 description=data.baseInfo.description,
                 address=data.baseInfo.address,
-                image=data.baseInfo.image.url if data.baseInfo.image else None,
+                image=data.baseInfo.universityImage.url if data.baseInfo.universityImage else None,
                 university_tag=data.baseInfo.universityTag
             )
             session.add(uni)

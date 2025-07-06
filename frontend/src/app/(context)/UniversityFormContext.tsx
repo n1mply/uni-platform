@@ -50,6 +50,8 @@ type UniversityFormData = {
     setDescription: (description: string) => void;
     address: string;
     setAddress: (address: string) => void;
+    universityImage: ImageState;
+    setUniversityImage: (universityImage: ImageState) => void;
     image: ImageState;
     setImage: (image: ImageState) => void;
     faculties: Faculty[];
@@ -65,31 +67,6 @@ type UniversityFormData = {
 };
 
 
-type University = {
-    baseInfo: {
-        fullName: string;
-        shortName: string;
-        description: string;
-        address: string;
-        image: ImageState;
-        universityTag: string;
-        contacts: Contact[];
-    };
-    structure: {
-        faculties: Faculty[];
-        departments: Department[];
-    };
-    employees: Employee[];
-    credentials: {
-        generatedPassword: string;
-    };
-    meta?: {
-        createdAt?: Date;
-        updatedAt?: Date;
-    };
-};
-
-
 const UniversityFormContext = createContext<UniversityFormData | null>(null);
 
 export function UniversityFormProvider({ children }: { children: ReactNode }) {
@@ -99,6 +76,7 @@ export function UniversityFormProvider({ children }: { children: ReactNode }) {
     const [shortName, setShortName] = useState("");
     const [description, setDescription] = useState("");
     const [address, setAddress] = useState("");
+    const [universityImage, setUniversityImage] = useState<ImageState>(null)
     const [image, setImage] = useState<ImageState>(null);
     const [faculties, setFaculties] = useState<Faculty[]>([])
     const [departments, setDepartments] = useState<Department[]>([])
@@ -112,14 +90,13 @@ export function UniversityFormProvider({ children }: { children: ReactNode }) {
         const createUniversity = async (): Promise<void> => {
             if (xPer >= 6) {
                 try {
-                    // Собираем объект с данными из состояния
                     const universityData = {
                         baseInfo: {
                             fullName,
                             shortName,
                             description,
                             address,
-                            image,
+                            universityImage,
                             universityTag,
                             contacts
                         },
@@ -162,7 +139,7 @@ export function UniversityFormProvider({ children }: { children: ReactNode }) {
         };
 
         createUniversity();
-    }, [xPer, fullName, shortName, description, address, image, universityTag, contacts, faculties, departments, employee, generatedPassword]);
+    }, [xPer, fullName, shortName, description, address, universityImage, universityTag, contacts, faculties, departments, employee, generatedPassword]);
 
     useMemo(() => {
         if (fullName) {
@@ -178,6 +155,7 @@ export function UniversityFormProvider({ children }: { children: ReactNode }) {
         shortName, setShortName,
         description, setDescription,
         address, setAddress,
+        universityImage, setUniversityImage,
         image, setImage,
         faculties, setFaculties,
         departments, setDepartments,
@@ -186,7 +164,7 @@ export function UniversityFormProvider({ children }: { children: ReactNode }) {
         generatedPassword, setGeneratedPassword
     }), [
         contacts, xPer, fullName, shortName,
-        description, address, image, faculties,
+        description, address, universityImage, image, faculties,
         departments, employee, universityTag, generatedPassword
     ]);
 

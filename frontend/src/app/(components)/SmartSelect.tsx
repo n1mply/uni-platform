@@ -53,7 +53,7 @@ export default function SmartSelect({ options, value, onChange, id, label, tabIn
     };
 
     return (
-        <div className="mb-6 relative w-full max-w-2xl" ref={wrapperRef}>
+        <div className="mb-6 relative w-full lg:max-w-2xl" ref={wrapperRef}>
             <input
                 type="text"
                 id={id}

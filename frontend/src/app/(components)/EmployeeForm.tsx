@@ -91,11 +91,7 @@ export default function EmployeeForm() {
         if (employee.length >= 1) {
             setXPer(xPer + 1)
         }
-        else {
-
-        }
     }
-
 
     const positions = [
         "Ректор",
@@ -124,7 +120,6 @@ export default function EmployeeForm() {
         "Администратор факультета"
     ];
 
-
     const degrees = [
         "Степень отсутствует",
         "Кандидат технических наук",
@@ -135,21 +130,24 @@ export default function EmployeeForm() {
     ];
 
     return (
-        <div className="w-screen flex gap-[100px] flex-row text-center px-4">
-            <div className="w-1/2">
-                <h1 className="text-4xl md:text-5xl text-left absolute font-bold text-gray-900 mb-6">Сотрудники</h1>
-                <p className="text-lg text-gray-600 mb-8 text-left mt-15">
+        <div className="w-screen flex flex-col lg:flex-row lg:gap-[100px] px-4">
+            {/* Form Section */}
+            <div className="w-full lg:w-1/2 mb-8 lg:mb-0">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl text-left font-bold text-gray-900 mb-4 lg:mb-6">Сотрудники</h1>
+                <p className="text-base lg:text-lg text-gray-600 mb-6 lg:mb-8 text-left mt-4 lg:mt-15">
                     Добавьте сотрудников, выберите им необходимую
                     специальность в удобном поисковике,
                     наделите научной степенью и даже прикрепите фото(необязательно)
                 </p>
-                <div className="flex items-start gap-5">
-                    <DragNDrop />
-                    <p className="text-gray-600 text-left w-2/3 mt-0">
-                        Оптицианально можете добавить фотографию сотрудника.
+                
+                <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-5 mb-4">
+                    <DragNDrop tabIndex={xPer !== 4 ? -1 : 0} full={true}/>
+                    <p className="text-sm lg:text-base text-gray-600 text-left lg:w-2/3">
+                        Оптиционально можете добавить фотографию сотрудника.
                         Перетащите её сюда или нажмите, чтобы выбрать. Доступен предпросмотр
                     </p>
                 </div>
+                
                 <FloatingInput
                     tabIndex={xPer !== 4 ? -1 : 0}
                     id={`fullName`}
@@ -157,8 +155,9 @@ export default function EmployeeForm() {
                     type={'text'}
                     value={fullName}
                     onChange={e => setFullName(e)}
-                    className="relative w-full max-w-2xl mb-6"
+                    className="relative w-full lg:max-w-2xl mb-4 lg:mb-6"
                 />
+                
                 <SmartSelect
                     options={positions}
                     tabIndex={xPer !== 4 ? -1 : 0}
@@ -167,6 +166,7 @@ export default function EmployeeForm() {
                     value={position}
                     onChange={(e) => setPosition(e)}
                 />
+                
                 <SmartSelect
                     options={degrees}
                     tabIndex={xPer !== 4 ? -1 : 0}
@@ -175,22 +175,26 @@ export default function EmployeeForm() {
                     value={academicDegree}
                     onChange={(e) => setAcademicDegree(e)}
                 />
-                <p className="text-s text-gray-600 text-left mb-3">Воспользуйтесь "умным" полем для поиска, чтобы найти нужнкю должность или научную степень. Вы также можете вписать своё значение, если его нет в списке</p>
-                <div className="flex gap-2 items-center justify-left mb-4">
-                    <p className="text-s text-gray-600 text-left">Назначить заведующим кафедры:</p>
+                
+                <p className="text-xs lg:text-sm text-gray-600 text-left mb-3">
+                    Воспользуйтесь "умным" полем для поиска, чтобы найти нужнкю должность или научную степень. 
+                    Вы также можете вписать своё значение, если его нет в списке
+                </p>
+                
+                <div className="flex gap-2 items-center justify-start mb-4">
+                    <p className="text-xs lg:text-sm text-gray-600">Назначить заведующим кафедры:</p>
                     <button
                         onClick={() => togleButton()}
                         tabIndex={xPer !== 4 ? -1 : 0}
-                        className={`relative flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${enabled ? 'bg-blue-600' : 'bg-gray-300'
-                            }`}
+                        className={`relative flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${enabled ? 'bg-blue-600' : 'bg-gray-300'}`}
                     >
                         <span
-                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ${enabled ? 'translate-x-6' : 'translate-x-1'
-                                }`}
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 ${enabled ? 'translate-x-6' : 'translate-x-1'}`}
                         />
                     </button>
                 </div>
-                {enabled ? (
+                
+                {enabled && (
                     <SmartSelect
                         options={departmentNames}
                         label="Кафедра"
@@ -198,38 +202,42 @@ export default function EmployeeForm() {
                         value={department}
                         onChange={(e) => setDepartment(e)}
                     />
-                ) : (<div></div>)}
+                )}
+                
                 <button
                     tabIndex={xPer !== 4 ? -1 : 0}
                     onClick={() => updateEmployee()}
-                    className={`w-full max-w-2xl mt-2 mb-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 cursor-pointer active:scale-[0.99] transition text-center block`}
+                    className="w-full lg:max-w-2xl  mt-2 mb-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 cursor-pointer active:scale-[0.99] transition text-center block"
                 >
                     Добавить сотрудника
                 </button>
-                <p className="text-gray-600 text-left w-2/3 mt-0">
+                
+                <p className="text-xs lg:text-sm text-gray-600 text-left mb-4">
                     Для продолжения, добавьте хотя бы ректора
                 </p>
+                
                 <button
                     tabIndex={xPer !== 4 ? -1 : 0}
                     onClick={() => validateEmployeers()}
-                    disabled={unactive ? true : false}
-                    className={`w-full max-w-2xl mb-2 mt-3 ${unactive ? 'bg-gray-500' : 'bg-blue-600'} text-white px-6 py-3 rounded-lg ${unactive ? 'hover:bg-gray-500' : 'hover:bg-blue-700'} ${unactive ? 'cursor-not-allowed' : 'cursor-pointer active:scale-[0.99]'}  transition text-center block`}
+                    disabled={unactive}
+                    className={`w-full lg:max-w-2xl mb-2 mt-3 ${unactive ? 'bg-gray-500' : 'bg-blue-600'} text-white px-6 py-3 rounded-lg ${unactive ? 'hover:bg-gray-500' : 'hover:bg-blue-700'} ${unactive ? 'cursor-not-allowed' : 'cursor-pointer active:scale-[0.99]'} transition text-center block`}
                 >
                     Последний шаг
                 </button>
-                <p className="text-gray-600 text-left w-2/3 mt-0"></p>
             </div>
 
-            <div className="w-1/2">
-                <p className="text-lg w-[90%] text-gray-600 mb-8 text-left mt-15">
+            {/* Preview Section */}
+            <div className="w-full lg:w-1/2">
+                <p className="text-base lg:text-lg text-gray-600 mb-6 lg:mb-8 text-left mt-4 lg:mt-15">
                     Предпросмотр. Здесь появятся созданные вами сотрудники
                     для препросмотра его карточки
                 </p>
-                <div className={`h-[500px] ${employee.length === 0 ? 'overflow-y-auto' : 'overflow-y-scroll'} `}>
+                
+                <div className={`h-auto lg:h-[500px] ${employee.length === 0 ? 'lg:overflow-y-auto' : 'lg:overflow-y-scroll'} mb-8 lg:mb-0`}>
                     {employee.length === 0 ? (
-                        <div className="flex flex-col justify-center items-center h-full">
+                        <div className="flex flex-col justify-center items-center h-full py-8 lg:py-0">
                             <Cat color="#4a5565" size={98} className="mx-auto" />
-                            <p className="text-lg text-gray-600 mb-8 text-center mt-3">Список сотрудников пока пуст</p>
+                            <p className="text-base lg:text-lg text-gray-600 mb-8 text-center mt-3">Список сотрудников пока пуст</p>
                         </div>
                     ) : (
                         <div className="space-y-4 p-2">

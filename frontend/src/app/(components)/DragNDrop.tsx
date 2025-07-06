@@ -4,9 +4,10 @@ import { useUniversityForm } from "@/app/(context)/UniversityFormContext";
 
 type DragConfig = {
     tabIndex?: number;
+    full?: boolean;
 }
 
-export default function DragNDrop({ tabIndex }: DragConfig) {
+export default function DragNDrop({ tabIndex, full }: DragConfig) {
     const { image, setImage } = useUniversityForm()
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -68,7 +69,7 @@ export default function DragNDrop({ tabIndex }: DragConfig) {
     };
     return (
         <div
-            className={`relative w-1/2 border-3 rounded-xl mb-5 transition-all duration-300 ease-in-out
+            className={`relative lg:w-1/2 w-full border-3 rounded-xl mb-5 transition-all duration-300 ease-in-out
     ${isDragging ? 'border-indigo-50' : 'border-gray-100 hover:border-blue-700'}
     ${image ? 'border-solid' : ''}`}
             onDragOver={onDragOver}

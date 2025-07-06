@@ -18,7 +18,7 @@ export default function Header() {
           height={32}
           className="w-8 h-8"
         />
-        <span className="text-lg font-bold text-gray-800">UniPlatform</span>
+        <span className="text-lg hidden sm:flex  font-bold text-gray-800">UniPlatform</span>
       </Link>
 
       {!isOpen && (
