@@ -2,11 +2,17 @@ import asyncio
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.sql import text
+from sqlalchemy.ext.asyncio import AsyncSession
 from core.config import settings
 
 Base = declarative_base()
 engine = create_async_engine(settings.sync_url, echo=True)
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
+
+async def get_async_session() -> AsyncSession: # type: ignore
+    async with AsyncSessionLocal() as session:
+        yield session
+
 
 async def create_database():
     admin_engine = create_async_engine(settings.admin_url, isolation_level="AUTOCOMMIT")

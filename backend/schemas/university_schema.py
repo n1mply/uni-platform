@@ -39,7 +39,7 @@ class DepartmentModel(BaseModel):
 
 # 🔹 6. Данные доступа
 class CredentialsModel(BaseModel):
-    name: Annotated[str, MinLen(8), MaxLen(100)]
+    generatedPassword: Annotated[str, MinLen(8), MaxLen(100)]
 
 # 🔹 7. Метаданные (опционально)
 class MetaModel(BaseModel):

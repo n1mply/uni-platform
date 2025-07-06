@@ -12,6 +12,7 @@ from models.employee import Employee
 from models.credentials import UniversityCredentials
 from schemas.university_schema import UniversityModel
 
+
 async def check_tables_exist():
     """Проверка существования таблиц через асинхронный inspect"""
     async with engine.connect() as conn:
