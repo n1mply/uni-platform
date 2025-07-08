@@ -1,11 +1,12 @@
 'use client'
 
 type Loader = {
-    seconds?: number | 2;
+    delay?: number;
     label?: string;
+    navigateTo?: string;
 }
 
-export default function Loader({seconds, label}: Loader){
+export default function Loader({delay=3000, label='Подождите...', navigateTo='/'}: Loader){
 
     return (
         <div className="">

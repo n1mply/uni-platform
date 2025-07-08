@@ -3,6 +3,7 @@
 .env.local
 .env.*
 *.env
+venv
 secrets.ini
 config.ini
 config.yml
