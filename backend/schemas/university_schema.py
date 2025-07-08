@@ -53,7 +53,7 @@ class BaseInfoModel(BaseModel):
     description: Annotated[str, MinLen(60), MaxLen(300)]
     address: Annotated[str, MinLen(10), MaxLen(255)]
     universityImage: Optional[ImageStateModel]
-    universityTag: Annotated[str, MinLen(3), MaxLen(100)]
+    universityTag: Annotated[str, MinLen(2), MaxLen(8)]
     contacts: List[ContactModel]
 
 # 🔹 9. Структура: факультеты и кафедры

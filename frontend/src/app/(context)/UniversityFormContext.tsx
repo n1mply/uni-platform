@@ -88,7 +88,7 @@ export function UniversityFormProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         const createUniversity = async (): Promise<void> => {
-            if (xPer >= 6) {
+            if (xPer >= 3) {
                 try {
                     const universityData = {
                         baseInfo: {
@@ -101,10 +101,10 @@ export function UniversityFormProvider({ children }: { children: ReactNode }) {
                             contacts
                         },
                         structure: {
-                            faculties,
-                            departments
+                            faculties: [],
+                            departments: []
                         },
-                        employees: employee,
+                        employees: [],
                         credentials: {
                             generatedPassword
                         },
@@ -113,6 +113,7 @@ export function UniversityFormProvider({ children }: { children: ReactNode }) {
                             updatedAt: new Date()
                         }
                     };
+
 
                     console.log("Отправляемые данные:", JSON.stringify(universityData, null, 2));
 

@@ -17,9 +17,6 @@ export default function Signup() {
             <WrapperForm>
                 <BaseForm />
                 <ContactsForm />
-                <FacultyForm />
-                <DepartmentForm />
-                <EmployeeForm />
                 <UniversityFinalForm />
             </WrapperForm>
         </UniversityFormProvider>
