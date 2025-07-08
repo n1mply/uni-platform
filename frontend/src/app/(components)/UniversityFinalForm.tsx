@@ -104,13 +104,13 @@ export default function UniversityFinalForm() {
                 placeholder="bsuir, gtsu, bsu и др."
                 value={universityTag}
                 onChange={(e) => setUniversityTag(e.target.value)}
-                tabIndex={xPer !== 5 ? -1 : 0}
+                tabIndex={xPer !== 2 ? -1 : 0}
                 className="w-full border rounded px-3 py-2 border-gray-300 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0"
               />
 
               <button
                 onClick={() => generateTag(fullName, setUniversityTag)}
-                tabIndex={xPer !== 5 ? -1 : 0}
+                tabIndex={xPer !== 2 ? -1 : 0}
                 className="bg-blue-600 text-white px-4 py-2.5 rounded-lg hover:bg-blue-700 cursor-pointer active:scale-[0.99] transition text-center block sm:w-auto"
               >
                 Сгенерировать
@@ -139,7 +139,7 @@ export default function UniversityFinalForm() {
                   placeholder=""
                   value={generatedPassword}
                   disabled
-                  tabIndex={xPer !== 5 ? -1 : 0}
+                  tabIndex={xPer !== 2 ? -1 : 0}
                   onChange={(e) => setGeneratedPassword(e.target.value)}
                   className="font-mono h-full w-full border rounded px-3 py-2 border-gray-300 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0"
                 />
@@ -150,7 +150,7 @@ export default function UniversityFinalForm() {
                   onClick={copyToClipboard}
                   className="p-2 sm:p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
                   title="Скопировать"
-                  tabIndex={xPer !== 5 ? -1 : 0}
+                  tabIndex={xPer !== 2 ? -1 : 0}
                 >
                   {isCopied ? (
                     <Check className="text-green-500" size={18} />
@@ -160,7 +160,7 @@ export default function UniversityFinalForm() {
                 </button>
                 <button
                   onClick={generatePassword}
-                  tabIndex={xPer !== 5 ? -1 : 0}
+                  tabIndex={xPer !== 2 ? -1 : 0}
                   className="flex items-center justify-center gap-2 bg-gray-100 text-gray-700 px-3 sm:px-4 py-2 rounded-lg hover:bg-gray-200 active:scale-[0.98] transition-all"
                   title="Сгенерировать новый"
                 >
@@ -184,7 +184,7 @@ export default function UniversityFinalForm() {
           </p>
 
           <button
-            tabIndex={xPer !== 5 ? -1 : 0}
+            tabIndex={xPer !== 2 ? -1 : 0}
             onClick={() => validateAllSteps()}
             className="w-full mx-auto bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 cursor-pointer active:scale-[0.99] transition text-center"
           >

@@ -13,10 +13,10 @@ export default function Signup() {
     return (
         <UniversityFormProvider>
             <WrapperForm>
-                <WaitUp />
                 <BaseForm />
                 <ContactsForm />
                 <UniversityFinalForm />
+                <WaitUp />
             </WrapperForm>
         </UniversityFormProvider>
     );

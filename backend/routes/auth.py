@@ -8,14 +8,33 @@ from database.create import create_university
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from models.university import University
+from bot import notify_about_university
+import datetime
 
 auth = APIRouter()
 
 @auth.post('/auth/signup/university')
-async def sign_up_university(university: UniversityModel):
+async def sign_up_university(
+    university: UniversityModel, 
+    request: Request,
+):
     try:
-        print(university)
-        await create_university(university)
+        # Создаем университет
+        uni = await create_university(university)
+        
+        # Формируем данные для уведомления
+        university_data = {
+            "full_name": university.baseInfo.fullName,
+            "tag": university.baseInfo.universityTag,
+            "email": next((c.value for c in university.baseInfo.contacts if c.type == "email"), ""),
+            "address": university.baseInfo.address,
+            "created_at": datetime.datetime.now().isoformat()
+        }
+        
+        # Отправляем уведомление через бота
+        bot = request.app.state.bot
+        await notify_about_university(university_data)
+        
         return {"status": "ok", "message": "Университет создан"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
