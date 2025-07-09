@@ -18,6 +18,10 @@ class Settings(BaseSettings):
     @property
     def admin_url(self):
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/postgres"
+    
+    @property
+    def webhook_url(self):
+        return f"{self.WEBHOOK_URL}"
 
     class Config:
         env_file = ".env"

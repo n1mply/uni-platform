@@ -1,9 +1,7 @@
-import asyncio
-import pprint
 from sqlite3 import IntegrityError
-from sqlalchemy import inspect, select
+from sqlalchemy import select
 from security.password import hash_password
-from db import init_db, AsyncSessionLocal, engine
+from db import init_db, check_tables_exist
 from models.university import University
 from models.contact import Contact, ContactTypeEnum
 from models.faculty import Faculty
@@ -13,31 +11,22 @@ from models.credentials import UniversityCredentials
 from schemas.university_schema import UniversityModel
 
 
-async def check_tables_exist():
-    """Проверка существования таблиц через асинхронный inspect"""
-    async with engine.connect() as conn:
-        tables = await conn.run_sync(
-            lambda sync_conn: inspect(sync_conn).get_table_names()
-        )
-        print(f"Существующие таблицы: {tables}")
-        return bool(tables)
 
-async def create_university(data: UniversityModel):
+async def create_university(data: UniversityModel, session):
     if not await check_tables_exist():
         await init_db()
-
-    async with AsyncSessionLocal() as session:
-        try:
-            # 🔍 Проверка: university_tag должен быть уникален
-            existing = await session.execute(
+        
+    try:
+        # 🔍 Проверка: university_tag должен быть уникален
+        existing = await session.execute(
                 select(University).where(University.university_tag == data.baseInfo.universityTag)
             )
-            if existing.scalar():
-                raise ValueError(f"Университет с тегом '{data.baseInfo.universityTag}' уже существует")
+        if existing.scalar():
+            raise ValueError(f"Университет с тегом '{data.baseInfo.universityTag}' уже существует")
 
-            # 🔹 Университет
-            pprint.pprint(data)
-            uni = University(
+        # 🔹 Университет
+        print(data)
+        uni = University(
                 full_name=data.baseInfo.fullName,
                 short_name=data.baseInfo.shortName,
                 description=data.baseInfo.description,
@@ -45,22 +34,22 @@ async def create_university(data: UniversityModel):
                 image=data.baseInfo.universityImage.url if data.baseInfo.universityImage else None,
                 university_tag=data.baseInfo.universityTag
             )
-            session.add(uni)
-            await session.flush()
+        session.add(uni)
+        await session.flush()
 
-            # 🔹 Контакты
-            contacts = [
-                Contact(
+        # 🔹 Контакты
+        contacts = [
+            Contact(
                     name=c.name,
                     type=ContactTypeEnum(c.type),
                     value=c.value,
                     university_id=uni.id
                 ) for c in data.baseInfo.contacts
             ]
-            session.add_all(contacts)
+        session.add_all(contacts)
 
-            # 🔹 Факультеты
-            faculties = [
+        # 🔹 Факультеты
+        faculties = [
                 Faculty(
                     name=f.name,
                     tag=f.tag,
@@ -68,11 +57,11 @@ async def create_university(data: UniversityModel):
                     university_id=uni.id
                 ) for f in data.structure.faculties
             ]
-            session.add_all(faculties)
-            await session.flush()
+        session.add_all(faculties)
+        await session.flush()
 
-            # 🔹 Кафедры
-            departments = [
+        # 🔹 Кафедры
+        departments = [
                 Department(
                     name=d.name,
                     phone=d.phone,
@@ -81,11 +70,11 @@ async def create_university(data: UniversityModel):
                     university_id=uni.id
                 ) for d in data.structure.departments
             ]
-            session.add_all(departments)
-            await session.flush()
+        session.add_all(departments)
+        await session.flush()
 
-            # 🔹 Сотрудники
-            employees = [
+        # 🔹 Сотрудники
+        employees = [
                 Employee(
                     full_name=e.fullName,
                     position=e.position,
@@ -96,37 +85,38 @@ async def create_university(data: UniversityModel):
                     university_id=uni.id
                 ) for e in data.employees
             ]
-            session.add_all(employees)
-            await session.flush()
+        session.add_all(employees)
+        await session.flush()
 
-            # 🔹 Связываем зав. кафедрой
-            for dep_data in data.structure.departments:
+        # 🔹 Связываем зав. кафедрой
+        for dep_data in data.structure.departments:
                 if dep_data.depHead:
                     head = next((e for e in employees if e.full_name == dep_data.depHead.fullName), None)
                     dep = next((d for d in departments if d.name == dep_data.name), None)
                     if head and dep:
                         dep.head_id = head.id
 
-            await session.flush()
+        await session.flush()
 
-            # 🔹 Учётные данные
-            cred = UniversityCredentials(
+        # 🔹 Учётные данные
+        cred = UniversityCredentials(
                 hashed_password=hash_password(data.credentials.generatedPassword),
                 university_id=uni.id
             )
-            session.add(cred)
+        session.add(cred)
 
-            await session.commit()
-            print("✅ Университет создан успешно")
+        await session.commit()
+        print("✅ Университет создан успешно")
+        return uni
 
-        except ValueError as ve:
-            print(f"⚠️ Валидационная ошибка: {ve}")
-            raise
-        except IntegrityError as ie:
-            print("❌ Ошибка целостности данных:", str(ie))
-            await session.rollback()
-            raise
-        except Exception as e:
-            await session.rollback()
-            print(f"❌ Общая ошибка: {str(e)}")
-            raise
+    except ValueError as ve:
+        print(f"⚠️ Валидационная ошибка: {ve}")
+        raise
+    except IntegrityError as ie:
+        print("❌ Ошибка целостности данных:", str(ie))
+        await session.rollback()
+        raise
+    except Exception as e:
+        await session.rollback()
+        print(f"❌ Общая ошибка: {str(e)}")
+        raise

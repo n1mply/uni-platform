@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, Request
+from bot import send_university_request
 from db import get_async_session
 from database.read import get_credentials_by_tag
 from security.jwt import create_access_token, decode_access_token
@@ -8,34 +9,35 @@ from database.create import create_university
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from models.university import University
-from bot import notify_about_university
-import datetime
 
 auth = APIRouter()
 
 @auth.post('/auth/signup/university')
 async def sign_up_university(
-    university: UniversityModel, 
-    request: Request,
+    university: UniversityModel,
+    session: AsyncSession = Depends(get_async_session)
 ):
     try:
-        # Создаем университет
-        uni = await create_university(university)
+        # Создаем университет и получаем его объект с ID
+        db_university = await create_university(university, session)
         
-        # Формируем данные для уведомления
+        # Формируем данные для отправки
         university_data = {
-            "full_name": university.baseInfo.fullName,
-            "tag": university.baseInfo.universityTag,
-            "email": next((c.value for c in university.baseInfo.contacts if c.type == "email"), ""),
-            "address": university.baseInfo.address,
-            "created_at": datetime.datetime.now().isoformat()
+            "id": db_university.id,  # ID уже есть после flush()
+            "full_name": db_university.full_name,
+            "short_name": db_university.short_name,
+            "university_tag": db_university.university_tag,
+            "description": db_university.description,
+            "address": db_university.address,
+            "image": db_university.image
         }
         
-        # Отправляем уведомление через бота
-        bot = request.app.state.bot
-        await notify_about_university(university_data)
+        # Отправляем уведомление в Telegram
+        await send_university_request(university_data)
         
-        return {"status": "ok", "message": "Университет создан"}
+        return {"status": "ok", "message": "Университет создан", "university_id": db_university.id}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     

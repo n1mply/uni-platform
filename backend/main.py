@@ -1,31 +1,28 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+from db import create_database, reset_db
 from routes.auth import auth
 from contextlib import asynccontextmanager
-import os
-from bot import bot, notify_about_university, dp
-from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
-from aiohttp import web
+from aiogram.types import Update
+from bot import bot, dp
+from core.config import settings
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print('Starting...')
-    # Инициализация бота
-    app.state.bot = bot
-    if os.getenv('WEBHOOK_MODE', 'false').lower() == 'true':
-        await bot.set_webhook(f"{os.getenv('WEBHOOK_URL')}/webhook")
+    await reset_db()
+    # await create_database()
+    await bot.set_webhook(f"{settings.webhook_url}/webhook")
     yield
     print('Closing...')
-    if os.getenv('WEBHOOK_MODE', 'false').lower() == 'true':
-        await bot.delete_webhook()
-    await bot.session.close()
+    await bot.delete_webhook()
+
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(auth)
 
-# Настройка CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000", "http://192.168.1.10:3000"],
@@ -34,24 +31,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Добавляем обработчик бота только в режиме вебхука
-if os.getenv('WEBHOOK_MODE', 'false').lower() == 'true':
-    @app.on_event("startup")
-    async def on_startup():
-        webhook_url = f"{os.getenv('WEBHOOK_URL')}/webhook"
-        await bot.set_webhook(webhook_url)
-        
-    # Создаем aiohttp приложение для обработки вебхуков
-    aioapp = web.Application()
-    webhook_requests_handler = SimpleRequestHandler(
-        dispatcher=dp,
-        bot=bot,
-    )
-    webhook_requests_handler.register(aioapp, path="/webhook")
-    setup_application(aioapp, dp, bot=bot)
-    
-    # Монтируем aiohttp приложение в FastAPI
-    app.mount("/bot", aioapp)
+@app.post("/webhook")
+async def webhook(update: dict):
+    telegram_update = Update(**update)
+    await dp.feed_update(bot=bot, update=telegram_update)
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
