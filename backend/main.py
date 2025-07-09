@@ -2,7 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from db import create_database, reset_db
-from routes.auth import auth
+from routes.auth_router import auth_router
+from routes.bot_router import bot_router
 from contextlib import asynccontextmanager
 from aiogram.types import Update
 from bot import bot, dp
@@ -20,8 +21,9 @@ async def lifespan(app: FastAPI):
     await bot.delete_webhook()
 
 
+
 app = FastAPI(lifespan=lifespan)
-app.include_router(auth)
+app.include_router(auth_router)
 
 app.add_middleware(
     CORSMiddleware,

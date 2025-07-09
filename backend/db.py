@@ -6,6 +6,7 @@ from sqlalchemy.sql import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.config import settings
 
+
 Base = declarative_base()
 engine = create_async_engine(settings.sync_url, echo=True)
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
@@ -44,13 +45,24 @@ async def init_db():
     
 async def reset_db():
     async with engine.begin() as conn: 
+        from models.university import University
+        from models.contact import Contact
+        from models.faculty import Faculty
+        from models.department import Department
+        from models.employee import Employee
+        from models.credentials import UniversityCredentials
+        from models.request import UniversityRequest
+        # Сначала создаем все таблицы (если их нет)
+        await conn.run_sync(Base.metadata.create_all)
+        
+        # Затем получаем информацию о существующих таблицах
         await conn.run_sync(Base.metadata.reflect)
         
+        # Удаляем данные из таблиц в правильном порядке
         for table in reversed(Base.metadata.sorted_tables):
             await conn.execute(table.delete())
-            
-        await conn.run_sync(Base.metadata.create_all)
-    print("Таблицы удалены и созданы заново")
+    
+    print("Данные во всех таблицах удалены")
 
 async def main():
     await create_database()

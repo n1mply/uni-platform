@@ -1,48 +1,30 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, Request
 from bot import send_university_request
+from models.request import UniversityRequest
 from db import get_async_session
 from database.read import get_credentials_by_tag
 from security.jwt import create_access_token, decode_access_token
 from schemas.university_schema import UniversityModel
 from schemas.university_signin_schema import UniSignIn
-from database.create import create_university
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from models.university import University
 
-auth = APIRouter()
+auth_router = APIRouter()
 
-@auth.post('/auth/signup/university')
+@auth_router.post('/auth/signup/university')
 async def sign_up_university(
     university: UniversityModel,
     session: AsyncSession = Depends(get_async_session)
 ):
-    try:
-        # Создаем университет и получаем его объект с ID
-        db_university = await create_university(university, session)
-        
-        # Формируем данные для отправки
-        university_data = {
-            "id": db_university.id,  # ID уже есть после flush()
-            "full_name": db_university.full_name,
-            "short_name": db_university.short_name,
-            "university_tag": db_university.university_tag,
-            "description": db_university.description,
-            "address": db_university.address,
-            "image": db_university.image
-        }
-        
-        # Отправляем уведомление в Telegram
-        await send_university_request(university_data)
-        
-        return {"status": "ok", "message": "Университет создан", "university_id": db_university.id}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    request = UniversityRequest(data=university.baseInfo.model_dump())
+    session.add(request)
+    await session.commit()
+    await send_university_request(university_data=university, request_id=request.id)
+    return {"request_id": request.id}
     
     
-@auth.post('/auth/signin/university')
+@auth_router.post('/auth/signin/university')
 async def sign_in_university(
     data: UniSignIn,
     response: Response,
@@ -73,7 +55,7 @@ async def sign_in_university(
     
 
 
-@auth.get("/auth/me")
+@auth_router.get("/auth/me")
 async def get_current_university(
     request: Request,
     session: AsyncSession = Depends(get_async_session)
