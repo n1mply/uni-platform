@@ -21,8 +21,6 @@ async def lifespan(app: FastAPI):
     await bot.delete_webhook()
 
 
-
-
 app = FastAPI(lifespan=lifespan)
 app.include_router(auth_router)
 app.include_router(bot_router)

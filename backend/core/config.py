@@ -9,7 +9,9 @@ class Settings(BaseSettings):
     TELEGRAM_BOT_TOKEN: str
     TELEGRAM_ADMIN_CHAT_ID: int
     WEBHOOK_URL: str
-    WEBHOOK_MODE: bool
+    SECRET_KEY: str
+    ALGORITHM: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
 
     @property
     def sync_url(self):
