@@ -26,7 +26,7 @@ export default function Header() {
             <Link href="/university" className="hover:text-blue-600 transition">ВУЗы</Link>
             <Link href="/migration" className="hover:text-blue-600 transition">Миграция к нам</Link>
             <Link href="/faq" className="hover:text-blue-600 transition">FAQ</Link>
-            <Link href="/login" className="ml-4 px-4 py-2 bg-blue-600 text-white cursor-pointer rounded hover:bg-blue-700 transition">
+            <Link href="/signin" className="ml-4 px-4 py-2 bg-blue-600 text-white cursor-pointer rounded hover:bg-blue-700 transition">
                 Войти
             </Link>
       </nav>
@@ -46,7 +46,7 @@ export default function Header() {
             <Link href="/university" onClick={() => setIsOpen(false)} className="hover:text-blue-600 transition">ВУЗы</Link>
             <Link href="/migration" onClick={() => setIsOpen(false)} className="hover:text-blue-600 transition">Миграция к нам</Link>
             <Link href="/faq" onClick={() => setIsOpen(false)} className="hover:text-blue-600 transition">FAQ</Link> 
-            <Link href="/login" onClick={() => setIsOpen(false)} className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-center">
+            <Link href="/signin" onClick={() => setIsOpen(false)} className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-center">
                 Войти
             </Link>
         </div>

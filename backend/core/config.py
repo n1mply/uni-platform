@@ -1,19 +1,27 @@
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    db_user: str = "postgres"
-    db_password: str = "441788"
-    db_host: str = "localhost"
-    db_port: str = "5432"
-    db_name: str = "uniplatform"
+    DB_USER: str
+    DB_PASSWORD: str
+    DB_HOST: str
+    DB_NAME: str
+    DB_PORT: str
+    TELEGRAM_BOT_TOKEN: str
+    TELEGRAM_ADMIN_CHAT_ID: int
+    WEBHOOK_URL: str
+    WEBHOOK_MODE: bool
 
     @property
     def sync_url(self):
-        return f"postgresql+asyncpg://{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_name}"
+        return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
     @property
     def admin_url(self):
-        return f"postgresql+asyncpg://{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/postgres"
+        return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/postgres"
+    
+    @property
+    def webhook_url(self):
+        return f"{self.WEBHOOK_URL}"
 
     class Config:
         env_file = ".env"
