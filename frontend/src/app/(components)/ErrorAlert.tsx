@@ -35,7 +35,7 @@ export default function ErrorAlert({ errors, duration = 4000 }: ErrorAlertProps)
           transition={{ duration: 0.3 }}
           className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50"
         >
-          <div className="bg-red-500 text-white px-4 py-3 rounded-md shadow-lg flex items-start gap-4 max-w-md">
+          <div className="bg-red-500 text-white px-4 py-3 rounded-md shadow-lg flex items-center gap-4 max-w-md">
             <AlertTriangle className="flex-shrink-0 mt-0.5" />
             <div className='flex flex-col gap-2'>
               {errors.map((error, index) => (

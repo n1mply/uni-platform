@@ -2,11 +2,13 @@
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
 from db import AsyncSessionLocal
 from routes.bot_router import approve_request, reject_request
 from core.config import settings
 
-bot = Bot(token=settings.TELEGRAM_BOT_TOKEN)
+bot = Bot(token=settings.TELEGRAM_BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 dp = Dispatcher()
 
 pending_requests = {}
@@ -18,14 +20,25 @@ async def start_command(message: types.Message):
         await message.answer("Админ-панель готова к работе!")
 
 async def send_university_request(university_data, request_id: int):
-    print(university_data.baseInfo)
+    
+    contacts_text = f"<b>🔗 Контакты:</b>\n"
+    emoji_dict = {
+        'email' : '✉️',
+        'phone' : '📞'
+    }
+    
+    for i in university_data.baseInfo.contacts:
+        contacts_text+=f"  <b>{i.name}</b>\n"
+        contacts_text+=f"    {emoji_dict[i.type]} {i.value}\n"
+    
     message_text = (
-        "📝 Новая заявка на создание ВУЗа:\n\n"
-        f"🏛️ Полное название: {university_data.baseInfo.fullName}\n"
-        f"🔖 Короткое название: {university_data.baseInfo.shortName}\n"
-        f"🏷️ Тег: {university_data.baseInfo.universityTag}\n"
-        f"📍 Адрес: {university_data.baseInfo.address}\n"
-        f"📌 ID запроса: {request_id}"
+        "<b>📝 Новая заявка на создание ВУЗа</b>:\n\n"
+        f"<b>🏛️ Полное название:</b> {university_data.baseInfo.fullName}\n"
+        f"<b>🔖 Короткое название:</b> {university_data.baseInfo.shortName}\n"
+        f"<b>🏷️ Тег:</b> {university_data.baseInfo.universityTag}\n\n"
+        f"{contacts_text}\n"
+        f"<b>📍 Адрес:</b> {university_data.baseInfo.address}\n"
+        f"<b>📌 ID запроса:</b> {request_id}"
     )
     
     keyboard = InlineKeyboardMarkup(inline_keyboard=[

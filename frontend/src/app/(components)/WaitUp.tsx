@@ -44,7 +44,7 @@ export default function WaitUp() {
 
                 <div className="flex flex-col w-full max-w-md  sm:flex-row items-center gap-4">
                     <button
-                        onClick={() => router.push("/login")}
+                        onClick={() => router.push("/signin")}
                         className="flex items-center justify-center gap-2 text-center bg-blue-600 text-white w-full px-6 py-3 rounded hover:bg-blue-700 transition"
                     >
                         Войти

@@ -13,7 +13,7 @@ from core.config import settings
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print('Starting...')
-    await reset_db()
+    # await reset_db()
     # await create_database()
     await bot.set_webhook(f"{settings.webhook_url}/webhook")
     yield
@@ -22,8 +22,10 @@ async def lifespan(app: FastAPI):
 
 
 
+
 app = FastAPI(lifespan=lifespan)
 app.include_router(auth_router)
+app.include_router(bot_router)
 
 app.add_middleware(
     CORSMiddleware,
