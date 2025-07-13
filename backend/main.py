@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+from routes.uni_router import uni_router
 from db import create_database, reset_db
 from routes.auth_router import auth_router
 from routes.bot_router import bot_router
@@ -8,14 +9,23 @@ from contextlib import asynccontextmanager
 from aiogram.types import Update
 from bot import bot, dp
 from core.config import settings
-
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.redis import RedisBackend
+from redis import asyncio as aioredis
+from aiogram import exceptions
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print('Starting...')
     # await reset_db()
     # await create_database()
-    await bot.set_webhook(f"{settings.webhook_url}/webhook")
+    redis = aioredis.from_url("redis://localhost:6379")
+    FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
+    try:
+        await bot.set_webhook(f"{settings.webhook_url}/webhook")
+    except exceptions.TelegramNetworkError:
+        print("bot doesn't works!")
+        await bot.delete_webhook()
     yield
     print('Closing...')
     await bot.delete_webhook()
@@ -24,6 +34,9 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 app.include_router(auth_router)
 app.include_router(bot_router)
+app.include_router(uni_router)
+
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -32,6 +45,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 @app.post("/webhook")
 async def webhook(update: dict):

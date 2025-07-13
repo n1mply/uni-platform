@@ -1,4 +1,6 @@
+from fastapi_cache.decorator import cache
 from fastapi import APIRouter, Depends, HTTPException, Response, Request
+from security.token import auth_required
 from bot import send_university_request
 from models.request import UniversityRequest
 from db import get_async_session
@@ -10,9 +12,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from models.university import University
 
-auth_router = APIRouter()
+auth_router = APIRouter(prefix='/auth' ,tags=['Auth'])
 
-@auth_router.post('/auth/signup/university')
+@auth_router.post('/signup/university')
 async def sign_up_university(
     university: UniversityModel,
     session: AsyncSession = Depends(get_async_session)
@@ -24,7 +26,7 @@ async def sign_up_university(
     return {"request_id": request.id}
     
     
-@auth_router.post('/auth/signin/university')
+@auth_router.post('/signin/university')
 async def sign_in_university(
     data: UniSignIn,
     response: Response,
@@ -55,25 +57,17 @@ async def sign_in_university(
     
 
 
-@auth_router.get("/auth/me")
+@auth_router.get("/me")
+@auth_required
+@cache(expire=300)
 async def get_current_university(
     request: Request,
     session: AsyncSession = Depends(get_async_session)
 ):
-    token = request.cookies.get("access_token")
-    if not token:
-        raise HTTPException(status_code=401, detail="Нет токена")
-
-    payload = decode_access_token(token)
-    if not payload:
-        raise HTTPException(status_code=401, detail="Неверный токен")
-
-    university_id = payload.get("university_id")
-    if not university_id:
-        raise HTTPException(status_code=401, detail="Недопустимый payload")
+    token_payload = request.state.token_payload
 
     result = await session.execute(
-        select(University).where(University.id == university_id)
+        select(University).where(University.id == token_payload["university_id"])
     )
     university = result.scalar_one_or_none()
 

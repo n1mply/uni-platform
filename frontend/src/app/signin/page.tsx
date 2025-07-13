@@ -43,7 +43,6 @@ export default function SignIn() {
         if (response.ok) {
           console.log('Успешный вход!')
           router.push("/dashboard")
-          location.reload()
           setErrorMessages([])
         }
         else {

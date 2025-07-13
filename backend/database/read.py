@@ -1,12 +1,15 @@
 from sqlalchemy import select
 from models.university import University
+from models.faculty import Faculty
+from models.department import Department
+from models.contact import Contact
+from models.employee import Employee
 from models.credentials import UniversityCredentials
 from security.password import verify_password
 from fastapi import HTTPException
 
 
 async def get_credentials_by_tag(tag: str, password: str, session):
-    # Получаем университет по тегу
     result = await session.execute(
         select(University).where(University.university_tag == tag)
     )
@@ -30,3 +33,18 @@ async def get_credentials_by_tag(tag: str, password: str, session):
         "university_id": university.id,
         "university_tag": university.university_tag
     }
+
+
+async def get_university_data_by_id(id: int, session, data='full'):
+    university_data = await session.execute(
+        select(University).where(University.id == id)
+    )
+    university = university_data.scalar_one_or_none()
+    
+    faculty_data = await session.execute(
+        select(Faculty).where(Faculty.university_id == id)
+    )
+    
+    faculty = university_data.scalar_one_or_none()
+    
+    return {faculty}

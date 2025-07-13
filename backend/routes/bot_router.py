@@ -2,14 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from database.create import create_university
 from models.request import UniversityRequest
 from db import get_async_session
-from schemas.university_schema import UniversityModel
 from sqlalchemy.ext.asyncio import AsyncSession
-from models.university import University
 
 bot_router = APIRouter(prefix='/bot', tags=['Bot'])
 
 
-@bot_router.post("/bot/approve/{request_id}")
+@bot_router.post("/approve/{request_id}")
 async def approve_request(
     request_id: int,
     university,
@@ -29,7 +27,7 @@ async def approve_request(
     return {"message": "ВУЗ создан!"}
 
 
-@bot_router.post("/bot/reject/{request_id}")
+@bot_router.post("/reject/{request_id}")
 async def reject_request(
     request_id: int,
     session: AsyncSession = Depends(get_async_session)
