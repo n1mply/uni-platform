@@ -5,6 +5,7 @@ from models.department import Department
 from models.contact import Contact
 from models.employee import Employee
 from models.credentials import UniversityCredentials
+from models.request import UniversityRequest
 from security.password import verify_password
 from fastapi import HTTPException
 
@@ -48,3 +49,18 @@ async def get_university_data_by_id(id: int, session, data='full'):
     faculty = university_data.scalar_one_or_none()
     
     return {faculty}
+
+
+
+async def get_requests(session):
+    result = await session.scalars(select(UniversityRequest))
+    requests = result.all()
+    requests_list = [
+        UniversityRequest(
+            id=req.id,
+            data=req.data,
+            created_at=req.created_at
+        ) for req in requests
+    ]
+
+    return requests_list

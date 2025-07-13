@@ -13,14 +13,14 @@ async def approve_request(
     university,
     session: AsyncSession = Depends(get_async_session)
 ):
-    # 1. Достаём заявку
     request = await session.get(UniversityRequest, request_id)
+    print(request)
     if not request:
-        raise HTTPException(404, "Заявка не найдена")
+        raise HTTPException(404, "Заявка не найдена!!!")
 
+    print(university)
     await create_university(data=university, session=session)
 
-    # 3. Удаляем заявку
     await session.delete(request)
     await session.commit()
 

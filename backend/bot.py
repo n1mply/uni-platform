@@ -1,10 +1,13 @@
-# bot.py
+import asyncio
+import logging
+import sys
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
-from db import AsyncSessionLocal
+from database.read import get_requests
+from db import AsyncSessionLocal, get_async_session
 from routes.bot_router import approve_request, reject_request
 from core.config import settings
 
@@ -19,13 +22,29 @@ async def start_command(message: types.Message):
         pending_requests.clear()
         await message.answer("Админ-панель готова к работе!")
 
+@dp.message(Command("requests"))
+async def start_command(message: types.Message):
+    await message.answer("🔨 Проверяю заявки...")
+    async with AsyncSessionLocal() as session:
+        try:
+            requests = await get_requests(session)
+            response = "\n".join(
+                f"ID: {req.id}\nДанные: {req.data}\nДата: {req.created_at}\n"
+                for req in requests
+            )
+            await message.answer(response or "Нет заявок")
+        except Exception as e:
+            await message.answer(f"❌ Ошибка: {e}")
+            print(e)
+
+
 async def send_university_request(university_data, request_id: int):
-    
     contacts_text = f"<b>🔗 Контакты:</b>\n"
     emoji_dict = {
         'email' : '✉️',
         'phone' : '📞'
     }
+    
     
     for i in university_data.baseInfo.contacts:
         contacts_text+=f"  <b>{i.name}</b>\n"
@@ -87,3 +106,15 @@ async def handle_approval(callback_query: types.CallbackQuery):
         except Exception as e:
             # await session.rollback()
             await callback_query.answer(f"Ошибка: {str(e)}")
+            
+            
+async def main() -> None:
+    await dp.start_polling(bot)
+
+
+if __name__ == "__main__":
+    try:
+        logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print('Bot shutting down..')

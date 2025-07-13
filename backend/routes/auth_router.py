@@ -19,7 +19,14 @@ async def sign_up_university(
     university: UniversityModel,
     session: AsyncSession = Depends(get_async_session)
 ):
-    request = UniversityRequest(data=university.baseInfo.model_dump())
+    data = university.model_dump()
+    if data.get('meta'):
+        if data['meta'].get('createdAt'):
+            data['meta']['createdAt'] = data['meta']['createdAt'].isoformat()
+        if data['meta'].get('updatedAt'):
+            data['meta']['updatedAt'] = data['meta']['updatedAt'].isoformat()
+    
+    request = UniversityRequest(data=data)
     session.add(request)
     await session.commit()
     await send_university_request(university_data=university, request_id=request.id)

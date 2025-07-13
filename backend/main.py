@@ -13,6 +13,7 @@ from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from redis import asyncio as aioredis
 from aiogram import exceptions
+from core.config import settings
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -21,14 +22,15 @@ async def lifespan(app: FastAPI):
     # await create_database()
     redis = aioredis.from_url("redis://localhost:6379")
     FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
-    try:
-        await bot.set_webhook(f"{settings.webhook_url}/webhook")
-    except exceptions.TelegramNetworkError:
-        print("bot doesn't works!")
-        await bot.delete_webhook()
+    if settings.WEBHOOK_URL:
+        try:
+            await bot.set_webhook(f"{settings.webhook_url}/webhook")
+        except exceptions.TelegramNetworkError:
+            print("bot doesn't works!")
+            await bot.delete_webhook()
     yield
     print('Closing...')
-    await bot.delete_webhook()
+    # await bot.delete_webhook()
 
 
 app = FastAPI(lifespan=lifespan)
