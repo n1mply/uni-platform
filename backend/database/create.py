@@ -12,27 +12,30 @@ from schemas.university_schema import UniversityModel
 
 
 
-async def create_university(data: UniversityModel, session):
+async def create_university(data: dict, session):
+    
+    university_data = UniversityModel(**data)
+    
     if not await check_tables_exist():
         await init_db()
         
     try:
         # 🔍 Проверка: university_tag должен быть уникален
         existing = await session.execute(
-                select(University).where(University.university_tag == data.baseInfo.universityTag)
+                select(University).where(University.university_tag == university_data.baseInfo.universityTag)
             )
         if existing.scalar():
-            raise ValueError(f"Университет с тегом '{data.baseInfo.universityTag}' уже существует")
+            raise ValueError(f"Университет с тегом '{university_data.baseInfo.universityTag}' уже существует")
 
         # 🔹 Университет
-        print(data)
+        print(university_data)
         uni = University(
-                full_name=data.baseInfo.fullName,
-                short_name=data.baseInfo.shortName,
-                description=data.baseInfo.description,
-                address=data.baseInfo.address,
-                image=data.baseInfo.universityImage.url if data.baseInfo.universityImage else None,
-                university_tag=data.baseInfo.universityTag
+                full_name=university_data.baseInfo.fullName,
+                short_name=university_data.baseInfo.shortName,
+                description=university_data.baseInfo.description,
+                address=university_data.baseInfo.address,
+                image=university_data.baseInfo.universityImage.url if university_data.baseInfo.universityImage else None,
+                university_tag=university_data.baseInfo.universityTag
             )
         session.add(uni)
         await session.flush()
@@ -44,7 +47,7 @@ async def create_university(data: UniversityModel, session):
                     type=ContactTypeEnum(c.type),
                     value=c.value,
                     university_id=uni.id
-                ) for c in data.baseInfo.contacts
+                ) for c in university_data.baseInfo.contacts
             ]
         session.add_all(contacts)
 
@@ -55,7 +58,7 @@ async def create_university(data: UniversityModel, session):
                     tag=f.tag,
                     icon_path=f.iconURL.url if f.iconURL else None,
                     university_id=uni.id
-                ) for f in data.structure.faculties
+                ) for f in university_data.structure.faculties
             ]
         session.add_all(faculties)
         await session.flush()
@@ -68,7 +71,7 @@ async def create_university(data: UniversityModel, session):
                     email=d.email,
                     address=d.address,
                     university_id=uni.id
-                ) for d in data.structure.departments
+                ) for d in university_data.structure.departments
             ]
         session.add_all(departments)
         await session.flush()
@@ -83,13 +86,13 @@ async def create_university(data: UniversityModel, session):
                     photo_path=e.photoURL.url if e.photoURL else None,
                     department_id=None,
                     university_id=uni.id
-                ) for e in data.employees
+                ) for e in university_data.employees
             ]
         session.add_all(employees)
         await session.flush()
 
         # 🔹 Связываем зав. кафедрой
-        for dep_data in data.structure.departments:
+        for dep_data in university_data.structure.departments:
                 if dep_data.depHead:
                     head = next((e for e in employees if e.full_name == dep_data.depHead.fullName), None)
                     dep = next((d for d in departments if d.name == dep_data.name), None)
@@ -100,7 +103,7 @@ async def create_university(data: UniversityModel, session):
 
         # 🔹 Учётные данные
         cred = UniversityCredentials(
-                hashed_password=hash_password(data.credentials.generatedPassword),
+                hashed_password=hash_password(university_data.credentials.generatedPassword),
                 university_id=uni.id
             )
         session.add(cred)

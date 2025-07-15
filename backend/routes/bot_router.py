@@ -1,43 +1,31 @@
 from fastapi import APIRouter, Depends, HTTPException
-from database.create import create_university
-from models.request import UniversityRequest
 from db import get_async_session
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+from services.request_service import approve_request_service, reject_request_service
+
 bot_router = APIRouter(prefix='/bot', tags=['Bot'])
 
-
 @bot_router.post("/approve/{request_id}")
-async def approve_request(
+async def approve_request_route(
     request_id: int,
-    university,
     session: AsyncSession = Depends(get_async_session)
 ):
-    request = await session.get(UniversityRequest, request_id)
-    print(request)
-    if not request:
-        raise HTTPException(404, "Заявка не найдена!!!")
-
-    print(university)
-    await create_university(data=university, session=session)
-
-    await session.delete(request)
-    await session.commit()
-
-    return {"message": "ВУЗ создан!"}
-
+    try:
+        request = await approve_request_service(request_id, session)
+        return {"message": f"ВУЗ {request.data['baseInfo']['shortName']} создан!"}
+    except Exception as e:
+        raise HTTPException(400, str(e))
 
 @bot_router.post("/reject/{request_id}")
-async def reject_request(
+async def reject_request_route(
     request_id: int,
     session: AsyncSession = Depends(get_async_session)
 ):
-    request = await session.get(UniversityRequest, request_id)
-    if not request:
-        raise HTTPException(404, "Заявка не найдена")
-
-    # Просто удаляем заявку
-    await session.delete(request)
-    await session.commit()
-
-    return {"message": "Заявка отклонена"}
+    try:
+        request = await reject_request_service(request_id, session)
+        return {"message": f"Заявка {request_id} отклонена"}
+    except Exception as e:
+        raise HTTPException(400, str(e))

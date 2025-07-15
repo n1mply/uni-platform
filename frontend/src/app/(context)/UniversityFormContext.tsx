@@ -108,10 +108,8 @@ export function UniversityFormProvider({ children }: { children: ReactNode }) {
                         credentials: {
                             generatedPassword
                         },
-                        meta: {
-                            createdAt: new Date(),
-                            updatedAt: new Date()
-                        }
+                        createdAt: new Date(),
+                        updatedAt: new Date()
                     };
 
 

@@ -46,7 +46,7 @@ async def get_university_data_by_id(id: int, session, data='full'):
         select(Faculty).where(Faculty.university_id == id)
     )
     
-    faculty = university_data.scalar_one_or_none()
+    faculty = faculty_data.scalar_one_or_none()
     
     return {faculty}
 
@@ -64,3 +64,12 @@ async def get_requests(session):
     ]
 
     return requests_list
+
+async def get_request_by_id(session, id: int):
+    result = await session.execute(
+        select(UniversityRequest).where(UniversityRequest.id == id)
+    )
+    
+    request = result.scalar_one_or_none()
+    
+    return request

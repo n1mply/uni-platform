@@ -5,7 +5,7 @@ from bot import send_university_request
 from models.request import UniversityRequest
 from db import get_async_session
 from database.read import get_credentials_by_tag
-from security.jwt import create_access_token, decode_access_token
+from security.jwt import create_access_token
 from schemas.university_schema import UniversityModel
 from schemas.university_signin_schema import UniSignIn
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -20,16 +20,16 @@ async def sign_up_university(
     session: AsyncSession = Depends(get_async_session)
 ):
     data = university.model_dump()
-    if data.get('meta'):
-        if data['meta'].get('createdAt'):
-            data['meta']['createdAt'] = data['meta']['createdAt'].isoformat()
-        if data['meta'].get('updatedAt'):
-            data['meta']['updatedAt'] = data['meta']['updatedAt'].isoformat()
+    if data:
+        if data.get('createdAt'):
+            data['createdAt'] = data['createdAt'].isoformat()
+        if data.get('updatedAt'):
+            data['updatedAt'] = data['updatedAt'].isoformat()
     
     request = UniversityRequest(data=data)
     session.add(request)
     await session.commit()
-    await send_university_request(university_data=university, request_id=request.id)
+    await send_university_request(request_id=request.id)
     return {"request_id": request.id}
     
     
@@ -53,7 +53,7 @@ async def sign_in_university(
             httponly=True,
             max_age=3600,
             samesite="lax",
-            secure=False  # поставь True, если у тебя HTTPS
+            secure=False  # True
         )
 
 

@@ -41,12 +41,8 @@ class DepartmentModel(BaseModel):
 class CredentialsModel(BaseModel):
     generatedPassword: Annotated[str, MinLen(8), MaxLen(100)]
 
-# 🔹 7. Метаданные (опционально)
-class MetaModel(BaseModel):
-    createdAt: Optional[datetime]
-    updatedAt: Optional[datetime]
 
-# 🔹 8. Основная информация о ВУЗе
+# 🔹 7. Основная информация о ВУЗе
 class BaseInfoModel(BaseModel):
     fullName: Annotated[str, MinLen(3), MaxLen(255)]
     shortName: Annotated[str, MinLen(2), MaxLen(100)]
@@ -56,17 +52,18 @@ class BaseInfoModel(BaseModel):
     universityTag: Annotated[str, MinLen(2), MaxLen(8)]
     contacts: List[ContactModel]
 
-# 🔹 9. Структура: факультеты и кафедры
+# 🔹 8. Структура: факультеты и кафедры
 class StructureModel(BaseModel):
     faculties: List[FacultyModel]
     departments: List[DepartmentModel]
 
-# 🔹 10. Итоговая модель
+# 🔹 9. Итоговая модель
 class UniversityModel(BaseModel):
     baseInfo: BaseInfoModel
     structure: StructureModel
     employees: List[EmployeeModel]
     credentials: CredentialsModel
-    meta: Optional[MetaModel] = None
+    createdAt: Optional[datetime]
+    updatedAt: Optional[datetime]
 
     
