@@ -12,8 +12,8 @@ class ContactModel(BaseModel):
 
 # 🔹 2. Изображение
 class ImageStateModel(BaseModel):
-    name: str
-    url: str
+    name: Optional[str]
+    url: Optional[str]
 
 # 🔹 3. Факультет
 class FacultyModel(BaseModel):

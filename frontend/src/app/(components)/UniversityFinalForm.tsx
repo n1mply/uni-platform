@@ -11,24 +11,10 @@ export default function UniversityFinalForm() {
   const { fullName } = useUniversityForm();
   const { xPer, setXPer } = useUniversityForm();
   const { image, setImage } = useUniversityForm()
-  const { universityImage, setUniversityImage } = useUniversityForm()
   const { universityTag, setUniversityTag } = useUniversityForm();
   const { generatedPassword, setGeneratedPassword } = useUniversityForm();
   const [errorMessages, setErrorMessages] = useState<string[]>([])
   const [isCopied, setIsCopied] = useState(false);
-
-  useEffect(() => {
-    const checkForUniImage = async () => {
-      if (image) {
-        setUniversityImage(image)
-      }
-      else {
-        setUniversityImage(null)
-      }
-    };
-    checkForUniImage()
-  }, [image]);
-
 
   useEffect(() => {
     generatePassword();
@@ -37,13 +23,10 @@ export default function UniversityFinalForm() {
   const validateAllSteps = () => {
     const errors: string[] = [];
 
-    if (universityImage && universityTag.length>=2 && generatedPassword) {
+    if (universityTag.length>=2 && generatedPassword) {
       setXPer(xPer + 1)
     }
     else {
-      if (!universityImage) {
-        errors.push('Добавьте изображение ВУЗу!')
-      }
       if (!universityTag || universityTag.length < 2) {
         errors.push('Поле с тэгом не может быть пустым и болжно содержать не менее 2 символов!')
       }
@@ -79,15 +62,6 @@ export default function UniversityFinalForm() {
           <p className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8 text-center">Настройте уникальные параметры для вашего ВУЗа</p>
 
           <ErrorAlert errors={errorMessages} duration={5000}/>
-
-          <div className="flex flex-col gap-2 bg-white rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100 mb-4 sm:mb-6">
-            <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-5">
-              <DragNDrop tabIndex={xPer !== 5 ? -1 : 0} />
-              <p className="text-sm lg:text-base text-gray-600 text-left lg:w-2/3">
-                Добавьте логотип университета<br />(рекомедуется формат svg, 512x512px)
-              </p>
-            </div>
-          </div>
 
 
           {/* University ID Section */}

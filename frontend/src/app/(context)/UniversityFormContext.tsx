@@ -50,8 +50,6 @@ type UniversityFormData = {
     setDescription: (description: string) => void;
     address: string;
     setAddress: (address: string) => void;
-    universityImage: ImageState;
-    setUniversityImage: (universityImage: ImageState) => void;
     image: ImageState;
     setImage: (image: ImageState) => void;
     faculties: Faculty[];
@@ -76,7 +74,6 @@ export function UniversityFormProvider({ children }: { children: ReactNode }) {
     const [shortName, setShortName] = useState("");
     const [description, setDescription] = useState("");
     const [address, setAddress] = useState("");
-    const [universityImage, setUniversityImage] = useState<ImageState>(null)
     const [image, setImage] = useState<ImageState>(null);
     const [faculties, setFaculties] = useState<Faculty[]>([])
     const [departments, setDepartments] = useState<Department[]>([])
@@ -96,7 +93,10 @@ export function UniversityFormProvider({ children }: { children: ReactNode }) {
                             shortName,
                             description,
                             address,
-                            universityImage,
+                            universityImage: {
+                                name: "noname",
+                                url: "nourl"
+                            },
                             universityTag,
                             contacts
                         },
@@ -138,7 +138,7 @@ export function UniversityFormProvider({ children }: { children: ReactNode }) {
         };
 
         createUniversity();
-    }, [xPer, fullName, shortName, description, address, universityImage, universityTag, contacts, faculties, departments, employee, generatedPassword]);
+    }, [xPer, fullName, shortName, description, address, universityTag, contacts, faculties, departments, employee, generatedPassword]);
 
     useMemo(() => {
         if (fullName) {
@@ -154,7 +154,6 @@ export function UniversityFormProvider({ children }: { children: ReactNode }) {
         shortName, setShortName,
         description, setDescription,
         address, setAddress,
-        universityImage, setUniversityImage,
         image, setImage,
         faculties, setFaculties,
         departments, setDepartments,
@@ -163,7 +162,7 @@ export function UniversityFormProvider({ children }: { children: ReactNode }) {
         generatedPassword, setGeneratedPassword
     }), [
         contacts, xPer, fullName, shortName,
-        description, address, universityImage, image, faculties,
+        description, address, image, faculties,
         departments, employee, universityTag, generatedPassword
     ]);
 
