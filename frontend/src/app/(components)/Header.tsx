@@ -5,17 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { Menu, X, Gauge } from "lucide-react";
 
-type info = {
-  id: number;
-  tag: string;
-  fullName: string;
-  shortName: string;
-  address: string;
-}
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
-  const [baseInfo, setBaseInfo] = useState<info | null>(null);
   const [hasCred, setHasCred] = useState(false)
 
   useEffect(() => {
@@ -28,7 +20,6 @@ export default function Header() {
       if (response.ok) {
         const data = await response.json()
         setHasCred(true)
-        setBaseInfo(data)
         console.log(data)
       }
       else {
@@ -44,11 +35,18 @@ export default function Header() {
         <Image
           src="/logo.svg"
           alt="UniPlatform logo"
-          width={32}
-          height={32}
-          className="w-8 h-8"
+          width={64}
+          height={64}
+          className="w-10 h-10 scale-[1.1]"
         />
-        <span className="text-lg hidden sm:flex  font-bold text-gray-800">UniPlatform</span>
+        <Image
+          src="/textdark.svg"
+          alt="UniPlatform logo"
+          width={128}
+          height={64}
+          className="w-32 h-10 scale-[1.1] hidden sm:flex"
+        />
+
       </Link>
 
       {!isOpen && (
