@@ -50,8 +50,6 @@ type UniversityFormData = {
     setDescription: (description: string) => void;
     address: string;
     setAddress: (address: string) => void;
-    image: ImageState;
-    setImage: (image: ImageState) => void;
     faculties: Faculty[];
     setFaculties: (faculties: Faculty[] | ((prev: Faculty[]) => Faculty[])) => void;
     departments: Department[];
@@ -74,7 +72,6 @@ export function UniversityFormProvider({ children }: { children: ReactNode }) {
     const [shortName, setShortName] = useState("");
     const [description, setDescription] = useState("");
     const [address, setAddress] = useState("");
-    const [image, setImage] = useState<ImageState>(null);
     const [faculties, setFaculties] = useState<Faculty[]>([])
     const [departments, setDepartments] = useState<Department[]>([])
     const [employee, setEmployee] = useState<Employee[]>([])
@@ -154,7 +151,6 @@ export function UniversityFormProvider({ children }: { children: ReactNode }) {
         shortName, setShortName,
         description, setDescription,
         address, setAddress,
-        image, setImage,
         faculties, setFaculties,
         departments, setDepartments,
         employee, setEmployee,
@@ -162,7 +158,7 @@ export function UniversityFormProvider({ children }: { children: ReactNode }) {
         generatedPassword, setGeneratedPassword
     }), [
         contacts, xPer, fullName, shortName,
-        description, address, image, faculties,
+        description, address, faculties,
         departments, employee, universityTag, generatedPassword
     ]);
 

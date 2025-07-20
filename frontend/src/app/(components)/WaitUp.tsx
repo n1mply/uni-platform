@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from "framer-motion";
-import { MailCheck, Hourglass } from "lucide-react";
+import { Hourglass } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function WaitUp() {

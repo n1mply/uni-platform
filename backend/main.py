@@ -15,11 +15,12 @@ from redis import asyncio as aioredis
 from aiogram import exceptions
 from core.config import settings
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print('Starting...')
     # await reset_db()
-    # await create_database()
+    await create_database()
     redis = aioredis.from_url("redis://localhost:6379")
     FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
     if settings.WEBHOOK_URL:

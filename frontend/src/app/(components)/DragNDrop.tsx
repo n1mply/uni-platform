@@ -1,14 +1,17 @@
 import { useState, useRef, useCallback } from 'react';
 import { Inbox, Trash2 } from 'lucide-react';
-import { useUniversityForm } from "@/app/(context)/UniversityFormContext";
+import { ImageState } from '@/app/(context)/UniversityFormContext';
 
 type DragConfig = {
     tabIndex?: number;
-    full?: boolean;
+    image: ImageState;
+    setImage: (image: ImageState) => void;
+    fit?: boolean;
+    w?: string;
+    h?: string;
 }
 
-export default function DragNDrop({ tabIndex, full }: DragConfig) {
-    const { image, setImage } = useUniversityForm()
+export default function DragNDrop({ tabIndex, image, setImage, fit = true, w = '', h = '' }: DragConfig) {
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -69,9 +72,12 @@ export default function DragNDrop({ tabIndex, full }: DragConfig) {
     };
     return (
         <div
-            className={`relative lg:w-1/2 w-full border-3 rounded-xl mb-5 transition-all duration-300 ease-in-out
+            className={fit ? `relative lg:w-1/2 w-full border-3 rounded-xl mb-5 transition-all duration-300 ease-in-out
     ${isDragging ? 'border-indigo-50' : 'border-gray-100 hover:border-blue-700'}
-    ${image ? 'border-solid' : ''}`}
+    ${image ? 'border-solid' : ''}` : `relative ${w} ${h} border-3 rounded-xl mb-5 transition-all duration-300 ease-in-out
+    ${isDragging ? 'border-indigo-50' : 'border-gray-100 hover:border-blue-700'}
+    ${image ? 'border-solid' : ''}`
+            }
             onDragOver={onDragOver}
             onDrop={onDrop}
             onDragLeave={onDragLeave}

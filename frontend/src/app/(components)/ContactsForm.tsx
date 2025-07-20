@@ -5,7 +5,6 @@ import FloatingInput from "@/app/(components)/FloatingInput";
 import { AtSign, Smartphone } from 'lucide-react';
 import { useEffect, useState } from "react";
 import { z } from "zod";
-import { motion, AnimatePresence } from 'framer-motion';
 import ErrorAlert from "./ErrorAlert";
 
 const emailSchema = z.string().email("Некорректный email");

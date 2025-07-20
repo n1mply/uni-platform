@@ -102,7 +102,7 @@ export default function BaseForm() {
                         className={`peer block w-full border border-gray-300 rounded px-4 pt-8 pb-2 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0 resize-none`}
                         placeholder=" "
                         minLength={60}
-                        maxLength={340}
+                        maxLength={300}
                     />
                     <label
                         htmlFor="description"

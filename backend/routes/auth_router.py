@@ -11,6 +11,7 @@ from schemas.university_signin_schema import UniSignIn
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from models.university import University
+from models.contact import Contact
 
 auth_router = APIRouter(prefix='/auth' ,tags=['Auth'])
 
@@ -73,13 +74,29 @@ async def get_current_university(
 ):
     token_payload = request.state.token_payload
 
+    # Получаем университет
     result = await session.execute(
         select(University).where(University.id == token_payload["university_id"])
     )
     university = result.scalar_one_or_none()
-
+    
     if not university:
         raise HTTPException(status_code=404, detail="Университет не найден")
+
+    # Получаем контакты университета
+    result = await session.execute(
+        select(Contact).where(Contact.university_id == token_payload["university_id"])
+    )
+    contacts = result.scalars().all()
+    
+    # Подготавливаем список контактов для ответа
+    contacts_list = [
+        {
+            "name": c.name,
+            "type": c.type.value,
+            "value": c.value
+        } for c in contacts
+    ]
 
     return {
         "id": university.id,
@@ -88,5 +105,6 @@ async def get_current_university(
         "shortName": university.short_name,
         "address": university.address,
         "image": university.image,
-        "description": university.description
+        "description": university.description,
+        'contacts': contacts_list
     }
