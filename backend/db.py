@@ -40,11 +40,6 @@ async def create_database():
 
 async def init_db():
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    print("Таблицы созданы")
-    
-async def reset_db():
-    async with engine.begin() as conn: 
         from models.university import University
         from models.contact import Contact
         from models.faculty import Faculty
@@ -52,7 +47,21 @@ async def reset_db():
         from models.employee import Employee
         from models.credentials import UniversityCredentials
         from models.request import UniversityRequest
+        
+        await conn.run_sync(Base.metadata.create_all)
+    print("Таблицы созданы")
+    
+async def reset_db():
+    async with engine.begin() as conn: 
         # Сначала создаем все таблицы (если их нет)
+        from models.university import University
+        from models.contact import Contact
+        from models.faculty import Faculty
+        from models.department import Department
+        from models.employee import Employee
+        from models.credentials import UniversityCredentials
+        from models.request import UniversityRequest
+        
         await conn.run_sync(Base.metadata.create_all)
         
         # Затем получаем информацию о существующих таблицах

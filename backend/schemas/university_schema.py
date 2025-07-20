@@ -49,6 +49,7 @@ class BaseInfoModel(BaseModel):
     description: Annotated[str, MinLen(60), MaxLen(300)]
     address: Annotated[str, MinLen(10), MaxLen(255)]
     universityImage: Optional[ImageStateModel]
+    universityBanner: Optional[ImageStateModel]
     universityTag: Annotated[str, MinLen(2), MaxLen(8)]
     contacts: List[ContactModel]
 

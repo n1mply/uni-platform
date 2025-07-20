@@ -4,13 +4,11 @@ import { useState, useEffect } from "react";
 import { Clipboard, Check, ShieldAlert, Hash, RefreshCw } from "lucide-react";
 import { useUniversityForm } from "../(context)/UniversityFormContext";
 import generateTag from "../(hooks)/generateTag";
-import DragNDrop from "./DragNDrop";
 import ErrorAlert from "./ErrorAlert";
 
 export default function UniversityFinalForm() {
   const { fullName } = useUniversityForm();
   const { xPer, setXPer } = useUniversityForm();
-  const { image, setImage } = useUniversityForm()
   const { universityTag, setUniversityTag } = useUniversityForm();
   const { generatedPassword, setGeneratedPassword } = useUniversityForm();
   const [errorMessages, setErrorMessages] = useState<string[]>([])

@@ -12,6 +12,7 @@ class University(Base):
     description: Mapped[str] = mapped_column(String(500), nullable=True)
     address: Mapped[str] = mapped_column(String(255), nullable=True)
     image: Mapped[str] = mapped_column(String(255), nullable=True)
+    banner: Mapped[str] = mapped_column(String(255), nullable=True)
     university_tag: Mapped[str] = mapped_column(String(100), nullable=False)
 
     created_at: Mapped[datetime] = mapped_column(server_default=text("CURRENT_TIMESTAMP"))
@@ -19,8 +20,6 @@ class University(Base):
         server_default=text("CURRENT_TIMESTAMP"),
         onupdate=datetime.utcnow
     )
-
-    # Используем строки вместо прямых импортов
     contacts: Mapped[list["Contact"]] = relationship("Contact", back_populates="university", cascade="all, delete-orphan")
     faculties: Mapped[list["Faculty"]] = relationship("Faculty", back_populates="university", cascade="all, delete-orphan")
     departments: Mapped[list["Department"]] = relationship("Department", back_populates="university", cascade="all, delete-orphan")

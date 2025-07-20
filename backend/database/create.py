@@ -35,6 +35,7 @@ async def create_university(data: dict, session):
                 description=university_data.baseInfo.description,
                 address=university_data.baseInfo.address,
                 image=university_data.baseInfo.universityImage.url if university_data.baseInfo.universityImage else None,
+                banner=university_data.baseInfo.universityBanner.url if university_data.baseInfo.universityBanner else None,
                 university_tag=university_data.baseInfo.universityTag
             )
         session.add(uni)

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar, { SidebarItem } from "../(components)/CustomSidebar";
-import { Home, Settings, IdCardLanyard, Book, GraduationCap } from "lucide-react";
+import { Home, Settings, IdCardLanyard, Book, GraduationCap, Save, RefreshCw } from "lucide-react";
 import { Contact, ImageState } from '../(context)/UniversityFormContext';
 import FloatingInput from "@/app/(components)/FloatingInput";
 import DragNDrop from "@/app/(components)/DragNDrop";
@@ -89,53 +89,62 @@ export default function Dashboard() {
         }
     };
 
+    const handleReset = () => {
+        if (baseInfo) {
+            setFullName(baseInfo.fullName);
+            setShortName(baseInfo.shortName);
+            setAddress(baseInfo.address);
+            setDescription(baseInfo.description);
+            setImage(baseInfo.image === 'string' ? null : baseInfo.image);
+            setBanner(baseInfo.banner === 'string' ? null : baseInfo.banner);
+        }
+    };
+
     const unactive = !fullName || !shortName || !address || description.length < 60;
 
     return (
-        <div className="flex min-h-screen">
+        <div className="flex min-h-screen bg-gray-100">
             <Sidebar items={items} />
 
-            <main className="flex-1 p-6 overflow-auto">
-                {/* Баннер */}
+            <main className="flex-1 p-6 overflow-auto bg-white shadow-lg scale-[0.96] rounded-xl">
+                <h1 className="text-2xl mt-10 lg:mt-0 font-bold mb-6">Информация о ВУЗе</h1>
                 <div className="w-full mb-6">
                     <p className="mb-2 text-sm text-gray-600">Баннер</p>
-                    <DragNDrop image={banner} setImage={setBanner} fit={false} w="w-full" h="h-[200px]" />
+                    <DragNDrop image={banner} setImage={setBanner} proportion={false} height='200px' label={`Перетащите файл сюда или нажмите, чтобы загрузить. Добавьте изображение размером минимум 1280x200px`} />
                 </div>
 
-                {/* Аватарка */}
                 <div className="w-full sm:w-[300px] mb-6">
                     <p className="mb-2 text-sm text-gray-600">Аватарка ВУЗа</p>
-                    <DragNDrop image={image} setImage={setImage} fit={false} w=''/>
+                    <DragNDrop image={image} setImage={setImage} proportion={true} height='200px' />
                 </div>
 
-                {/* Основная информация */}
-                <h1 className="text-2xl font-bold mb-6">Информация о ВУЗе</h1>
+                <div className="flex flex-wrap gap-2">
+                    <FloatingInput
+                        id="fullName"
+                        label="Полное название"
+                        value={fullName}
+                        onChange={setFullName}
+                        className="relative mb-5 flex-1 min-w-full sm:min-w-0 sm:w-1/2"
+                    />
 
-                <FloatingInput
-                    id="fullName"
-                    label="Полное название"
-                    value={fullName}
-                    onChange={setFullName}
-                    className="relative w-full max-w-2xl mb-6"
-                />
-
-                <FloatingInput
-                    id="shortName"
-                    label="Краткое название"
-                    value={shortName}
-                    onChange={setShortName}
-                    className="relative w-full max-w-2xl mb-6"
-                />
+                    <FloatingInput
+                        id="shortName"
+                        label="Краткое название"
+                        value={shortName}
+                        onChange={setShortName}
+                        className="relative mb-6 flex-1 min-w-full sm:min-w-0 sm:w-1/2"
+                    />
+                </div>
 
                 <FloatingInput
                     id="address"
                     label="Полный адрес"
                     value={address}
                     onChange={setAddress}
-                    className="relative w-full max-w-2xl mb-6"
+                    className="relative w-full mb-6"
                 />
 
-                <div className="relative w-full max-w-2xl mb-6">
+                <div className="relative w-full mb-6">
                     <textarea
                         id="description"
                         rows={4}
@@ -159,12 +168,22 @@ export default function Dashboard() {
                     </label>
                 </div>
 
-                <button
-                    onClick={handleSave}
-                    className={`w-full max-w-2xl mb-2 mt-10 ${unactive ? 'bg-gray-500' : 'bg-blue-600'} text-white px-6 py-3 rounded-lg ${unactive ? 'hover:bg-gray-500' : 'hover:bg-blue-700'} cursor-pointer transition text-center block`}
-                >
-                    Сохранить
-                </button>
+                <div className="flex flex-wrap gap-2 mt-10">
+                    <button
+                        onClick={handleSave}
+                        className={`flex-1 min-w-full flex justify-center gap-2 font-medium sm:min-w-0 sm:w-1/2 ${unactive ? 'bg-gray-500' : 'bg-blue-600'} text-white px-6 py-3 rounded-lg ${unactive ? 'hover:bg-gray-500' : 'hover:bg-blue-700'} cursor-pointer transition text-center`}
+                    >
+                        <Save />
+                        Сохранить
+                    </button>
+                    <button
+                        onClick={handleReset}
+                        className="flex-1 min-w-full flex justify-center gap-2 font-medium sm:min-w-0 sm:w-1/2 bg-gray-300 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-400 cursor-pointer transition text-center"
+                    >
+                        <RefreshCw />
+                        Сбросить
+                    </button>
+                </div>
             </main>
         </div>
     );

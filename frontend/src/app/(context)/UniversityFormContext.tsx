@@ -94,8 +94,12 @@ export function UniversityFormProvider({ children }: { children: ReactNode }) {
                                 name: "noname",
                                 url: "nourl"
                             },
+                            universityBanner: {
+                                name: "noname",
+                                url: "nourl"
+                            },
                             universityTag,
-                            contacts
+                            contacts,
                         },
                         structure: {
                             faculties: [],
