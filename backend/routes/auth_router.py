@@ -105,6 +105,7 @@ async def get_current_university(
         "shortName": university.short_name,
         "address": university.address,
         "image": university.image,
+        "banner": university.banner,
         "description": university.description,
         'contacts': contacts_list
     }

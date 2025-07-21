@@ -8,15 +8,14 @@ from core.config import settings
 
 
 Base = declarative_base()
-engine = create_async_engine(settings.sync_url, echo=True)
+engine = create_async_engine(settings.async_url, echo=True)
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
 
-async def get_async_session() -> AsyncSession: # type: ignore
+async def get_async_session():
     async with AsyncSessionLocal() as session:
         yield session
 
 async def check_tables_exist():
-    """Проверка существования таблиц через асинхронный inspect"""
     async with engine.connect() as conn:
         tables = await conn.run_sync(
             lambda sync_conn: inspect(sync_conn).get_table_names()
@@ -53,7 +52,6 @@ async def init_db():
     
 async def reset_db():
     async with engine.begin() as conn: 
-        # Сначала создаем все таблицы (если их нет)
         from models.university import University
         from models.contact import Contact
         from models.faculty import Faculty
@@ -63,11 +61,8 @@ async def reset_db():
         from models.request import UniversityRequest
         
         await conn.run_sync(Base.metadata.create_all)
-        
-        # Затем получаем информацию о существующих таблицах
         await conn.run_sync(Base.metadata.reflect)
         
-        # Удаляем данные из таблиц в правильном порядке
         for table in reversed(Base.metadata.sorted_tables):
             await conn.execute(table.delete())
     

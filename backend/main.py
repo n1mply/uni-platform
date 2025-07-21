@@ -13,6 +13,7 @@ from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from redis import asyncio as aioredis
 from aiogram import exceptions
+from fastapi.staticfiles import StaticFiles
 from core.config import settings
 
 
@@ -20,7 +21,7 @@ from core.config import settings
 async def lifespan(app: FastAPI):
     print('Starting...')
     # await reset_db()
-    await create_database()
+    # await create_database()
     redis = aioredis.from_url("redis://localhost:6379")
     FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
     if settings.WEBHOOK_URL:
@@ -38,6 +39,9 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(auth_router)
 app.include_router(bot_router)
 app.include_router(uni_router)
+
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 

@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar, { SidebarItem } from "../(components)/CustomSidebar";
-import { Home, Settings, IdCardLanyard, Book, GraduationCap, Save, RefreshCw } from "lucide-react";
+import { Home, Settings, IdCardLanyard, Book, GraduationCap, Save, RefreshCw, Mail, Bot } from "lucide-react";
 import { Contact, ImageState } from '../(context)/UniversityFormContext';
 import FloatingInput from "@/app/(components)/FloatingInput";
+import { blobUrlToBase64 } from "../(hooks)/blobToBase64";
 import DragNDrop from "@/app/(components)/DragNDrop";
 
 type UniversityData = {
@@ -32,10 +33,12 @@ export default function Dashboard() {
     const router = useRouter();
 
     const items: SidebarItem[] = [
-        { option: 'Главная', link: '/dashboard', icon: <Home size={20} /> },
+        { option: 'Главная', link: '/dashboard/', icon: <Home size={20} /> },
+        { option: 'Контакты', link: '/dashboard/contacts', icon: <Mail size={20} /> },
         { option: 'Сотрудники', link: '/dashboard/employees', icon: <IdCardLanyard size={20} /> },
         { option: 'Факультеты', link: '/dashboard/faculties', icon: <GraduationCap size={20} /> },
         { option: 'Кафедры', link: '/dashboard/departments', icon: <Book size={20} /> },
+        { option: 'Миграции', link: '/dashboard/migration', icon: <Bot size={20} /> },
         { option: 'Настройки', link: '/dashboard/settings', icon: <Settings size={20} /> },
     ];
 
@@ -48,13 +51,20 @@ export default function Dashboard() {
 
             if (response.ok) {
                 const data = await response.json();
+                console.log(data)
                 setBaseInfo(data);
                 setFullName(data.fullName);
                 setShortName(data.shortName);
                 setAddress(data.address);
                 setDescription(data.description);
-                setImage(data.image === 'string' ? null : data.image);
-                setBanner(data.banner === 'string' ? null : data.banner);
+                setImage(data.image === '' ? null : {
+                    name: 'avatar',
+                    url: data.image
+                });
+                setBanner(data.banner === '' ? null : {
+                    name: 'banner',
+                    url: data.banner
+                });
             } else {
                 router.push("/");
             }
@@ -63,17 +73,42 @@ export default function Dashboard() {
         getMe();
     }, [router]);
 
+
+
     const handleSave = async () => {
+        let imageData = null;
+        let bannerData = null;
+
+        if (image) {
+            const base64 = await blobUrlToBase64(image.url);
+            imageData = {
+                name: image.name,
+                base64,
+                type: 'avatar',
+            };
+        }
+
+        if (banner) {
+            const base64 = await blobUrlToBase64(banner.url);
+            bannerData = {
+                name: banner.name,
+                base64,
+                type: 'banner',
+            };
+        }
+
         const payload = {
             fullName,
             shortName,
             address,
             description,
-            image,
-            banner,
+            image: imageData,
+            banner: bannerData,
         };
 
-        const res = await fetch(`/api/university/update`, {
+        console.log("Отправляемые данные:", JSON.stringify(payload, null, 2));
+
+        const res = await fetch(`/api/university/update/base`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -89,14 +124,15 @@ export default function Dashboard() {
         }
     };
 
+
     const handleReset = () => {
         if (baseInfo) {
             setFullName(baseInfo.fullName);
             setShortName(baseInfo.shortName);
             setAddress(baseInfo.address);
             setDescription(baseInfo.description);
-            setImage(baseInfo.image === 'string' ? null : baseInfo.image);
-            setBanner(baseInfo.banner === 'string' ? null : baseInfo.banner);
+            setImage(baseInfo.image?.name === 'noname' ? null : baseInfo.image);
+            setBanner(baseInfo.banner?.name === 'noname' ? null : baseInfo.banner);
         }
     };
 
