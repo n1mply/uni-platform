@@ -1,17 +1,13 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from routes.uni_router import uni_router
-from db import create_database, reset_db
 from routes.auth_router import auth_router
 from routes.bot_router import bot_router
 from contextlib import asynccontextmanager
 from aiogram.types import Update
 from bot import bot, dp
 from core.config import settings
-from fastapi_cache import FastAPICache
-from fastapi_cache.backends.redis import RedisBackend
-from redis import asyncio as aioredis
 from aiogram import exceptions
 from fastapi.staticfiles import StaticFiles
 from core.config import settings
@@ -20,10 +16,6 @@ from core.config import settings
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print('Starting...')
-    # await reset_db()
-    # await create_database()
-    redis = aioredis.from_url("redis://localhost:6379")
-    FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
     if settings.WEBHOOK_URL:
         try:
             await bot.set_webhook(f"{settings.webhook_url}/webhook")
@@ -32,8 +24,6 @@ async def lifespan(app: FastAPI):
             await bot.delete_webhook()
     yield
     print('Closing...')
-    # await bot.delete_webhook()
-
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(auth_router)

@@ -1,4 +1,3 @@
-# Файлы окружения
 .env
 .env.local
 .env.*
@@ -14,3 +13,4 @@ pyvenv.cfg
 __pycache__/
 *.py[cod]
 *$py.class
+static

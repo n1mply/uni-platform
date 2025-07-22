@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, Request
+from fastapi_cache import FastAPICache
 from database.update import update_base_by_id
 from services.media_service import save_image
 from schemas.update_university_schema import BasePutModel, BaseResponseModel
@@ -36,7 +37,7 @@ async def update_base_info(
     u_id = token_payload['university_id']
     
     try:
-        # 1. Обрабатываем изображения (если есть)
+
         image_path = None
         banner_path = None
         
@@ -54,7 +55,6 @@ async def update_base_info(
                 filename=f"banner_{u_id}"
             )
         
-        # 2. Формируем "чистые" данные для БД
         db_data = BaseResponseModel(
             fullName=data.fullName,
             shortName=data.shortName,
@@ -64,8 +64,8 @@ async def update_base_info(
             banner=banner_path
         )
         
-        # 3. Обновляем БД
         university = await update_base_by_id(session, u_id, db_data)
+
         
         return {
                 "message": "Данные обновлены",
@@ -78,5 +78,3 @@ async def update_base_info(
             status_code=500,
             detail=f"Ошибка: {str(e)}"
         )
-    
-    

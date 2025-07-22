@@ -57,11 +57,11 @@ export default function Dashboard() {
                 setShortName(data.shortName);
                 setAddress(data.address);
                 setDescription(data.description);
-                setImage(data.image === '' ? null : {
+                setImage(data.image === null ? null : {
                     name: 'avatar',
                     url: data.image
                 });
-                setBanner(data.banner === '' ? null : {
+                setBanner(data.banner === null ? null : {
                     name: 'banner',
                     url: data.banner
                 });
@@ -131,12 +131,12 @@ export default function Dashboard() {
             setShortName(baseInfo.shortName);
             setAddress(baseInfo.address);
             setDescription(baseInfo.description);
-            setImage(baseInfo.image?.name === 'noname' ? null : baseInfo.image);
-            setBanner(baseInfo.banner?.name === 'noname' ? null : baseInfo.banner);
+            setImage(baseInfo.image === null ? null : baseInfo.image);
+            setBanner(baseInfo.banner === null ? null : baseInfo.banner);
         }
     };
 
-    const unactive = !fullName || !shortName || !address || description.length < 60;
+    const unactive = fullName.length < 3 || shortName.length < 2 || address.length < 10 || description.length < 60;
 
     return (
         <div className="flex min-h-screen bg-gray-100">
@@ -160,6 +160,7 @@ export default function Dashboard() {
                         label="Полное название"
                         value={fullName}
                         onChange={setFullName}
+                        maxLength={255}
                         className="relative mb-5 flex-1 min-w-full sm:min-w-0 sm:w-1/2"
                     />
 
@@ -169,6 +170,7 @@ export default function Dashboard() {
                         value={shortName}
                         onChange={setShortName}
                         className="relative mb-6 flex-1 min-w-full sm:min-w-0 sm:w-1/2"
+                        maxLength={100}
                     />
                 </div>
 
@@ -178,6 +180,7 @@ export default function Dashboard() {
                     value={address}
                     onChange={setAddress}
                     className="relative w-full mb-6"
+                    maxLength={255}
                 />
 
                 <div className="relative w-full mb-6">

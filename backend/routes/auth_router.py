@@ -1,4 +1,3 @@
-from fastapi_cache.decorator import cache
 from fastapi import APIRouter, Depends, HTTPException, Response, Request
 from security.token import auth_required
 from bot import send_university_request
@@ -63,18 +62,14 @@ async def sign_in_university(
         raise HTTPException(status_code=403, detail=str(e))
     
     
-
-
 @auth_router.get("/me")
 @auth_required
-@cache(expire=300)
 async def get_current_university(
     request: Request,
     session: AsyncSession = Depends(get_async_session)
 ):
     token_payload = request.state.token_payload
 
-    # Получаем университет
     result = await session.execute(
         select(University).where(University.id == token_payload["university_id"])
     )
@@ -83,13 +78,11 @@ async def get_current_university(
     if not university:
         raise HTTPException(status_code=404, detail="Университет не найден")
 
-    # Получаем контакты университета
     result = await session.execute(
         select(Contact).where(Contact.university_id == token_payload["university_id"])
     )
     contacts = result.scalars().all()
     
-    # Подготавливаем список контактов для ответа
     contacts_list = [
         {
             "name": c.name,
@@ -97,7 +90,7 @@ async def get_current_university(
             "value": c.value
         } for c in contacts
     ]
-
+    
     return {
         "id": university.id,
         "tag": university.university_tag,

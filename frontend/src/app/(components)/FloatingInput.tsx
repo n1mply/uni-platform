@@ -11,6 +11,7 @@ type Props = {
   error?: boolean;
   tabIndex?: number;
   disabled?: boolean;
+  maxLength?: number;
 };
 
 export default function FloatingInput({
@@ -24,6 +25,7 @@ export default function FloatingInput({
   error = false,
   tabIndex = 0,
   disabled = false,
+  maxLength = 255,
 }: Props) {
   return (
     <div className={className === '' ? "relative w-full lg:max-w-2xl mx-auto mb-6" : className}>
@@ -35,6 +37,7 @@ export default function FloatingInput({
         onChange={(e) => onChange(e.target.value)}
         tabIndex={tabIndex}
         disabled={disabled}
+        maxLength={maxLength}
         className={`${disabled ? 'cursor-not-allowed bg-gray-100  ' : ''} peer block w-full appearance-none border ${!error ? "border-gray-300" : "border-red-800"} rounded px-4 pt-6 pb-2 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0`}
       />
       <label
