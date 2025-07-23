@@ -5,7 +5,7 @@ import FloatingInput from "@/app/(components)/FloatingInput";
 import { AtSign, Smartphone } from 'lucide-react';
 import { useEffect, useState } from "react";
 import { z } from "zod";
-import ErrorAlert from "./ErrorAlert";
+import MessageAlert from "./CustomAlert";
 
 const emailSchema = z.string().email("Некорректный email");
 const phoneSchema = z
@@ -113,7 +113,7 @@ export default function ContactsForm() {
                     Введите минимум один номер телефона и почту для продолжения(по этим контактам будет происходить подтверждение вашего ВУЗа в нашей системе)
                 </p>
                 
-                <ErrorAlert errors={errorMessages} duration={5000}/>
+                <MessageAlert messages={errorMessages} duration={5000}/>
 
                 <div className="flex gap-4 justify-between mb-8 flex-wrap mx-auto">
                     <button

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Clipboard, Check, ShieldAlert, Hash, RefreshCw } from "lucide-react";
 import { useUniversityForm } from "../(context)/UniversityFormContext";
 import generateTag from "../(hooks)/generateTag";
-import ErrorAlert from "./ErrorAlert";
+import ErrorAlert from "./CustomAlert";
 
 export default function UniversityFinalForm() {
   const { fullName } = useUniversityForm();

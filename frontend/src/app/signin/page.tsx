@@ -1,7 +1,7 @@
 "use client"
 import { useEffect, useState } from "react";
 import FloatingInput from "../(components)/FloatingInput";
-import ErrorAlert from "../(components)/ErrorAlert";
+import ErrorAlert from "../(components)/CustomAlert";
 import { useRouter } from "next/navigation";
 
 

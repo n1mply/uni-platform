@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, Request
+from fastapi.responses import JSONResponse
 from security.token import auth_required
 from bot import send_university_request
 from models.request import UniversityRequest
@@ -77,21 +78,8 @@ async def get_current_university(
     
     if not university:
         raise HTTPException(status_code=404, detail="Университет не найден")
-
-    result = await session.execute(
-        select(Contact).where(Contact.university_id == token_payload["university_id"])
-    )
-    contacts = result.scalars().all()
     
-    contacts_list = [
-        {
-            "name": c.name,
-            "type": c.type.value,
-            "value": c.value
-        } for c in contacts
-    ]
-    
-    return {
+    data = {
         "id": university.id,
         "tag": university.university_tag,
         "fullName": university.full_name,
@@ -100,5 +88,13 @@ async def get_current_university(
         "image": university.image,
         "banner": university.banner,
         "description": university.description,
-        'contacts': contacts_list
     }
+    
+    return JSONResponse(
+        content=data,
+        headers={
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0"
+        }
+    )

@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, Request
+from fastapi.responses import JSONResponse
 from fastapi_cache import FastAPICache
 from database.update import update_base_by_id
-from services.media_service import save_image
+from services.media_service import delete_image, save_image
 from schemas.update_university_schema import BasePutModel, BaseResponseModel
 from database.read import get_university_data_by_id
 from security.token import auth_required
@@ -47,6 +48,11 @@ async def update_base_info(
                 folder="images",
                 filename=f"avatar_{u_id}"
             )
+        else:
+            await delete_image(
+                folder="images",
+                filename=f"avatar_{u_id}"
+                )
         
         if data.banner:
             banner_path = await save_image(
@@ -54,6 +60,11 @@ async def update_base_info(
                 folder="banners",
                 filename=f"banner_{u_id}"
             )
+        else:
+            await delete_image(
+                folder="banners",
+                filename=f"banner_{u_id}"
+                )
         
         db_data = BaseResponseModel(
             fullName=data.fullName,
@@ -67,10 +78,12 @@ async def update_base_info(
         university = await update_base_by_id(session, u_id, db_data)
 
         
-        return {
-                "message": "Данные обновлены",
-                "university": db_data.dict()
-                }
+        return JSONResponse(
+            content={"status": "success"},
+            headers={
+                "Cache-Control": "no-store"
+        }
+    )
         
         
     except Exception as e:

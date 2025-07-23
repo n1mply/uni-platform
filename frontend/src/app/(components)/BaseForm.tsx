@@ -3,7 +3,7 @@
 import { useUniversityForm } from "@/app/(context)/UniversityFormContext";
 import FloatingInput from "@/app/(components)/FloatingInput";
 import { useEffect, useState } from "react";
-import ErrorAlert from "./ErrorAlert";
+import MessageAlert from "./CustomAlert";
 
 
 export default function BaseForm() {
@@ -64,7 +64,7 @@ export default function BaseForm() {
                     Добавьте базовую информацию о высшем учебном заведении
                 </p>
 
-                <ErrorAlert errors={errorMessages}/>
+                <MessageAlert messages={errorMessages}/>
 
                 <FloatingInput
                     id="fullName"
