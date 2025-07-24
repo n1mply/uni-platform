@@ -82,8 +82,8 @@ async def get_current_university(
     data = {
         "id": university.id,
         "tag": university.university_tag,
-        "fullName": university.full_name,
-        "shortName": university.short_name,
+        "full_name": university.full_name,
+        "short_name": university.short_name,
         "address": university.address,
         "image": university.image,
         "banner": university.banner,

@@ -1,9 +1,8 @@
-// app/dashboard/page.tsx
 'use client';
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Contact, ImageState } from '../(context)/UniversityFormContext';
+import { ImageState } from '../(context)/UniversityFormContext';
 import FloatingInput from "@/app/(components)/FloatingInput";
 import { blobUrlToBase64 } from "../(hooks)/blobToBase64";
 import DragNDrop from "@/app/(components)/DragNDrop";
@@ -13,13 +12,12 @@ import { Save, RefreshCw } from "lucide-react";
 type UniversityData = {
     id: string;
     tag: string;
-    fullName: string;
-    shortName: string;
+    full_name: string;
+    short_name: string;
     address: string;
     image: ImageState;
     banner: ImageState;
     description: string;
-    contact: Contact[];
 };
 
 export default function DashboardPage() {
@@ -50,8 +48,8 @@ export default function DashboardPage() {
             if (response.ok) {
                 const data = await response.json();
                 setBaseInfo(data);
-                setFullName(data.fullName);
-                setShortName(data.shortName);
+                setFullName(data.full_name);
+                setShortName(data.short_name);
                 setAddress(data.address);
                 setDescription(data.description);
                 setTag(data.tag);
@@ -102,7 +100,7 @@ export default function DashboardPage() {
             banner: bannerData,
         };
 
-        const res = await fetch(`/api/university/update/base`, {
+        const response = await fetch(`/api/university/update/base`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -111,7 +109,7 @@ export default function DashboardPage() {
             body: JSON.stringify(payload),
         });
 
-        if (res.ok) {
+        if (response.ok) {
             setMessages(['Успешное сохранение!']);
             setIsError(false);
         } else {
@@ -122,8 +120,8 @@ export default function DashboardPage() {
 
     const handleReset = () => {
         if (baseInfo) {
-            setFullName(baseInfo.fullName);
-            setShortName(baseInfo.shortName);
+            setFullName(baseInfo.full_name);
+            setShortName(baseInfo.short_name);
             setAddress(baseInfo.address);
             setDescription(baseInfo.description);
             setImage(baseInfo.image === null ? null : {
@@ -137,7 +135,7 @@ export default function DashboardPage() {
         }
     };
 
-    const unactive = fullName.length < 3 || shortName.length < 2 || address.length < 10 || description.length < 60;
+    const unactive = fullName.length < 3 || fullName.length < 2 || address.length < 10 || description.length < 60;
 
     return (
         <>

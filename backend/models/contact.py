@@ -18,5 +18,4 @@ class Contact(Base):
     university_id: Mapped[int] = mapped_column(
         ForeignKey("universities.id", ondelete="CASCADE"), nullable=False
     )
-    # Используем строку вместо прямого импорта
     university: Mapped["University"] = relationship("University", back_populates="contacts")
