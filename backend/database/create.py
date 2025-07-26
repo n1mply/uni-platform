@@ -124,3 +124,21 @@ async def create_university(data: dict, session):
         await session.rollback()
         print(f"❌ Общая ошибка: {str(e)}")
         raise
+
+
+async def add_contact_by_id(id: int, data: Contact, session):
+    try:
+        contact = Contact(
+            name=data.name,
+            type=data.type,
+            value=data.value,
+            university_id=id
+        )
+        session.add(contact)
+        await session.commit()
+        
+        return True
+    except Exception as e:
+        await session.rollback()
+        print(f"❌ Ошибка при добавлении контакта: {str(e)}")
+        raise

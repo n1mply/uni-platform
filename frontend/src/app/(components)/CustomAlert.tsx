@@ -24,7 +24,6 @@ export default function MessageAlert({
       setIsVisible(true);
       const timer = setTimeout(() => {
         setIsVisible(false);
-        // Вызываем колбэк после скрытия уведомления
         afterDelay?.();
       }, duration);
 

@@ -125,10 +125,10 @@ export default function DragNDrop({
           />
           <button
             onClick={removeImage}
-            className="absolute top-2 right-2 bg-white bg-opacity-70 hover:bg-opacity-100 text-gray-800 rounded-full p-1 shadow-md focus:outline-none"
+            className="absolute top-2 right-2 bg-white bg-opacity-70 hover:bg-opacity-100 text-gray-800 rounded-lg p-1 shadow-md focus:outline-none"
             aria-label="Удалить изображение"
           >
-            <Trash2 size={16} />
+            <Trash2 className='hover:scale-[0.99] transition-all duration-200' size={16} />
           </button>
         </div>
       ) : (

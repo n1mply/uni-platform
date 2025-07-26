@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, Path, Response, Request
 from fastapi.responses import JSONResponse
+from database.create import add_contact_by_id
 from database.update import update_base_by_id
 from services.media_service import delete_image, save_image
 from schemas.update_university_schema import BasePutModel, BaseResponseModel
+from schemas.university_schema import ContactModel
 from database.read import get_contact_by_ids, get_contacts_by_id, get_university_data_by_id
 from security.token import auth_required
 from db import get_async_session
@@ -23,48 +25,6 @@ async def get_full_university_info(
     data = await get_university_data_by_id(id=u_id, session=session)
     
     return {'data' : data}
-
-
-@uni_router.get('/get/contacts', tags=['Contacts'])
-@auth_required
-async def get_contacts(
-    request: Request,
-    session: AsyncSession = Depends(get_async_session)
-    ):
-    token_payload = request.state.token_payload
-    u_id = token_payload['university_id']
-    
-    contacts = await get_contacts_by_id(id=u_id, session=session)
-    contacts_list = [
-        {
-            "id": c.id,
-            "university_id": c.university_id,
-            "name": c.name,
-            "type": c.type,
-            "value": c.value
-        } for c in contacts
-    ]
-    
-    return {'data' : contacts_list}
-
-
-@uni_router.get('/get/contact/{id}', tags=['Contacts'])
-@auth_required
-async def get_contact(
-    request: Request,
-    session: AsyncSession = Depends(get_async_session),
-    id: int  = Path(...),
-):
-    token_payload = request.state.token_payload
-    university_id = token_payload['university_id']
-    
-    contact = await get_contact_by_ids(
-        contact_id=id,
-        university_id=university_id, 
-        session=session
-    )
-    
-    return {'data': contact}
 
 
 @uni_router.put('/update/base')

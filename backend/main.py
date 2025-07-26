@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+from routes.contact_router import contact_router
 from routes.uni_router import uni_router
 from routes.auth_router import auth_router
 from routes.bot_router import bot_router
@@ -29,6 +30,7 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(auth_router)
 app.include_router(bot_router)
 app.include_router(uni_router)
+app.include_router(contact_router)
 
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
