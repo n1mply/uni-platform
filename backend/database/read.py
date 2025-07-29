@@ -97,3 +97,36 @@ async def get_contact_by_ids(contact_id: int, university_id: int, session: Async
         raise HTTPException(status_code=404, detail='Контакта с таким университетом не найдено')
     
     return contact
+
+
+
+async def get_departents_by_id(id: int, session: AsyncSession):
+    result = await session.execute(
+        select(Department).where(Department.university_id == id)
+    )
+    departments = result.scalars().all()
+    return departments
+
+
+
+
+async def get_employees_by_id(id: int, session: AsyncSession):
+    result = await session.execute(
+        select(Employee).where(Employee.university_id == id)
+    )
+    employees = result.scalars().all()
+    return employees
+
+async def get_employee_heads_by_id(id: int, session: AsyncSession):
+    result = await session.execute(
+        select(Employee).where(
+            (Employee.is_dep_head == True) &
+            (Employee.university_id == id)
+        )
+    )
+    employees = result.scalars().all()
+    
+    if not employees:
+        raise HTTPException(status_code=404, detail='Заведующего кафедры в этом университете не найдено')
+    
+    return employees

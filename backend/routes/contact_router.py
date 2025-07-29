@@ -41,17 +41,8 @@ async def get_contacts(
     u_id = token_payload['university_id']
     
     contacts = await get_contacts_by_id(id=u_id, session=session)
-    contacts_list = [
-        {
-            "id": c.id,
-            "university_id": c.university_id,
-            "name": c.name,
-            "type": c.type,
-            "value": c.value
-        } for c in contacts
-    ]
     
-    return {'data' : contacts_list}
+    return {'data' : contacts}
 
 
 @contact_router.get('/get/{id}', tags=['Contacts'])
@@ -76,7 +67,7 @@ async def get_contact(
 
 @contact_router.get('/delete/{id}')
 @auth_required
-async def create_contact(
+async def delete_contact(
     request: Request,
     session: AsyncSession = Depends(get_async_session),
     id: int  = Path(...),
