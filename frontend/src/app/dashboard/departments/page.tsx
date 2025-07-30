@@ -1,7 +1,7 @@
 'use client'
 
 import { useAlertContext } from "@/app/(context)/AlertContext"
-import { AtSign, BookOpen, MapPin, Smartphone, Users } from "lucide-react"
+import { AtSign, BookOpen, MapPin, Smartphone, Users, School } from "lucide-react"
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react"
 
@@ -25,12 +25,19 @@ interface Department {
     head_id: number;
 }
 
+interface Faculty {
+    id: number;
+    name: string;
+    tag: string;
+    icon_path: string;
+}
+
 export default function DepartmentsPage({ }) {
     const router = useRouter();
-
     const { showAlert, hideAlert } = useAlertContext()
     const [departments, setDepartments] = useState<Department[]>([])
     const [employees, setEmployees] = useState<Employee[]>([])
+    const [facultyCounts, setFacultyCounts] = useState<Record<number, number>>({})
 
     useEffect(() => {
         const getDepartments = async () => {
@@ -43,6 +50,8 @@ export default function DepartmentsPage({ }) {
                 if (response.ok) {
                     const data = await response.json();
                     setDepartments(data.data)
+                    // Получаем количество факультетов для каждой кафедры
+                    fetchFacultyCounts(data.data.map((d: Department) => d.id))
                 } else {
                     showAlert(["Ошибка при получении кафедры"]);
                     router.push('/');
@@ -78,6 +87,35 @@ export default function DepartmentsPage({ }) {
         getEmployeeHeads()
     }, [router, showAlert])
 
+    const fetchFacultyCounts = async (departmentIds: number[]) => {
+        try {
+            const counts: Record<number, number> = {};
+            
+            await Promise.all(departmentIds.map(async (id) => {
+                const response = await fetch(`/api/faculty/get/relations/department/${id}`, {
+                    method: 'GET',
+                    credentials: 'include',
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    counts[id] = data.length;
+                } else {
+                    counts[id] = 0;
+                }
+            }));
+            
+            setFacultyCounts(counts);
+        } catch (error) {
+            console.error("Ошибка при получении количества факультетов:", error);
+            const zeroCounts = departmentIds.reduce((acc, id) => {
+                acc[id] = 0;
+                return acc;
+            }, {} as Record<number, number>);
+            setFacultyCounts(zeroCounts);
+        }
+    }
+
     const getDepartmentHead = (departmentId: number, departmentHeadId: number) => {
         if (departmentHeadId) {
             const headById = employees.find(emp => emp.id === departmentHeadId);
@@ -102,6 +140,7 @@ export default function DepartmentsPage({ }) {
                     <div className="flex space-x-4">
                         {departments.map((department) => {
                             const departmentHead = getDepartmentHead(department.id, department.head_id);
+                            const facultyCount = facultyCounts[department.id] || 0;
 
                             return (
                                 <div
@@ -140,6 +179,14 @@ export default function DepartmentsPage({ }) {
                                                 >
                                                     {department.email}
                                                 </a>
+                                            </div>
+                                            
+                                            {/* Новый блок с количеством факультетов */}
+                                            <div className="flex items-center pt-2 border-t border-gray-100">
+                                                <School className="h-4 w-4 text-gray-500 mr-2" />
+                                                <p className="text-gray-600 text-sm">
+                                                    Факультетов привязано: {facultyCount}
+                                                </p>
                                             </div>
 
                                             {departmentHead && (

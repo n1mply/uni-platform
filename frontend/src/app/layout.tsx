@@ -1,7 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 
-export const titleMeta: Metadata = {
+export const metadata: Metadata = {
   title: "UniPlatform",
   description: "Цифровая SaaS-платформа для сайтов ВУЗов",
 };

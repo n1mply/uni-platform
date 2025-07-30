@@ -1,4 +1,5 @@
 from sqlalchemy import select
+from models.faculty_department import FacultyDepartment
 from models.university import University
 from models.faculty import Faculty
 from models.department import Department
@@ -130,3 +131,34 @@ async def get_employee_heads_by_id(id: int, session: AsyncSession):
         raise HTTPException(status_code=404, detail='Заведующего кафедры в этом университете не найдено')
     
     return employees
+
+
+async def get_departments_by_faculty_id(
+    session: AsyncSession,
+    faculty_id: int,
+) -> list[Department]:
+    subquery = (
+        select(FacultyDepartment.department_id)
+        .where(FacultyDepartment.faculty_id == faculty_id)
+        .subquery()
+    )
+    
+    query = select(Department).where(Department.id.in_(subquery))
+    result = await session.execute(query)
+    return list(result.scalars().all())
+
+
+async def get_faculties_by_department_id(
+    session: AsyncSession,
+    department_id: int,
+) -> list[Faculty]:
+    subquery = (
+        select(FacultyDepartment.faculty_id)
+        .where(FacultyDepartment.department_id == department_id)
+        .subquery()
+    )
+
+    query = select(Faculty).where(Faculty.id.in_(subquery))
+    result = await session.execute(query)
+    return list(result.scalars().all())
+
