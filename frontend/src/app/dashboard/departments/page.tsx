@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 
 import { useAlertContext } from "@/app/(context)/AlertContext"
-import { AtSign, BookOpen, MapPin, Smartphone, Users, School } from "lucide-react"
+import { AtSign, Book, MapPin, Smartphone, Users, School, Search, Plus } from "lucide-react"
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 
 interface Employee {
     full_name: string;
@@ -36,8 +37,53 @@ export default function DepartmentsPage({ }) {
     const router = useRouter();
     const { showAlert, hideAlert } = useAlertContext()
     const [departments, setDepartments] = useState<Department[]>([])
+    const [allDepartments, setAllDepartments] = useState<Department[]>([])
     const [employees, setEmployees] = useState<Employee[]>([])
     const [facultyCounts, setFacultyCounts] = useState<Record<number, number>>({})
+    const [searchQuery, setSearchQuery] = useState("")
+    const searchInputRef = useRef<HTMLInputElement>(null)
+    const searchTimeoutRef = useRef<NodeJS.Timeout>()
+
+    const handleSearch = () => {
+        if (!searchQuery.trim()) {
+            setDepartments(allDepartments)
+            return
+        }
+
+        const filtered = allDepartments.filter(department =>
+            department.name.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        setDepartments(filtered)
+    }
+
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value
+        setSearchQuery(value)
+
+        if (!value.trim()) {
+            setDepartments(allDepartments)
+            return
+        }
+
+        // Очищаем предыдущий таймер
+        if (searchTimeoutRef.current) {
+            clearTimeout(searchTimeoutRef.current)
+        }
+
+        // Устанавливаем новый таймер
+        searchTimeoutRef.current = setTimeout(() => {
+            handleSearch()
+        }, 500)
+    }
+
+    useEffect(() => {
+        return () => {
+            // Очищаем таймер при размонтировании компонента
+            if (searchTimeoutRef.current) {
+                clearTimeout(searchTimeoutRef.current)
+            }
+        }
+    }, [])
 
     useEffect(() => {
         const getDepartments = async () => {
@@ -50,7 +96,7 @@ export default function DepartmentsPage({ }) {
                 if (response.ok) {
                     const data = await response.json();
                     setDepartments(data.data)
-                    // Получаем количество факультетов для каждой кафедры
+                    setAllDepartments(data.data)
                     fetchFacultyCounts(data.data.map((d: Department) => d.id))
                 } else {
                     showAlert(["Ошибка при получении кафедры"]);
@@ -90,13 +136,13 @@ export default function DepartmentsPage({ }) {
     const fetchFacultyCounts = async (departmentIds: number[]) => {
         try {
             const counts: Record<number, number> = {};
-            
+
             await Promise.all(departmentIds.map(async (id) => {
                 const response = await fetch(`/api/faculty/get/relations/department/${id}`, {
                     method: 'GET',
                     credentials: 'include',
                 });
-                
+
                 if (response.ok) {
                     const data = await response.json();
                     counts[id] = data.length;
@@ -104,7 +150,7 @@ export default function DepartmentsPage({ }) {
                     counts[id] = 0;
                 }
             }));
-            
+
             setFacultyCounts(counts);
         } catch (error) {
             console.error("Ошибка при получении количества факультетов:", error);
@@ -131,85 +177,137 @@ export default function DepartmentsPage({ }) {
         <>
             <h1 className="text-2xl font-bold text-gray-800">Кафедры</h1>
             <div className="mb-6 w-full">
-                <p className="text-sm text-gray-600 w-2/3">Кафедра может отвечать за несколько специальностей сразу и быть в нескольких факультетах.</p>
-                <p className="text-sm text-gray-600 w-2/3">Нажмите на кафедру, чтобы начать её редактировать или удалить, вы также можете создать новую кафедру.</p>
+                <p className="text-sm text-gray-600 w-full sm:w-2/3">Кафедра может отвечать за несколько специальностей сразу и быть в нескольких факультетах.</p>
+                <p className="text-sm text-gray-600 w-full sm:w-2/3">Нажмите на кафедру, чтобы начать её редактировать или удалить, вы также можете создать новую кафедру.</p>
+            </div>
+            <div className="flex flex-col sm:flex-row w-full justify-between gap-4 sm:gap-0 mb-6">
+                <div className="flex items-center gap-2 w-full sm:w-[40%] justify-between flex-wrap">
+                    <div className="relative flex-1">
+                        <input
+                            ref={searchInputRef}
+                            type="text"
+                            className="block w-full pl-4 pr-12 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200"
+                            placeholder="Поиск по названию кафедры"
+                            value={searchQuery}
+                            onChange={handleSearchChange}
+                        />
+                    </div>
+                    <button
+                        onClick={handleSearch}
+                        className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none transition-all active:scale-[0.97] duration-300 cursor-pointer flex items-center justify-center"
+                        aria-label="Найти"
+                    >
+                        <Search className="h-5 w-5" />
+                    </button>
+                </div>
+                <div className="w-full sm:w-auto">
+                    <button className="w-full sm:w-auto cursor-pointer flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none transition-all active:scale-[0.97] duration-300">
+                        <Plus />
+                        <span className="ml-2">Добавить</span>
+                    </button>
+                </div>
             </div>
 
+
             <div className="relative">
-                <div className="overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900">
-                    <div className="flex space-x-4">
-                        {departments.map((department) => {
-                            const departmentHead = getDepartmentHead(department.id, department.head_id);
-                            const facultyCount = facultyCounts[department.id] || 0;
+                {departments.length === 0 ? (
+                    <div className="text-center py-8">
+                        <p className="text-gray-500">
+                            {searchQuery ? "Ничего не найдено" : "Кафедры не загружены или отсутствуют :("}
+                        </p>
+                        {searchQuery ? (
+                            <button
+                                onClick={() => {
+                                    setSearchQuery("")
+                                    setDepartments(allDepartments)
+                                }}
+                                className="mt-2 text-indigo-600 hover:text-indigo-800 text-sm"
+                            >
+                                Сбросить поиск
+                            </button>
+                        ) : (
+                            <button
+                                className="cursor-pointer mt-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none transition-all active:scale-[0.97] duration-300"
+                            >
+                                Создать кафедру
+                            </button>
+                        )}
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900">
+                        <div className="flex space-x-4">
+                            {departments.map((department) => {
+                                const departmentHead = getDepartmentHead(department.id, department.head_id);
+                                const facultyCount = facultyCounts[department.id] || 0;
 
-                            return (
-                                <div
-                                    key={department.id}
-                                    className="flex-shrink-0 w-80 bg-white rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-all duration-300 cursor-pointer active:scale-[0.97]"
-                                >
-                                    <div className="p-5">
-                                        <div className="flex items-center mb-4">
-                                            <BookOpen className="h-5 w-5 text-indigo-600 mr-2" />
-                                            <h2 className="text-xl font-semibold text-gray-800">
-                                                {department.name}
-                                            </h2>
-                                        </div>
-
-                                        <div className="space-y-3">
-                                            <div className="flex items-start">
-                                                <MapPin className="h-4 w-4 text-gray-500 mt-1 mr-2 flex-shrink-0" />
-                                                <p className="text-gray-600 text-sm">{department.address}</p>
+                                return (
+                                    <div
+                                        key={department.id}
+                                        className="flex-shrink-0 w-80 bg-white rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-all active:scale-[0.97] duration-300 cursor-pointer"
+                                    >
+                                        <div className="p-5">
+                                            <div className="flex items-center mb-4">
+                                                <Book className="h-5 w-5 text-indigo-600 mr-2" />
+                                                <h2 className="text-xl font-semibold text-gray-800">
+                                                    {department.name}
+                                                </h2>
                                             </div>
 
-                                            <div className="flex items-center">
-                                                <Smartphone className="h-4 w-4 text-gray-500 mr-2" />
-                                                <a
-                                                    href={`tel:${department.phone}`}
-                                                    className="text-blue-600 text-sm hover:underline"
-                                                >
-                                                    {department.phone}
-                                                </a>
-                                            </div>
-
-                                            <div className="flex items-center">
-                                                <AtSign className="h-4 w-4 text-gray-500 mr-2" />
-                                                <a
-                                                    href={`mailto:${department.email}`}
-                                                    className="text-blue-600 text-sm hover:underline truncate"
-                                                >
-                                                    {department.email}
-                                                </a>
-                                            </div>
-                                            
-                                            {/* Новый блок с количеством факультетов */}
-                                            <div className="flex items-center pt-2 border-t border-gray-100">
-                                                <School className="h-4 w-4 text-gray-500 mr-2" />
-                                                <p className="text-gray-600 text-sm">
-                                                    Факультетов привязано: {facultyCount}
-                                                </p>
-                                            </div>
-
-                                            {departmentHead && (
-                                                <div className="flex items-start pt-2 border-t border-gray-100 mt-2">
-                                                    <Users className="h-4 w-4 text-gray-500 mt-0.5 mr-2" />
-                                                    <div>
-                                                        <p className="text-gray-600 text-sm font-medium">
-                                                            {departmentHead.full_name}
-                                                        </p>
-                                                        <p className="text-gray-500 text-xs">
-                                                            {departmentHead.position}
-                                                            {departmentHead.academic_degree && `, ${departmentHead.academic_degree}`}
-                                                        </p>
-                                                    </div>
+                                            <div className="space-y-3">
+                                                <div className="flex items-start">
+                                                    <MapPin className="h-4 w-4 text-gray-500 mt-1 mr-2 flex-shrink-0" />
+                                                    <p className="text-gray-600 text-sm">{department.address}</p>
                                                 </div>
-                                            )}
+
+                                                <div className="flex items-center">
+                                                    <Smartphone className="h-4 w-4 text-gray-500 mr-2" />
+                                                    <a
+                                                        href={`tel:${department.phone}`}
+                                                        className="text-blue-600 text-sm hover:underline"
+                                                    >
+                                                        {department.phone}
+                                                    </a>
+                                                </div>
+
+                                                <div className="flex items-center">
+                                                    <AtSign className="h-4 w-4 text-gray-500 mr-2" />
+                                                    <a
+                                                        href={`mailto:${department.email}`}
+                                                        className="text-blue-600 text-sm hover:underline truncate"
+                                                    >
+                                                        {department.email}
+                                                    </a>
+                                                </div>
+
+                                                <div className="flex items-center pt-2 border-t border-gray-100">
+                                                    <School className="h-4 w-4 text-gray-500 mr-2" />
+                                                    <p className="text-gray-600 text-sm">
+                                                        Факультетов привязано: {facultyCount}
+                                                    </p>
+                                                </div>
+
+                                                {departmentHead && (
+                                                    <div className="flex items-start pt-2 border-t border-gray-100 mt-2">
+                                                        <Users className="h-4 w-4 text-gray-500 mt-0.5 mr-2" />
+                                                        <div>
+                                                            <p className="text-gray-600 text-sm font-medium">
+                                                                {departmentHead.full_name}
+                                                            </p>
+                                                            <p className="text-gray-500 text-xs">
+                                                                {departmentHead.position}
+                                                                {departmentHead.academic_degree && `, ${departmentHead.academic_degree}`}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            )
-                        })}
+                                )
+                            })}
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
         </>
     )

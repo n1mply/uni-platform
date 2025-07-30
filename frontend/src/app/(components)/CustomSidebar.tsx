@@ -55,7 +55,7 @@ export default function Sidebar({ items }: { items: SidebarItem[] }) {
         className={`fixed top-0 left-0 bg-white shadow-lg z-50 transition-all duration-300 ease-in-out
           ${isOpen ? 'min-w-1/2' : '-translate-x-full'} 
           lg:relative lg:translate-x-0 lg:w-64`}
-          style={{borderRadius:"0 0 16px 0"}}
+          style={{borderRadius:"0 0 0px 0"}}
       >
         <div className="p-4 h-full flex flex-col">
           {/* Кнопка закрытия */}
