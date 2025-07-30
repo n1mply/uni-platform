@@ -46,6 +46,7 @@ async def init_db():
         from models.employee import Employee
         from models.credentials import UniversityCredentials
         from models.request import UniversityRequest
+        from models.faculty_department import FacultyDepartment
         
         await conn.run_sync(Base.metadata.create_all)
     print("Таблицы созданы")
@@ -59,6 +60,7 @@ async def reset_db():
         from models.employee import Employee
         from models.credentials import UniversityCredentials
         from models.request import UniversityRequest
+        from models.faculty_department import FacultyDepartment
         
         await conn.run_sync(Base.metadata.create_all)
         await conn.run_sync(Base.metadata.reflect)

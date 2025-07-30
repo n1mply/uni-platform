@@ -1,6 +1,6 @@
 from sqlalchemy import ForeignKey, String
-from db import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from db import Base
 
 class Faculty(Base):
     __tablename__ = "faculties"
@@ -11,5 +11,10 @@ class Faculty(Base):
     icon_path: Mapped[str] = mapped_column(String(255), nullable=True)
 
     university_id: Mapped[int] = mapped_column(ForeignKey("universities.id", ondelete="CASCADE"))
-    # Используем строку вместо прямого импорта
     university: Mapped["University"] = relationship("University", back_populates="faculties")
+    
+    departments: Mapped[list["Department"]] = relationship(
+        "Department",
+        secondary="faculty_departments",
+        back_populates="faculties"
+    )

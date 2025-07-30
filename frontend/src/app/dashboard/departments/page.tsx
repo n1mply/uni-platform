@@ -83,22 +83,26 @@ export default function DepartmentsPage({ }) {
             const headById = employees.find(emp => emp.id === departmentHeadId);
             if (headById) return headById;
         }
-        
-        return employees.find(emp => 
+
+        return employees.find(emp =>
             emp.department_id === departmentId && emp.is_dep_head
         );
     }
 
     return (
         <>
-            <h1 className="text-2xl font-bold mb-6 text-gray-800">Кафедры</h1>
+            <h1 className="text-2xl font-bold text-gray-800">Кафедры</h1>
+            <div className="mb-6 w-full">
+                <p className="text-sm text-gray-600 w-2/3">Кафедра может отвечать за несколько специальностей сразу и быть в нескольких факультетах.</p>
+                <p className="text-sm text-gray-600 w-2/3">Нажмите на кафедру, чтобы начать её редактировать или удалить, вы также можете создать новую кафедру.</p>
+            </div>
 
             <div className="relative">
                 <div className="overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-900">
                     <div className="flex space-x-4">
                         {departments.map((department) => {
                             const departmentHead = getDepartmentHead(department.id, department.head_id);
-                            
+
                             return (
                                 <div
                                     key={department.id}

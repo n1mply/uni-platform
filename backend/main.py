@@ -39,8 +39,6 @@ app.include_router(employee_router)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000", "http://192.168.1.10:3000"],
