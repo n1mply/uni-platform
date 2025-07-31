@@ -5,8 +5,9 @@ import { useAlertContext } from "@/app/(context)/AlertContext"
 import { AtSign, Book, MapPin, Smartphone, Users, School, Search, Plus } from "lucide-react"
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react"
+import DepartmentEditModal from "@/app/(components)/DepartmentEditModal";
 
-interface Employee {
+export interface Employee {
     full_name: string;
     position: string;
     is_dep_head: boolean;
@@ -17,7 +18,7 @@ interface Employee {
     university_id: number;
 }
 
-interface Department {
+export interface Department {
     id: number;
     name: string;
     phone: string;
@@ -26,11 +27,16 @@ interface Department {
     head_id: number;
 }
 
-interface Faculty {
+export interface Faculty {
     id: number;
     name: string;
     tag: string;
     icon_path: string;
+}
+
+export interface DepartmentEditData {
+    department: Department;
+    faculties: Faculty[];
 }
 
 export default function DepartmentsPage({ }) {
@@ -39,10 +45,25 @@ export default function DepartmentsPage({ }) {
     const [departments, setDepartments] = useState<Department[]>([])
     const [allDepartments, setAllDepartments] = useState<Department[]>([])
     const [employees, setEmployees] = useState<Employee[]>([])
-    const [facultyCounts, setFacultyCounts] = useState<Record<number, number>>({})
+    const [facultyRelations, setFacultyRelations] = useState<Record<number, Faculty[]>>({})
     const [searchQuery, setSearchQuery] = useState("")
     const searchInputRef = useRef<HTMLInputElement>(null)
     const searchTimeoutRef = useRef<NodeJS.Timeout>()
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const [currentDepartment, setCurrentDepartment] = useState<DepartmentEditData>();
+
+    const handleSave = (data: any) => {
+        console.log("Сохранено:", data);
+        setIsModalOpen(false);
+    };
+
+    const handleDelete = (id: string) => {
+        console.log("Удалить кафедру с ID:", id);
+        setIsModalOpen(false);
+    };
+
 
     const handleSearch = () => {
         if (!searchQuery.trim()) {
@@ -65,12 +86,12 @@ export default function DepartmentsPage({ }) {
             return
         }
 
-        // Очищаем предыдущий таймер
+
         if (searchTimeoutRef.current) {
             clearTimeout(searchTimeoutRef.current)
         }
 
-        // Устанавливаем новый таймер
+
         searchTimeoutRef.current = setTimeout(() => {
             handleSearch()
         }, 500)
@@ -78,7 +99,6 @@ export default function DepartmentsPage({ }) {
 
     useEffect(() => {
         return () => {
-            // Очищаем таймер при размонтировании компонента
             if (searchTimeoutRef.current) {
                 clearTimeout(searchTimeoutRef.current)
             }
@@ -97,7 +117,7 @@ export default function DepartmentsPage({ }) {
                     const data = await response.json();
                     setDepartments(data.data)
                     setAllDepartments(data.data)
-                    fetchFacultyCounts(data.data.map((d: Department) => d.id))
+                    fetchFacultyRelations(data.data.map((d: Department) => d.id))
                 } else {
                     showAlert(["Ошибка при получении кафедры"]);
                     router.push('/');
@@ -133,9 +153,9 @@ export default function DepartmentsPage({ }) {
         getEmployeeHeads()
     }, [router, showAlert])
 
-    const fetchFacultyCounts = async (departmentIds: number[]) => {
+    const fetchFacultyRelations = async (departmentIds: number[]) => {
         try {
-            const counts: Record<number, number> = {};
+            const facultyRelations: Record<number, Faculty[]> = {};
 
             await Promise.all(departmentIds.map(async (id) => {
                 const response = await fetch(`/api/faculty/get/relations/department/${id}`, {
@@ -145,23 +165,22 @@ export default function DepartmentsPage({ }) {
 
                 if (response.ok) {
                     const data = await response.json();
-                    counts[id] = data.length;
+                    facultyRelations[id] = data;
                 } else {
-                    counts[id] = 0;
+                    facultyRelations[id] = [];
                 }
             }));
 
-            setFacultyCounts(counts);
+            setFacultyRelations(facultyRelations);
         } catch (error) {
-            console.error("Ошибка при получении количества факультетов:", error);
-            const zeroCounts = departmentIds.reduce((acc, id) => {
-                acc[id] = 0;
+            console.error("Ошибка при получении факультетов:", error);
+            const emptyRelations = departmentIds.reduce((acc, id) => {
+                acc[id] = [];
                 return acc;
-            }, {} as Record<number, number>);
-            setFacultyCounts(zeroCounts);
+            }, {} as Record<number, Faculty[]>);
+            setFacultyRelations(emptyRelations);
         }
     }
-
     const getDepartmentHead = (departmentId: number, departmentHeadId: number) => {
         if (departmentHeadId) {
             const headById = employees.find(emp => emp.id === departmentHeadId);
@@ -176,6 +195,13 @@ export default function DepartmentsPage({ }) {
     return (
         <>
             <h1 className="text-2xl font-bold text-gray-800">Кафедры</h1>
+            <DepartmentEditModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                initialData={currentDepartment}
+                onSave={handleSave}
+                onDelete={handleDelete}
+            />
             <div className="mb-6 w-full">
                 <p className="text-sm text-gray-600 w-full sm:w-2/3">Кафедра может отвечать за несколько специальностей сразу и быть в нескольких факультетах.</p>
                 <p className="text-sm text-gray-600 w-full sm:w-2/3">Нажмите на кафедру, чтобы начать её редактировать или удалить, вы также можете создать новую кафедру.</p>
@@ -238,16 +264,27 @@ export default function DepartmentsPage({ }) {
                         <div className="flex space-x-4">
                             {departments.map((department) => {
                                 const departmentHead = getDepartmentHead(department.id, department.head_id);
-                                const facultyCount = facultyCounts[department.id] || 0;
+                                const faculties = facultyRelations[department.id] || [];
+                                const facultyCount = faculties.length;
 
                                 return (
                                     <div
                                         key={department.id}
+                                        onClick={() => {
+                                            console.log(department)
+                                            setCurrentDepartment(
+                                                {
+                                                    department,
+                                                    faculties
+                                                }
+                                            )
+                                            setIsModalOpen(true)
+                                        }}
                                         className="flex-shrink-0 w-80 bg-white rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-all active:scale-[0.97] duration-300 cursor-pointer"
                                     >
                                         <div className="p-5">
                                             <div className="flex items-center mb-4">
-                                                <Book className="h-5 w-5 text-indigo-600 mr-2" />
+                                                <Book className="h-5 w-5 text-blue-600 mr-2" />
                                                 <h2 className="text-xl font-semibold text-gray-800">
                                                     {department.name}
                                                 </h2>
