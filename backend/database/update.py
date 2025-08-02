@@ -1,8 +1,9 @@
 from fastapi import HTTPException
 from sqlalchemy import select, update
 from sqlalchemy.exc import NoResultFound
+from models.department import Department
 from models.university import University
-from schemas.update_university_schema import BaseResponseModel
+from schemas.update_university_schema import BaseResponseModel, DepartmentPutModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -55,3 +56,42 @@ async def update_base_by_id(
             status_code=500,
             detail=f"Ошибка при обновлении университета: {str(e)}"
         )
+        
+        
+    
+async def update_department_by_id(
+    department_id: int,
+    university_id: int,
+    session: AsyncSession,
+    update_data: DepartmentPutModel
+) -> Department:
+    try:
+        stmt = select(Department).where(
+            (Department.id == department_id) &
+            (Department.university_id == university_id)
+        )
+        result = await session.execute(stmt)
+        department = result.scalar_one()
+        
+        department.name = update_data.name
+        department.phone = update_data.phone
+        department.address = update_data.address
+        department.email = update_data.email
+        
+        await session.commit()
+        await session.refresh(department)
+        return department
+    
+    except NoResultFound:
+        await session.rollback()
+        raise HTTPException(
+            status_code=404,
+            detail=f"Кафедра в университете с id: {id} не найдена."
+        )
+    except Exception as e:
+        await session.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Ошибка при обновлении кафедры: {str(e)}"
+        )
+        

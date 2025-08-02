@@ -11,7 +11,7 @@ type DepartmentEditModalProps = {
     onClose: () => void;
     initialData?: DepartmentEditData;
     onSave: (data: DepartmentEditData) => void;
-    onDelete?: () => void;
+    onDelete: (id: number) => void;
 };
 
 const emptyDepartment: Department = {
@@ -86,6 +86,11 @@ export default function DepartmentEditModal({
         }
     };
 
+    const handleFacultyRemove = (e: React.MouseEvent, facultyId: number) => {
+        e.stopPropagation();
+        console.log('Remove faculty', facultyId);
+    };
+
     if (!isOpen) return null;
 
     return createPortal(
@@ -153,9 +158,6 @@ export default function DepartmentEditModal({
                                 key={faculty.id}
                                 className="flex items-center bg-white relative rounded-lg shadow-sm border mb-4 border-gray-200 p-4 hover:shadow-md transition-shadow"
                             >
-                                {/* <div className="w-16 h-16 flex-shrink-0 mr-4">
-                                    <img src={f.iconURL?.url} alt={f.name} width={64} height={64} className="rounded" />
-                                </div> */}
                                 <div className="flex-1 text-left">
                                     <h1 className="text-xs lg:text-sm">{faculty.name}</h1>
                                     <p className="text-blue-600 text-xs lg:text-sm">@{faculty.tag}</p>
@@ -163,11 +165,18 @@ export default function DepartmentEditModal({
                                         <p className="text-xs lg:text-sm text-gray-500">-/- специальности</p>
                                     </div>
                                 </div>
-                                <button className='hover:scale-[1.1] transition-all duration-300'>
+                                <button
+                                    type="button"
+                                    onClick={(e) => handleFacultyRemove(e, faculty.id)}
+                                    className='hover:scale-[1.1] transition-all duration-300'
+                                >
                                     <X />
                                 </button>
                             </div>
                         ))}
+                        <p className="text-sm text-gray-500 mb-3">
+                            Нажав на крестик Вы уберёте факультет из связи с данной кафедры
+                        </p>
 
                         <div className="mt-6 flex justify-between gap-2 flex-wrap w-full">
                             <button
@@ -181,7 +190,7 @@ export default function DepartmentEditModal({
                                 <button
                                     type="button"
                                     onClick={() => {
-                                        onDelete();
+                                        onDelete(formData.department.id);
                                         onClose();
                                     }}
                                     className="active:scale-[0.97] flex w-full justify-center gap-1 font-medium items-center px-4 py-2 bg-gray-300 text-gray-900 text-sm rounded-md hover:bg-gray-400 transition-all duration-200  "

@@ -1,7 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from typing import Annotated, Optional, Literal
 from annotated_types import MinLen, MaxLen
-
 
 
 class ImageBase64Model(BaseModel):
@@ -26,3 +25,12 @@ class BaseResponseModel(BaseModel):
     description: str
     image: Optional[str] = None
     banner: Optional[str] = None
+    
+    
+    
+    
+class DepartmentPutModel(BaseModel):
+    name: Annotated[str, MinLen(3), MaxLen(100)]
+    phone: Annotated[str, MinLen(8), MaxLen(100)]
+    email: EmailStr
+    address: str

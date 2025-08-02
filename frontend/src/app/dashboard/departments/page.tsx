@@ -6,6 +6,8 @@ import { AtSign, Book, MapPin, Smartphone, Users, School, Search, Plus } from "l
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react"
 import DepartmentEditModal from "@/app/(components)/DepartmentEditModal";
+import FloatingInput from "@/app/(components)/FloatingInput";
+import SmartSelect from "@/app/(components)/SmartSelect";
 
 export interface Employee {
     full_name: string;
@@ -42,26 +44,81 @@ export interface DepartmentEditData {
 export default function DepartmentsPage({ }) {
     const router = useRouter();
     const { showAlert, hideAlert } = useAlertContext()
-    const [departments, setDepartments] = useState<Department[]>([])
-    const [allDepartments, setAllDepartments] = useState<Department[]>([])
-    const [employees, setEmployees] = useState<Employee[]>([])
-    const [facultyRelations, setFacultyRelations] = useState<Record<number, Faculty[]>>({})
-    const [searchQuery, setSearchQuery] = useState("")
-    const searchInputRef = useRef<HTMLInputElement>(null)
-    const searchTimeoutRef = useRef<NodeJS.Timeout>()
 
+    const [name, setName] = useState('')
+    const [adress, setAdress] = useState('')
+    const [phone, setPhone] = useState('')
+    const [email, setEmail] = useState('')
+
+    const [newEmployee, setNewEmployee] = useState('')
+
+    const [addDepartment, setAddDepartment] = useState(false)
+    const [searchQuery, setSearchQuery] = useState("")
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    const [departments, setDepartments] = useState<Department[]>([])
+    const [allDepartments, setAllDepartments] = useState<Department[]>([])
+
+    const [employees, setEmployees] = useState<Employee[]>([])
+    const [facultyRelations, setFacultyRelations] = useState<Record<number, Faculty[]>>({})
+
+    const searchInputRef = useRef<HTMLInputElement>(null)
+    const searchTimeoutRef = useRef<NodeJS.Timeout>()
     const [currentDepartment, setCurrentDepartment] = useState<DepartmentEditData>();
 
-    const handleSave = (data: any) => {
-        console.log("Сохранено:", data);
-        setIsModalOpen(false);
+    const handleSave = async (data: any) => {
+        try {
+            const payload = {
+                name: data.department.name,
+                address: data.department.address,
+                phone: data.department.phone,
+                email: data.department.email,
+            }
+
+            const response = await fetch(`/api/department/update/base/${data.department.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(payload),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                showAlert(["Сохранено успешно!"], false);
+                location.reload()
+                console.log("Сохранено:", data);
+            } else {
+                showAlert(["Ошибка при обновлении кафедры"]);
+            }
+            setIsModalOpen(false);
+        }
+        catch {
+
+        }
     };
 
-    const handleDelete = (id: string) => {
-        console.log("Удалить кафедру с ID:", id);
-        setIsModalOpen(false);
+    const handleDelete = async (id: number) => {
+        try {
+            const response = await fetch(`/api/department/delete/${id}`, {
+                method: 'GET',
+                credentials: 'include',
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                showAlert(["Удалено успешно"], false);
+                location.reload()
+                console.log("Удалено:", data);
+            } else {
+                showAlert(["Ошибка при удалении кафедры"]);
+            }
+            setIsModalOpen(false);
+        }
+        catch {
+
+        }
     };
 
 
@@ -227,12 +284,89 @@ export default function DepartmentsPage({ }) {
                     </button>
                 </div>
                 <div className="w-full sm:w-auto">
-                    <button className="w-full sm:w-auto cursor-pointer flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none transition-all active:scale-[0.97] duration-300">
+                    <button
+                        onClick={() => setAddDepartment(!addDepartment)}
+                        className="w-full sm:w-auto cursor-pointer flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none transition-all active:scale-[0.97] duration-300">
                         <Plus />
                         <span className="ml-2">Добавить</span>
                     </button>
                 </div>
             </div>
+
+            {addDepartment && (
+                <div className="border border-gray-300 rounded-lg p-4 mb-4">
+                    <div className="flex flex-col sm:flex-row gap-4">
+                        <div className="w-full sm:w-1/2">
+                            <p className="text-gray-900 w-full mb-5">Основная информация</p>
+                            <div className="grid grid-cols-1 gap-4 mb-5">
+                                <FloatingInput
+                                    id="name"
+                                    label="Название кафедры"
+                                    value={name}
+                                    onChange={(val) => setName(val)}
+                                    className="relative"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                                <FloatingInput
+                                    id="email"
+                                    label="Почта"
+                                    value={email}
+                                    onChange={(val) => setEmail(val)}
+                                    className="relative"
+                                />
+                                <FloatingInput
+                                    id="name"
+                                    label="Номер телефона"
+                                    value={phone}
+                                    onChange={(val) => setPhone(val)}
+                                    className="relative"
+                                />
+                            </div>
+
+                            <div className="">
+                                <FloatingInput
+                                    id="Adress"
+                                    label="Адрес"
+                                    value={adress}
+                                    onChange={(val) => setAdress(val)}
+                                    className="relative"
+                                />
+                            </div>
+                        </div>
+
+
+                        <div className="w-full sm:w-1/2">
+                            <p className="text-gray-900 w-full mb-5">Расширить кафедру</p>
+                            <SmartSelect
+                                options={['', 'Рудковский Никита Евгеньевич', 'Иванов Иван Иванович']}
+                                value={newEmployee}
+                                onChange={(option) => setNewEmployee(option)}
+                                id={'employees'}
+                                label="Заведующий кафедрой"
+                            />
+                        </div>
+                    </div>
+
+
+
+                    <div className="flex flex-wrap justify-end gap-2 mt-4">
+                        <button
+                            onClick={() => setAddDepartment(false)}
+                            className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+                        >
+                            Отмена
+                        </button>
+                        <button
+                            onClick={() => console.log(!false)}
+                            className="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
+                        >
+                            Создать
+                        </button>
+                    </div>
+                </div>
+            )}
 
 
             <div className="relative">

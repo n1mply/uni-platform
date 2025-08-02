@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from db import Base
@@ -14,7 +15,10 @@ class Department(Base):
     university_id: Mapped[int] = mapped_column(ForeignKey("universities.id", ondelete="CASCADE"))
     university: Mapped["University"] = relationship("University", back_populates="departments")
 
-    head_id: Mapped[int | None] = mapped_column(ForeignKey("employees.id", ondelete="SET NULL"), nullable=True)
+    head_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("employees.id", ondelete="SET NULL"), 
+        nullable=True
+    )
     head: Mapped["Employee"] = relationship("Employee", foreign_keys=[head_id])
     
     employees: Mapped[list["Employee"]] = relationship(

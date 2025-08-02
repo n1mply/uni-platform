@@ -1,3 +1,6 @@
+from database.update import update_department_by_id
+from database.delete import delete_department_by_id
+from schemas.update_university_schema import DepartmentPutModel
 from database.read import get_departents_by_id, get_departments_by_faculty_id
 from security.token import auth_required
 from db import get_async_session
@@ -36,3 +39,33 @@ async def get_departments_for_faculty(
         raise HTTPException(status_code=404, detail="Факультет не найден или не имеет кафедр")
     return {"data": departments[0]}
     
+    
+    
+@department_router.put("/update/base/{department_id}")
+@auth_required
+async def update_department(
+    request: Request,
+    data: DepartmentPutModel,
+    session: AsyncSession = Depends(get_async_session),
+    department_id: int = Path(...)
+):
+    token_payload = request.state.token_payload
+    u_id = token_payload['university_id']
+    data = await update_department_by_id(department_id=department_id ,session=session, university_id=u_id, update_data=data)
+    if data:
+        return {'status': 'ok'}
+    
+    
+    
+@department_router.get("/delete/{department_id}")
+@auth_required
+async def delete_department(
+    request: Request,
+    session: AsyncSession = Depends(get_async_session),
+    department_id: int = Path(...)
+):
+    token_payload = request.state.token_payload
+    u_id = token_payload['university_id']
+    data = await delete_department_by_id(university_id=u_id, department_id=department_id ,session=session)
+    if data:
+        return {'status': 'ok'}
