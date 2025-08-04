@@ -1,6 +1,7 @@
+from database.create import add_department_by_id
 from database.update import update_department_by_id
 from database.delete import delete_department_by_id
-from schemas.update_university_schema import DepartmentPutModel
+from schemas.update_university_schema import DepartmentPOSTModel, DepartmentPutModel
 from database.read import get_departents_by_id, get_departments_by_faculty_id
 from security.token import auth_required
 from db import get_async_session
@@ -9,6 +10,26 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Request
 
 
 department_router = APIRouter(prefix='/department', tags=['Departments'])
+
+@department_router.post('/create')
+@auth_required
+async def create_contact(    
+    request: Request,
+    data: DepartmentPOSTModel,
+    session: AsyncSession = Depends(get_async_session)
+):
+    token_payload = request.state.token_payload
+    u_id = token_payload['university_id']
+    
+    try:
+        department = await add_department_by_id(id=u_id, data=data, session=session)
+        
+        if department:
+            return {'status':'success'}
+        else:
+            raise HTTPException(status_code=400)
+    except Exception as e:
+        raise HTTPException(status_code=500)
 
 
 @department_router.get('/get/all')
@@ -21,7 +42,7 @@ async def get_departments(
         u_id = token_payload['university_id']
         
         departments = await get_departents_by_id(id=u_id, session=session)
-        return {'data': departments}
+        return {'data': departments[::-1]}
     except Exception as e:
         raise HTTPException(status_code=500)
     

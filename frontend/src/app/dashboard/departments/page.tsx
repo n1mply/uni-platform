@@ -8,6 +8,13 @@ import { useState, useEffect, useRef } from "react"
 import DepartmentEditModal from "@/app/(components)/DepartmentEditModal";
 import FloatingInput from "@/app/(components)/FloatingInput";
 import SmartSelect from "@/app/(components)/SmartSelect";
+import { z } from "zod";
+
+const emailSchema = z.string().email("Некорректный email");
+const phoneSchema = z
+    .string()
+    .min(10, "Телефон должен содержать минимум 10 цифр")
+    .regex(/^[0-9+\-() ]+$/, "Некорректный номер телефона");
 
 export interface Employee {
     full_name: string;
@@ -47,10 +54,11 @@ export default function DepartmentsPage({ }) {
 
     const [name, setName] = useState('')
     const [adress, setAdress] = useState('')
-    const [phone, setPhone] = useState('')
+    const [phone, setPhone] = useState('+375 ')
     const [email, setEmail] = useState('')
 
     const [newEmployee, setNewEmployee] = useState('')
+    const [freeEmployees, setFreeEmployees] = useState<Employee[]>([])
 
     const [addDepartment, setAddDepartment] = useState(false)
     const [searchQuery, setSearchQuery] = useState("")
@@ -249,6 +257,91 @@ export default function DepartmentsPage({ }) {
         );
     }
 
+    const getFreeEmployees = async () => {
+        const response = await fetch('/api/employee/get/free', {
+            method: 'GET',
+            credentials: 'include',
+        })
+
+        if (response.ok) {
+            const data = await response.json();
+            setFreeEmployees(data.data)
+        } else {
+            showAlert(['Не удалось получить список сотрудников'])
+        }
+    }
+
+const handleCreate = async () => {
+    // Собираем все ошибки в массив
+    const errors: string[] = [];
+    let isError = true;
+
+    // Валидация названия кафедры
+    if (name.length <= 3) {
+        errors.push('Название кафедры должно быть длиннее 3 символов');
+    }
+
+    // Валидация телефона и email с помощью zod
+    try {
+        phoneSchema.parse(phone.replace(/[^0-9]/g, ''));
+        emailSchema.parse(email);
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            errors.push(...error.errors.map(err => err.message));
+        } else {
+            errors.push('Произошла неизвестная ошибка при валидации');
+        }
+    }
+
+    // Валидация адреса
+    if (adress.length <= 60) { // Увеличил минимальную длину адреса до 10 символов
+        errors.push('Введите более точный адрес (минимум 60 символов)');
+    }
+
+    // Валидация выбора сотрудника
+    if (!freeEmployees.some(employee => employee.full_name === newEmployee)) {
+        errors.push('Пожалуйста, выберите сотрудника из списка');
+    }
+
+    // Если есть ошибки - показываем их и прерываем выполнение
+    if (errors.length > 0) {
+        showAlert(errors);
+        return;
+    }
+
+    // Если валидация прошла успешно - отправляем данные
+    try {
+        const current_head_id = freeEmployees.find(employee => employee.full_name === newEmployee)?.id;
+
+        const payload = {
+            name: name,
+            phone: phone,
+            email: email,
+            address: adress,
+            head_id: current_head_id
+        };
+
+        const response = await fetch('/api/department/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify(payload),
+        });
+
+        if (response.ok) {
+            showAlert(['Кафедра успешно создана!'], false);
+            location.reload()
+        } else {
+            const errorData = await response.json().catch(() => ({}));
+            showAlert([errorData.message || 'Не удалось создать кафедру']);
+        }
+    } catch (error) {
+        showAlert(['Произошла ошибка при отправке данных']);
+    }
+};
+
     return (
         <>
             <h1 className="text-2xl font-bold text-gray-800">Кафедры</h1>
@@ -285,7 +378,10 @@ export default function DepartmentsPage({ }) {
                 </div>
                 <div className="w-full sm:w-auto">
                     <button
-                        onClick={() => setAddDepartment(!addDepartment)}
+                        onClick={() => {
+                            getFreeEmployees()
+                            setAddDepartment(!addDepartment)
+                        }}
                         className="w-full sm:w-auto cursor-pointer flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none transition-all active:scale-[0.97] duration-300">
                         <Plus />
                         <span className="ml-2">Добавить</span>
@@ -320,6 +416,7 @@ export default function DepartmentsPage({ }) {
                                     id="name"
                                     label="Номер телефона"
                                     value={phone}
+                                    type="tel"
                                     onChange={(val) => setPhone(val)}
                                     className="relative"
                                 />
@@ -340,7 +437,7 @@ export default function DepartmentsPage({ }) {
                         <div className="w-full sm:w-1/2">
                             <p className="text-gray-900 w-full mb-5">Расширить кафедру</p>
                             <SmartSelect
-                                options={['', 'Рудковский Никита Евгеньевич', 'Иванов Иван Иванович']}
+                                options={freeEmployees.map((employee) => (employee?.full_name))}
                                 value={newEmployee}
                                 onChange={(option) => setNewEmployee(option)}
                                 id={'employees'}
@@ -359,7 +456,7 @@ export default function DepartmentsPage({ }) {
                             Отмена
                         </button>
                         <button
-                            onClick={() => console.log(!false)}
+                            onClick={() => handleCreate()}
                             className="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
                         >
                             Создать

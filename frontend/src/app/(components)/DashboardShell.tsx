@@ -8,15 +8,17 @@ import {
   IdCardLanyard,
   Book,
   GraduationCap,
-  Bot,
+  PackageOpen,
+  Telescope
 } from "lucide-react";
 
 const items: SidebarItem[] = [
   { option: "Главная", link: "/dashboard", icon: <Home size={20} /> },
-  { option: "Сотрудники", link: "/dashboard/employees", icon: <IdCardLanyard size={20} /> },
-  { option: "Факультеты", link: "/dashboard/faculties", icon: <GraduationCap size={20} /> },
   { option: "Кафедры", link: "/dashboard/departments", icon: <Book size={20} /> },
-  { option: "Миграции", link: "/dashboard/migration", icon: <Bot size={20} /> },
+  { option: "Факультеты", link: "/dashboard/faculties", icon: <GraduationCap size={20} /> },
+  { option: "Специальности", link: "/dashboard/specialties", icon: <Telescope size={20} /> },
+  { option: "Сотрудники", link: "/dashboard/employees", icon: <IdCardLanyard size={20} /> },
+  { option: "Миграции", link: "/dashboard/migration", icon: <PackageOpen size={20} /> },
   { option: "Настройки", link: "/dashboard/settings", icon: <Settings size={20} /> },
 ];
 

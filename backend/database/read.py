@@ -162,3 +162,17 @@ async def get_faculties_by_department_id(
     result = await session.execute(query)
     return list(result.scalars().all())
 
+
+
+async def get_free_employees_by_id(id: int, session: AsyncSession): 
+    result = await session.execute(
+        select(Employee).where(
+            (Employee.university_id == id) &
+            (Employee.is_dep_head == False)
+        )
+    )
+    
+    free_employees = result.scalars().all()
+    if not free_employees:
+        raise HTTPException(status_code=404, detail='Не удалось найти свободных сотрудников')
+    return free_employees

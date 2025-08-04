@@ -1,5 +1,7 @@
 from sqlite3 import IntegrityError
+from fastapi import HTTPException
 from sqlalchemy import select
+from schemas.update_university_schema import DepartmentPOSTModel
 from security.password import hash_password
 from db import init_db, check_tables_exist
 from models.university import University
@@ -9,6 +11,7 @@ from models.department import Department
 from models.employee import Employee
 from models.credentials import UniversityCredentials
 from schemas.university_schema import UniversityModel
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 
@@ -142,3 +145,47 @@ async def add_contact_by_id(id: int, data: Contact, session):
         await session.rollback()
         print(f"❌ Ошибка при добавлении контакта: {str(e)}")
         raise
+    
+    
+async def add_department_by_id(id: int, data: DepartmentPOSTModel, session: AsyncSession):
+    try:
+        department = Department(
+            name=data.name,
+            phone=data.phone,
+            email=data.email,
+            address=data.address,
+            head_id=data.head_id,
+            university_id=id
+        )
+        
+        session.add(department)
+        await session.flush()
+
+        if data.head_id:
+            employee = await session.get(Employee, data.head_id)
+            if not employee:
+                await session.rollback()
+                raise HTTPException(status_code=404, detail="Сотрудник не найден")
+            
+            if employee.is_dep_head and employee.department_id != department.id:
+                await session.rollback()
+                raise HTTPException(
+                    status_code=400,
+                    detail="Этот сотрудник уже является заведующим другой кафедры"
+                )
+
+            employee.is_dep_head = True
+            employee.department_id = department.id
+        
+        await session.commit()
+        
+        return True
+    except HTTPException:
+        raise
+    except Exception as e:
+        await session.rollback()
+        print(f"❌ Ошибка при добавлении кафедры: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Произошла ошибка при создании кафедры"
+        )
