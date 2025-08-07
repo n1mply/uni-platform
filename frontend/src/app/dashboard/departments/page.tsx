@@ -185,11 +185,9 @@ export default function DepartmentsPage({ }) {
                     fetchFacultyRelations(data.data.map((d: Department) => d.id))
                 } else {
                     showAlert(["Ошибка при получении кафедры"]);
-                    router.push('/');
                 }
             } catch {
                 showAlert(["Ошибка при получении кафедры"]);
-                router.push('/');
             }
         }
         getDepartments()
@@ -208,11 +206,9 @@ export default function DepartmentsPage({ }) {
                     setEmployees(data.data)
                 } else {
                     showAlert(["Ошибка при получении заведующих кафедрой"]);
-                    router.push('/');
                 }
             } catch {
                 showAlert(["Ошибка при получении заведующих кафедрой"]);
-                router.push('/');
             }
         }
         getEmployeeHeads()

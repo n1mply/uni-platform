@@ -9,6 +9,7 @@ from routes.uni_router import uni_router
 from routes.auth_router import auth_router
 from routes.bot_router import bot_router
 from routes.faculty_router import faculty_router
+from db import init_db
 
 from contextlib import asynccontextmanager
 from aiogram.types import Update
@@ -22,6 +23,7 @@ from core.config import settings
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print('Starting...')
+    # await init_db()
     if settings.WEBHOOK_URL:
         try:
             await bot.set_webhook(f"{settings.webhook_url}/webhook")
