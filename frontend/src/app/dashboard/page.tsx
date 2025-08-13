@@ -76,14 +76,26 @@ export default function DashboardPage() {
                 setAddress(data.address);
                 setDescription(data.description);
                 setTag(data.tag);
-                setImage(data.image === null ? null : {
-                    name: 'avatar',
-                    url: data.image
-                });
-                setBanner(data.banner === null ? null : {
-                    name: 'banner',
-                    url: data.banner
-                });
+                console.log(data.image)
+                if (data.image === 'nourl') {
+                    setImage(null)
+                }
+                else {
+                    setImage(data.image === null ? null : {
+                        name: 'avatar',
+                        url: data.image
+                    });
+                }
+
+                if (data.image === 'nourl') {
+                    setBanner(null)
+                }
+                else {
+                    setBanner(data.image === null ? null : {
+                        name: 'banner',
+                        url: data.image
+                    });
+                }
             } else {
                 router.push("/");
             }
@@ -280,7 +292,6 @@ export default function DashboardPage() {
     return (
         <>
             <h1 className="text-2xl mt-10 lg:mt-0 font-bold mb-6">Информация о ВУЗе</h1>
-
             <div className="w-full mb-6">
                 <p className="mb-2 text-sm text-gray-600">Баннер</p>
                 <DragNDrop image={banner} setImage={setBanner} proportion={false} height='200px' label={`Перетащите файл сюда или нажмите, чтобы загрузить. Добавьте изображение размером минимум 1280x200px`} />

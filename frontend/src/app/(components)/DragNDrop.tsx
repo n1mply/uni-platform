@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { Inbox, Trash2 } from 'lucide-react';
 import { ImageState } from '@/app/(context)/UniversityFormContext';
+import Image from 'next/image'
 
 interface DragConfig {
   tabIndex?: number;
@@ -118,11 +119,20 @@ export default function DragNDrop({
 
       {image ? (
         <div className="w-full h-full relative flex items-center justify-center">
+          {/* <Image
+            src={image.url}
+            className={imgClassName}
+            width={2}
+            height={2}
+            alt=''
+          /> */}
+
           <img
             src={image.url}
             alt={image.name}
             className={imgClassName}
           />
+
           <button
             onClick={removeImage}
             className="absolute top-2 right-2 bg-white bg-opacity-70 hover:bg-opacity-100 text-gray-800 rounded-lg p-1 shadow-md focus:outline-none"

@@ -20,6 +20,7 @@ from fastapi.staticfiles import StaticFiles
 from core.config import settings
 
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print('Starting...')
