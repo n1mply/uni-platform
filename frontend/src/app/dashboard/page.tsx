@@ -76,24 +76,26 @@ export default function DashboardPage() {
                 setAddress(data.address);
                 setDescription(data.description);
                 setTag(data.tag);
-                console.log(data.image)
-                if (data.image === 'nourl') {
+                console.log(data)
+                if (data.image === 'nourl' || data.image === null) {
                     setImage(null)
+                    console.log('no image')
                 }
                 else {
-                    setImage(data.image === null ? null : {
+                    setImage({
                         name: 'avatar',
                         url: data.image
                     });
                 }
 
-                if (data.image === 'nourl') {
+                if (data.banner === 'nourl' || data.banner === null) {
                     setBanner(null)
+                    console.log('no baner')
                 }
                 else {
-                    setBanner(data.image === null ? null : {
+                    setBanner({
                         name: 'banner',
-                        url: data.image
+                        url: data.banner
                     });
                 }
             } else {
@@ -289,9 +291,16 @@ export default function DashboardPage() {
 
     const unactive = fullName.length < 3 || fullName.length < 2 || address.length < 10 || description.length < 60;
 
+    const handleTest = async() =>{
+        console.log(banner)
+    }
+
     return (
         <>
             <h1 className="text-2xl mt-10 lg:mt-0 font-bold mb-6">Информация о ВУЗе</h1>
+            <button onClick={()=>handleTest()}>
+                TEST BTN
+            </button>
             <div className="w-full mb-6">
                 <p className="mb-2 text-sm text-gray-600">Баннер</p>
                 <DragNDrop image={banner} setImage={setBanner} proportion={false} height='200px' label={`Перетащите файл сюда или нажмите, чтобы загрузить. Добавьте изображение размером минимум 1280x200px`} />

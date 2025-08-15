@@ -40,4 +40,4 @@ class DepartmentPOSTModel(BaseModel):
     phone: Annotated[str, MinLen(8), MaxLen(100)]
     email: EmailStr
     address: Annotated[str, MinLen(60), MaxLen(255)]
-    head_id: int
+    head_id: Optional[int] = None

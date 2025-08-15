@@ -205,7 +205,7 @@ export default function DepartmentsPage({ }) {
                     const data = await response.json();
                     setEmployees(data.data)
                 } else {
-                    showAlert(["Ошибка при получении заведующих кафедрой"]);
+                    showAlert(["Нет заведующих кафедрами"]);
                 }
             } catch {
                 showAlert(["Ошибка при получении заведующих кафедрой"]);
@@ -263,80 +263,85 @@ export default function DepartmentsPage({ }) {
             const data = await response.json();
             setFreeEmployees(data.data)
         } else {
-            showAlert(['Не удалось получить список сотрудников'])
+            showAlert(['Список сотрудников пуст'])
         }
     }
 
-const handleCreate = async () => {
-    // Собираем все ошибки в массив
-    const errors: string[] = [];
-    let isError = true;
+    const handleCreate = async () => {
+        const errors: string[] = [];
+        let isError = true;
 
-    // Валидация названия кафедры
-    if (name.length <= 3) {
-        errors.push('Название кафедры должно быть длиннее 3 символов');
-    }
-
-    // Валидация телефона и email с помощью zod
-    try {
-        phoneSchema.parse(phone.replace(/[^0-9]/g, ''));
-        emailSchema.parse(email);
-    } catch (error) {
-        if (error instanceof z.ZodError) {
-            errors.push(...error.errors.map(err => err.message));
-        } else {
-            errors.push('Произошла неизвестная ошибка при валидации');
+        // Валидация названия кафедры
+        if (name.length <= 3) {
+            errors.push('Название кафедры должно быть длиннее 3 символов');
         }
-    }
 
-    // Валидация адреса
-    if (adress.length <= 60) { // Увеличил минимальную длину адреса до 10 символов
-        errors.push('Введите более точный адрес (минимум 60 символов)');
-    }
-
-    // Валидация выбора сотрудника
-    if (!freeEmployees.some(employee => employee.full_name === newEmployee)) {
-        errors.push('Пожалуйста, выберите сотрудника из списка');
-    }
-
-    // Если есть ошибки - показываем их и прерываем выполнение
-    if (errors.length > 0) {
-        showAlert(errors);
-        return;
-    }
-
-    // Если валидация прошла успешно - отправляем данные
-    try {
-        const current_head_id = freeEmployees.find(employee => employee.full_name === newEmployee)?.id;
-
-        const payload = {
-            name: name,
-            phone: phone,
-            email: email,
-            address: adress,
-            head_id: current_head_id
-        };
-
-        const response = await fetch('/api/department/create', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify(payload),
-        });
-
-        if (response.ok) {
-            showAlert(['Кафедра успешно создана!'], false);
-            location.reload()
-        } else {
-            const errorData = await response.json().catch(() => ({}));
-            showAlert([errorData.message || 'Не удалось создать кафедру']);
+        // Валидация телефона и email с помощью zod
+        try {
+            phoneSchema.parse(phone.replace(/[^0-9]/g, ''));
+            emailSchema.parse(email);
+        } catch (error) {
+            if (error instanceof z.ZodError) {
+                errors.push(...error.errors.map(err => err.message));
+            } else {
+                errors.push('Произошла неизвестная ошибка при валидации');
+            }
         }
-    } catch (error) {
-        showAlert(['Произошла ошибка при отправке данных']);
-    }
-};
+
+        // Валидация адреса
+        if (adress.length <= 60) {
+            errors.push('Введите более точный адрес (минимум 60 символов)');
+        }
+
+        // Валидация выбора сотрудника (только если newEmployee не пустая строка)
+        if (newEmployee && !freeEmployees.some(employee => employee.full_name === newEmployee)) {
+            errors.push('Пожалуйста, выберите сотрудника из списка');
+        }
+
+        if (errors.length > 0) {
+            showAlert(errors);
+            return;
+        }
+
+        try {
+            // Находим ID сотрудника только если он выбран
+            const current_head_id = newEmployee
+                ? freeEmployees.find(employee => employee.full_name === newEmployee)?.id
+                : undefined;
+
+            const payload = {
+                name: name,
+                phone: phone,
+                email: email,
+                address: adress,
+                head_id: current_head_id // может быть undefined
+            };
+
+            // Удаляем head_id из payload, если он undefined (опционально)
+            if (payload.head_id === undefined) {
+                delete payload.head_id;
+            }
+
+            const response = await fetch('/api/department/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(payload),
+            });
+
+            if (response.ok) {
+                showAlert(['Кафедра успешно создана!'], false);
+                location.reload();
+            } else {
+                const errorData = await response.json().catch(() => ({}));
+                showAlert([errorData.message || 'Не удалось создать кафедру']);
+            }
+        } catch (error) {
+            showAlert(['Произошла ошибка при отправке данных']);
+        }
+    };
 
     return (
         <>
@@ -518,9 +523,9 @@ const handleCreate = async () => {
                                             </div>
 
                                             <div className="space-y-3">
-                                                <div className="flex items-start">
+                                                <div className="flex items-start text-wrap">
                                                     <MapPin className="h-4 w-4 text-gray-500 mt-1 mr-2 flex-shrink-0" />
-                                                    <p className="text-gray-600 text-sm">{department.address}</p>
+                                                    <p className="text-gray-600 text-sm ">{department.address}</p>
                                                 </div>
 
                                                 <div className="flex items-center">

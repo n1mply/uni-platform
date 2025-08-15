@@ -105,7 +105,14 @@ export function UniversityFormProvider({ children }: { children: ReactNode }) {
                             faculties: [],
                             departments: []
                         },
-                        employees: [],
+                        employees: [
+                            {
+                                position: '-/-',
+                                academicDegree: '-/-',
+                                fullName: '-/-',
+                                isDepHead: false,
+                            }
+                        ],
                         credentials: {
                             generatedPassword
                         },
