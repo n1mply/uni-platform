@@ -5,6 +5,8 @@ import { createPortal } from 'react-dom';
 import { BriefcaseBusiness, Save, Trash2, X } from 'lucide-react';
 import FloatingInput from './FloatingInput';
 import { Department, DepartmentEditData, Faculty } from '../dashboard/departments/page';
+import SmartSelect from './SmartSelect';
+import { Employee } from '../(context)/UniversityFormContext';
 
 type DepartmentEditModalProps = {
     isOpen: boolean;
@@ -34,7 +36,9 @@ export default function DepartmentEditModal({
     const [formData, setFormData] = useState<DepartmentEditData>({
         department: emptyDepartment,
         faculties: [],
+        employees: []
     });
+    const [currentEmployee, setCurrentEmployee] = useState('')
 
     // Инициализация формы initialData
     useEffect(() => {
@@ -44,6 +48,7 @@ export default function DepartmentEditModal({
             setFormData({
                 department: emptyDepartment,
                 faculties: [],
+                employees: []
             });
         }
     }, [initialData]);
@@ -81,7 +86,7 @@ export default function DepartmentEditModal({
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (formData) {
-            onSave(formData);
+            onSave(formData, currentEmployee);
             onClose();
         }
     };
@@ -150,9 +155,24 @@ export default function DepartmentEditModal({
                                 required
                             />
                         </div>
+                        <SmartSelect
+                            options={formData.employees.map((employee) => (employee?.full_name))}
+                            value={currentEmployee}
+                            onChange={(option)=>setCurrentEmployee(option)}
+                            id={'employees'}
+                            label="Заведующий кафедрой"
+                        />
+
                         <p className="text-sm text-gray-500 mb-3">
-                            Факультеты:
+                            Выберите сотрудника, который будет заведующим кафедрой
                         </p>
+
+
+
+                        <p className="text-sm text-gray-500 mb-3">
+                            Специальности:
+                        </p>
+
                         {formData.faculties.map((faculty) => (
                             <div
                                 key={faculty.id}
@@ -175,7 +195,7 @@ export default function DepartmentEditModal({
                             </div>
                         ))}
                         <p className="text-sm text-gray-500 mb-3">
-                            Нажав на крестик Вы уберёте факультет из связи с данной кафедры
+                            Нажав на крестик Вы уберёте специальность из связи с данной кафедры
                         </p>
 
                         <div className="mt-6 flex justify-between gap-2 flex-wrap w-full">

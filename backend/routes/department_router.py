@@ -1,7 +1,7 @@
 from database.create import add_department_by_id
 from database.update import update_department_by_id
 from database.delete import delete_department_by_id
-from schemas.update_university_schema import DepartmentPOSTModel, DepartmentPutModel
+from schemas.update_university_schema import DepartmentUpdateModel
 from database.read import get_departents_by_id, get_departments_by_faculty_id
 from security.token import auth_required
 from db import get_async_session
@@ -15,7 +15,7 @@ department_router = APIRouter(prefix='/department', tags=['Departments'])
 @auth_required
 async def create_contact(    
     request: Request,
-    data: DepartmentPOSTModel,
+    data: DepartmentUpdateModel,
     session: AsyncSession = Depends(get_async_session)
 ):
     token_payload = request.state.token_payload
@@ -66,12 +66,13 @@ async def get_departments_for_faculty(
 @auth_required
 async def update_department(
     request: Request,
-    data: DepartmentPutModel,
+    data: DepartmentUpdateModel,
     session: AsyncSession = Depends(get_async_session),
     department_id: int = Path(...)
 ):
     token_payload = request.state.token_payload
     u_id = token_payload['university_id']
+    print(data)
     data = await update_department_by_id(department_id=department_id ,session=session, university_id=u_id, update_data=data)
     if data:
         return {'status': 'ok'}

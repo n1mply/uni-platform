@@ -28,11 +28,12 @@ class BaseResponseModel(BaseModel):
     
     
     
-class DepartmentPutModel(BaseModel):
+class DepartmentUpdateModel(BaseModel):
     name: Annotated[str, MinLen(3), MaxLen(100)]
     phone: Annotated[str, MinLen(8), MaxLen(100)]
     email: EmailStr
-    address: str
+    address: Annotated[str, MinLen(60), MaxLen(255)]
+    head_id: Optional[int] = None
     
 
 class DepartmentPOSTModel(BaseModel):

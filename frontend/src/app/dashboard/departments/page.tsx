@@ -46,6 +46,7 @@ export interface Faculty {
 export interface DepartmentEditData {
     department: Department;
     faculties: Faculty[];
+    employees: Employee[];
 }
 
 export default function DepartmentsPage({ }) {
@@ -74,14 +75,17 @@ export default function DepartmentsPage({ }) {
     const searchTimeoutRef = useRef<NodeJS.Timeout>()
     const [currentDepartment, setCurrentDepartment] = useState<DepartmentEditData>();
 
-    const handleSave = async (data: any) => {
+    const handleSave = async (data: any, employee: any) => {
         try {
+            const head_id = freeEmployees.find((emp) => (emp.full_name === employee))
             const payload = {
                 name: data.department.name,
                 address: data.department.address,
                 phone: data.department.phone,
                 email: data.department.email,
+                head_id: head_id ? head_id.id : null
             }
+            console.log(payload)
 
             const response = await fetch(`/api/department/update/base/${data.department.id}`, {
                 method: 'PUT',
@@ -95,8 +99,8 @@ export default function DepartmentsPage({ }) {
             if (response.ok) {
                 const data = await response.json();
                 showAlert(["Сохранено успешно!"], false);
-                location.reload()
-                console.log("Сохранено:", data);
+                // location.reload()
+                // console.log("Сохранено:", data);
             } else {
                 showAlert(["Ошибка при обновлении кафедры"]);
             }
@@ -253,23 +257,25 @@ export default function DepartmentsPage({ }) {
         );
     }
 
-    const getFreeEmployees = async () => {
-        const response = await fetch('/api/employee/get/free', {
-            method: 'GET',
-            credentials: 'include',
-        })
+    useEffect(() => {
+        const getFreeEmployees = async () => {
+            const response = await fetch('/api/employee/get/free', {
+                method: 'GET',
+                credentials: 'include',
+            })
 
-        if (response.ok) {
-            const data = await response.json();
-            setFreeEmployees(data.data)
-        } else {
-            showAlert(['Список сотрудников пуст'])
+            if (response.ok) {
+                const data = await response.json();
+                setFreeEmployees(data.data)
+            } else {
+                showAlert(['Список сотрудников пуст'])
+            }
         }
-    }
+        getFreeEmployees()
+    }, [])
 
     const handleCreate = async () => {
         const errors: string[] = [];
-        let isError = true;
 
         // Валидация названия кафедры
         if (name.length <= 3) {
@@ -380,7 +386,6 @@ export default function DepartmentsPage({ }) {
                 <div className="w-full sm:w-auto">
                     <button
                         onClick={() => {
-                            getFreeEmployees()
                             setAddDepartment(!addDepartment)
                         }}
                         className="w-full sm:w-auto cursor-pointer flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none transition-all active:scale-[0.97] duration-300">
@@ -498,16 +503,19 @@ export default function DepartmentsPage({ }) {
                                 const departmentHead = getDepartmentHead(department.id, department.head_id);
                                 const faculties = facultyRelations[department.id] || [];
                                 const facultyCount = faculties.length;
+                                const employeesList: Employee[] = freeEmployees
 
                                 return (
                                     <div
                                         key={department.id}
                                         onClick={() => {
                                             console.log(department)
+                                            console.log(employeesList)
                                             setCurrentDepartment(
                                                 {
-                                                    department,
-                                                    faculties
+                                                    department: department,
+                                                    faculties: faculties,
+                                                    employees: employeesList
                                                 }
                                             )
                                             setIsModalOpen(true)
@@ -551,7 +559,7 @@ export default function DepartmentsPage({ }) {
                                                 <div className="flex items-center pt-2 border-t border-gray-100">
                                                     <School className="h-4 w-4 text-gray-500 mr-2" />
                                                     <p className="text-gray-600 text-sm">
-                                                        Факультетов привязано: {facultyCount}
+                                                        Специальностей привязано: {facultyCount}
                                                     </p>
                                                 </div>
 

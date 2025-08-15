@@ -3,7 +3,8 @@ from sqlalchemy import select, update
 from sqlalchemy.exc import NoResultFound
 from models.department import Department
 from models.university import University
-from schemas.update_university_schema import BaseResponseModel, DepartmentPutModel
+from models.employee import Employee
+from schemas.update_university_schema import BaseResponseModel, DepartmentUpdateModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -63,7 +64,7 @@ async def update_department_by_id(
     department_id: int,
     university_id: int,
     session: AsyncSession,
-    update_data: DepartmentPutModel
+    update_data: DepartmentUpdateModel
 ) -> Department:
     try:
         stmt = select(Department).where(
@@ -77,9 +78,42 @@ async def update_department_by_id(
         department.phone = update_data.phone
         department.address = update_data.address
         department.email = update_data.email
+        department.head_id = update_data.head_id
         
-        await session.commit()
-        await session.refresh(department)
+
+        if update_data.head_id:
+            result = await session.execute(
+                select(Employee).where(
+                    (Employee.id == update_data.head_id) &
+                    (Employee.university_id == university_id)
+                )
+            )
+            dep_head = result.scalar_one()
+
+            dep_head.is_dep_head = True
+            dep_head.department_id = department_id
+
+            department.head_id = update_data.head_id
+
+            await session.commit()
+            await session.refresh(department)
+            await session.refresh(dep_head)
+
+        elif update_data.head_id == 0 or update_data.head_id == None:
+            result = await session.execute(
+                select(Employee).where(
+                    (Employee.department_id == department.id) &
+                    (Employee.university_id == university_id)
+                )
+            )
+            employee = result.scalar_one_or_none()
+            employee.is_dep_head = False
+            employee.department_id = None
+
+
+            await session.commit()
+            await session.refresh(employee)
+
         return department
     
     except NoResultFound:
