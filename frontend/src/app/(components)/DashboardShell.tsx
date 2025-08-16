@@ -27,7 +27,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
     <AlertMessagesProvider>
       <div className="flex min-h-screen bg-gray-100">
         <Sidebar items={items} />
-        <main className="flex-1 p-6 overflow-auto bg-white shadow-lg scale-[0.96] rounded-xl">
+        <main className="flex-1 p-6 overflow-auto bg-white shadow-lg rounded-xl m-6">
           {children}
         </main>
       </div>
