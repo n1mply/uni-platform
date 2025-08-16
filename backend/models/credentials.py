@@ -12,7 +12,7 @@ class UniversityCredentials(Base):
         ForeignKey("universities.id", ondelete="CASCADE"),
         unique=True  # гарантируем one-to-one на уровне SQL
     )
-    university: Mapped["University"] = relationship(
-        "University",
+    university: Mapped["University"] = relationship( # pyright: ignore[reportUndefinedVariable]
+        "University", 
         back_populates="credentials"
     )

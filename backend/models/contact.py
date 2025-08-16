@@ -18,4 +18,4 @@ class Contact(Base):
     university_id: Mapped[int] = mapped_column(
         ForeignKey("universities.id", ondelete="CASCADE"), nullable=False
     )
-    university: Mapped["University"] = relationship("University", back_populates="contacts")
+    university: Mapped["University"] = relationship("University", back_populates="contacts") # pyright: ignore[reportUndefinedVariable]

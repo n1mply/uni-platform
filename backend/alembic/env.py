@@ -23,6 +23,7 @@ from models.contact import Contact
 from models.request import UniversityRequest
 from models.credentials import UniversityCredentials
 from models.faculty_department import FacultyDepartment
+from models.specialty import Specialty
 
 # Получаем конфигурацию Alembic
 config = context.config

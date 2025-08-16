@@ -18,15 +18,15 @@ class Employee(Base):
         ForeignKey("departments.id", ondelete="SET NULL"), 
         nullable=True
     )
-    department: Mapped["Department"] = relationship(
+    department: Mapped["Department"] = relationship( # pyright: ignore[reportUndefinedVariable]
         "Department", 
         back_populates="employees",
         foreign_keys=[department_id]  # Явно указываем, какой ключ использовать
-    )
+    ) 
 
     # Связь с University
     university_id: Mapped[int] = mapped_column(
         ForeignKey("universities.id", ondelete="CASCADE"), 
         nullable=False
     )
-    university: Mapped["University"] = relationship("University", back_populates="employees")
+    university: Mapped["University"] = relationship("University", back_populates="employees") # pyright: ignore[reportUndefinedVariable]

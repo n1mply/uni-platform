@@ -20,12 +20,12 @@ class University(Base):
         server_default=text("CURRENT_TIMESTAMP"),
         onupdate=datetime.utcnow
     )
-    contacts: Mapped[list["Contact"]] = relationship("Contact", back_populates="university", cascade="all, delete-orphan")
-    faculties: Mapped[list["Faculty"]] = relationship("Faculty", back_populates="university", cascade="all, delete-orphan")
-    departments: Mapped[list["Department"]] = relationship("Department", back_populates="university", cascade="all, delete-orphan")
-    employees: Mapped[list["Employee"]] = relationship("Employee", back_populates="university", cascade="all, delete-orphan")
+    contacts: Mapped[list["Contact"]] = relationship("Contact", back_populates="university", cascade="all, delete-orphan") # pyright: ignore[reportUndefinedVariable]
+    faculties: Mapped[list["Faculty"]] = relationship("Faculty", back_populates="university", cascade="all, delete-orphan") # pyright: ignore[reportUndefinedVariable]
+    departments: Mapped[list["Department"]] = relationship("Department", back_populates="university", cascade="all, delete-orphan") # pyright: ignore[reportUndefinedVariable]
+    employees: Mapped[list["Employee"]] = relationship("Employee", back_populates="university", cascade="all, delete-orphan") # pyright: ignore[reportUndefinedVariable]
     
-    credentials: Mapped["UniversityCredentials"] = relationship(
+    credentials: Mapped["UniversityCredentials"] = relationship( # pyright: ignore[reportUndefinedVariable]
         "UniversityCredentials",
         back_populates="university",
         uselist=False,

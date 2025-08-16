@@ -291,16 +291,9 @@ export default function DashboardPage() {
 
     const unactive = fullName.length < 3 || fullName.length < 2 || address.length < 10 || description.length < 60;
 
-    const handleTest = async() =>{
-        console.log(banner)
-    }
-
     return (
         <>
             <h1 className="text-2xl mt-10 lg:mt-0 font-bold mb-6">Информация о ВУЗе</h1>
-            <button onClick={()=>handleTest()}>
-                TEST BTN
-            </button>
             <div className="w-full mb-6">
                 <p className="mb-2 text-sm text-gray-600">Баннер</p>
                 <DragNDrop image={banner} setImage={setBanner} proportion={false} height='200px' label={`Перетащите файл сюда или нажмите, чтобы загрузить. Добавьте изображение размером минимум 1280x200px`} />
