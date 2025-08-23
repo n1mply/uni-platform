@@ -9,9 +9,10 @@ interface SmartSelect {
     id: string;
     label: string;
     tabIndex?: number;
+    className: string
 }
 
-export default function SmartSelect({ options, value, onChange, id, label, tabIndex }: SmartSelect) {
+export default function SmartSelect({ options, value, onChange, id, label, tabIndex, className }: SmartSelect) {
     const [inputValue, setInputValue] = useState(value);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [filteredOptions, setFilteredOptions] = useState(options);
@@ -53,7 +54,7 @@ export default function SmartSelect({ options, value, onChange, id, label, tabIn
     };
 
     return (
-        <div className="mb-6 relative w-full lg:max-w-2xl" ref={wrapperRef}>
+        <div className={`${className ? className : 'mb-6 relative w-full lg:max-w-2xl'}`} ref={wrapperRef}>
             <input
                 type="text"
                 id={id}

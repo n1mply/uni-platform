@@ -1,6 +1,9 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
 import { Bold, Italic, List, ListOrdered, Image, Trash2, Plus } from 'lucide-react'
+import FloatingInput from '@/app/(components)/FloatingInput'
+import { Department, Faculty } from '../departments/page'
+import SmartSelect from '@/app/(components)/SmartSelect'
 
 interface Section {
     id: string
@@ -8,10 +11,21 @@ interface Section {
     content: string
 }
 
+type TypeOfEducation = {
+    type: "Дневной" | "Заочный" | "Вечерний";
+};
+
 export default function SpecialtiesPage() {
     const [isCreating, setIsCreating] = useState(false)
     const [sections, setSections] = useState<Section[]>([])
     const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({})
+
+    const [name, setName] = useState('')
+    const [qualification, setQualification] = useState('')
+    const [duration, setDuration] = useState('')
+    const [faculty, setFaculty] = useState<Faculty>()
+    const [department, setDepartment] = useState<Department>()
+    const [typeOfEducation, setTypeOfEducation] = useState('')
 
     // Добавляем стили для редакторов при монтировании компонента
     useEffect(() => {
@@ -143,16 +157,79 @@ export default function SpecialtiesPage() {
         <>
 
             <h1 className="text-2xl font-bold text-gray-800 mb-6">Специальности</h1>
-            <div className='flex w-full justify-between gap-2'>  
+            <div className='flex justify-between gap-2 flex-wrap sm:w-full'>
+                <div className='w-full sm:w-[75%]'>
+                    <div className='flex gap-2 flex-wrap sm:flex-nowrap'>
+                        <FloatingInput
+                            id="name"
+                            label="Название"
+                            value={name}
+                            onChange={setName}
+                            className="relative mb-4 w-full sm:w-1/2"
+                            maxLength={100}
+                        />
+                        <FloatingInput
+                            id="duration"
+                            label="Срок обучения"
+                            value={duration}
+                            onChange={setDuration}
+                            className="relative mb-6 w-full sm:w-1/2"
+                            maxLength={100}
+                        />
+                    </div>
+                    <div className='flex gap-2 flex-wrap sm:flex-nowrap'>
+                        <FloatingInput
+                            id="qualification"
+                            label="Квалификация"
+                            value={qualification}
+                            onChange={setQualification}
+                            className="relative mb-6 w-full sm:w-1/2"
+                            maxLength={100}
+                        />
+                        <SmartSelect
+                            id='typeOfEducation'
+                            options={['Дневной', 'Вечерний', 'Заочный']}
+                            value={typeOfEducation}
+                            onChange={(option) => setTypeOfEducation(option)}
+                            label='Вид получения'
+                            className='mb-6 relative w-full sm:w-1/2'
+                        />
+                    </div>
+                    <SmartSelect
+                        id='typeOfEducation'
+                        options={['Дневной', 'Вечерний', 'Заочный']}
+                        value={typeOfEducation}
+                        onChange={(option) => setTypeOfEducation(option)}
+                        label='Выпускающая кафедра'
+                        className='mb-6 relative w-full'
+                    />
+                    <SmartSelect
+                        id='typeOfEducation'
+                        options={['Дневной', 'Вечерний', 'Заочный']}
+                        value={typeOfEducation}
+                        onChange={(option) => setTypeOfEducation(option)}
+                        label='Привязанный факультет'
+                        className='mb-6 relative w-full'
+                    />
+                </div>
+                <div className='flex flex-col'>
+                    <p>Ваши специальности:</p>
+                </div>
+            </div>
+
+            <div className='flex w-full justify-between gap-2'>
                 {!isCreating ? (
-                    <button
-                        onClick={() => setIsCreating(true)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium active:scale-[0.97] transition-all duration-300"
-                    >
-                        Создать описание
-                    </button>
+                    <div>
+                        <button
+                            onClick={() => setIsCreating(true)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium active:scale-[0.97] transition-all duration-300"
+                        >
+                            Создать описание
+                        </button>
+                    </div>
                 ) : (
-                    <div className="space-y-6 w-[75%]">
+                    <div className="space-y-6 w-full">
+
                         <div className="flex flex-wrap items-center gap-4">
                             <button
                                 onClick={createNewSection}
@@ -271,10 +348,6 @@ export default function SpecialtiesPage() {
                     </div >
                 )
                 }
-
-                <div className='flex flex-col w-[25%]'>
-                    <p>Ваши специальности:</p>
-                </div>
             </div>
         </>
     )
