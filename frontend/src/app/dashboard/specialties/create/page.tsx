@@ -2,8 +2,9 @@
 import { useState, useRef, useEffect } from 'react'
 import { Bold, Italic, List, ListOrdered, Image, Trash2, Plus } from 'lucide-react'
 import FloatingInput from '@/app/(components)/FloatingInput'
-import { Department, Faculty } from '../departments/page'
+import { Department, Faculty } from '../../departments/page'
 import SmartSelect from '@/app/(components)/SmartSelect'
+import { useAlertContext } from "@/app/(context)/AlertContext";
 
 interface Section {
     id: string
@@ -16,6 +17,8 @@ type TypeOfEducation = {
 };
 
 export default function SpecialtiesPage() {
+    const { showAlert, hideAlert } = useAlertContext();
+
     const [isCreating, setIsCreating] = useState(false)
     const [sections, setSections] = useState<Section[]>([])
     const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({})
@@ -23,11 +26,123 @@ export default function SpecialtiesPage() {
     const [name, setName] = useState('')
     const [qualification, setQualification] = useState('')
     const [duration, setDuration] = useState('')
-    const [faculty, setFaculty] = useState<Faculty>()
-    const [department, setDepartment] = useState<Department>()
+    const [faculty, setFaculty] = useState('')
+    const [department, setDepartment] = useState('')
     const [typeOfEducation, setTypeOfEducation] = useState('')
+    const [isActive, setIsActive] = useState(false)
 
-    // Добавляем стили для редакторов при монтировании компонента
+    // Функция валидации формы
+    const validateForm = (): { isValid: boolean; errors: string[] } => {
+        const errors: string[] = [];
+
+        // Валидация названия
+        if (!name.trim()) {
+            errors.push('Название обязательно для заполнения');
+        } else if (name.length > 100) {
+            errors.push('Название не должно превышать 100 символов');
+        }
+
+        // Валидация квалификации
+        if (!qualification.trim()) {
+            errors.push('Квалификация обязательна для заполнения');
+        } else if (qualification.length > 100) {
+            errors.push('Квалификация не должна превышать 100 символов');
+        }
+
+        // Валидация срока обучения
+        if (!duration.trim()) {
+            errors.push('Срок обучения обязателен для заполнения');
+        } else if (duration.length > 100) {
+            errors.push('Срок обучения не должен превышать 100 символов');
+        }
+
+        // Валидация вида получения образования
+        if (!typeOfEducation) {
+            errors.push('Вид получения образования обязателен для выбора');
+        }
+
+        // Валидация факультета
+        if (!faculty) {
+            errors.push('Факультет обязателен для выбора');
+        }
+
+        // Валидация кафедры
+        if (!department) {
+            errors.push('Кафедра обязательна для выбора');
+        }
+
+        // Валидация секций
+        if (sections.length < 2) {
+            errors.push('Добавьте минимум 2 секции');
+        } else if (sections.length > 10) {
+            errors.push('Максимальное количество секций - 10');
+        } else {
+            // Проверка каждой секции
+            sections.forEach((section, index) => {
+                if (!section.title.trim()) {
+                    errors.push(`Секция ${index + 1}: название обязательно`);
+                } else if (section.title.length > 100) {
+                    errors.push(`Секция ${index + 1}: название не должно превышать 100 символов`);
+                }
+
+                if (!section.content.trim()) {
+                    errors.push(`Секция ${index + 1}: содержание обязательно`);
+                } else if (section.content.length > 150000) {
+                    errors.push(`Секция ${index + 1}: содержание не должно превышать 150000 элементов(можно вы добавили слишком много изображений)`);
+                    console.log(section.content.length)
+                }
+            });
+        }
+
+        return {
+            isValid: errors.length === 0,
+            errors
+        };
+    }
+
+    // Проверка валидности формы в реальном времени
+    useEffect(() => {
+        const validation = validateForm();
+        setIsActive(validation.isValid);
+    }, [name, qualification, duration, typeOfEducation, faculty, department, sections]);
+
+    const saveSpecialty = () => {
+        const validation = validateForm();
+        
+        if (!validation.isValid) {
+            // Показываем ошибки пользователю
+            showAlert(validation.errors);
+            return { success: false, errors: validation.errors };
+        }
+
+        try {
+            const payload = {
+                name,
+                qualification,
+                duration,
+                typeOfEducation,
+                faculty,
+                department,
+                sections: sections.map(section => ({
+                    title: section.title,
+                    content: section.content
+                })),
+                createdAt: new Date().toISOString()
+            };
+            
+            console.log('Описание специальности:', payload);
+            
+            showAlert(['Специальность добавлена'], false);
+            
+            return { success: true, data: payload };
+            
+        } catch (error) {
+            showAlert(['Не удалось добавить специальность']);
+            return { success: false, error };
+        }
+    }
+
+        // Добавляем стили для редакторов при монтировании компонента
     useEffect(() => {
         // Создаем стили для редактора
         const style = document.createElement('style')
@@ -83,6 +198,7 @@ export default function SpecialtiesPage() {
         }
     }, [])
 
+    // Остальной код компонента остается без изменений...
     const createNewSection = () => {
         const newSection: Section = {
             id: Date.now().toString(),
@@ -137,17 +253,6 @@ export default function SpecialtiesPage() {
         }
     }
 
-    const saveDescription = () => {
-        const description = {
-            sections: sections.map(section => ({
-                title: section.title,
-                content: section.content
-            })),
-            createdAt: new Date().toISOString()
-        }
-        console.log('Описание специальности:', description)
-    }
-
     const resetEditor = () => {
         setIsCreating(false)
         setSections([])
@@ -155,10 +260,9 @@ export default function SpecialtiesPage() {
 
     return (
         <>
-
-            <h1 className="text-2xl font-bold text-gray-800 mb-6">Специальности</h1>
+            <h1 className="text-2xl font-bold text-gray-800 mb-6">Добавить специальность</h1>
             <div className='flex justify-between gap-2 flex-wrap sm:w-full'>
-                <div className='w-full sm:w-[75%]'>
+                <div className='w-full'>
                     <div className='flex gap-2 flex-wrap sm:flex-nowrap'>
                         <FloatingInput
                             id="name"
@@ -195,25 +299,25 @@ export default function SpecialtiesPage() {
                             className='mb-6 relative w-full sm:w-1/2'
                         />
                     </div>
-                    <SmartSelect
-                        id='typeOfEducation'
-                        options={['Дневной', 'Вечерний', 'Заочный']}
-                        value={typeOfEducation}
-                        onChange={(option) => setTypeOfEducation(option)}
-                        label='Выпускающая кафедра'
-                        className='mb-6 relative w-full'
-                    />
-                    <SmartSelect
-                        id='typeOfEducation'
-                        options={['Дневной', 'Вечерний', 'Заочный']}
-                        value={typeOfEducation}
-                        onChange={(option) => setTypeOfEducation(option)}
-                        label='Привязанный факультет'
-                        className='mb-6 relative w-full'
-                    />
-                </div>
-                <div className='flex flex-col'>
-                    <p>Ваши специальности:</p>
+                    <div className='flex gap-2 flex-wrap sm:flex-nowrap'>
+                        <SmartSelect
+                            id='department'
+                            options={['Кафедра 1', 'Кафедра 2', 'Кафедра 3']} // Замените на реальные данные
+                            value={department}
+                            onChange={(option) => setDepartment(option)}
+                            label='Выпускающая кафедра'
+                            className='mb-6 relative w-full sm:w-1/2'
+                        />
+                        <SmartSelect
+                            id='faculty'
+                            options={['Факультет 1', 'Факультет 2', 'Факультет 3']} // Замените на реальные данные
+                            value={faculty}
+                            onChange={(option) => setFaculty(option)}
+                            label='Привязанный факультет'
+                            className='mb-6 relative w-full sm:w-1/2'
+                        />
+                    </div>
+                    <p className='text-sm text-gray-500 mb-5 mt-[-10]'>Чтобы создать специальность нужно добавить описание, которое может состоять из множества секций (2 секции минимум, максимум 10).</p>
                 </div>
             </div>
 
@@ -230,7 +334,7 @@ export default function SpecialtiesPage() {
                 ) : (
                     <div className="space-y-6 w-full">
 
-                        <div className="flex flex-wrap items-center gap-4">
+                        <div className="flex flex-wrap items-center gap-2">
                             <button
                                 onClick={createNewSection}
                                 className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 active:scale-[0.97] transition-all duration-300 text-white px-4 py-2 rounded-lg font-medium flex items-center justify-center gap-2"
@@ -240,12 +344,12 @@ export default function SpecialtiesPage() {
                             </button>
 
                             {sections.length > 0 && (
-                                <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+                                <div className="flex flex-wrap gap-2 w-full sm:w-auto sm:flex-wrap">
                                     <button
-                                        onClick={saveDescription}
-                                        className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 active:scale-[0.97] transition-all duration-300 text-white px-4 py-2 rounded-lg font-medium"
+                                        onClick={saveSpecialty}
+                                        className={`flex-1 sm:flex-none  ${isActive ? 'bg-blue-600 hover:bg-blue-700 active:scale-[0.97]' : 'bg-gray-500 cursor-not-allowed'} transition-all duration-300 text-white px-4 py-2 rounded-lg font-medium`}
                                     >
-                                        Сохранить описание
+                                        Добавить специальность
                                     </button>
                                     <button
                                         onClick={resetEditor}
@@ -266,6 +370,7 @@ export default function SpecialtiesPage() {
                                         value={section.title}
                                         onChange={(e) => updateSectionTitle(section.id, e.target.value)}
                                         className="flex-1 text-lg font-semibold text-gray-800 border-b border-gray-300 focus:border-blue-600 outline-none py-2 px-1"
+                                        maxLength={200}
                                     />
                                     <button
                                         onClick={() => removeSection(section.id)}
@@ -277,7 +382,7 @@ export default function SpecialtiesPage() {
                                 </div>
 
                                 {/* Панель инструментов */}
-                                <div className="flex items-center gap-2 mb-4 p-2 bg-gray-50 rounded border border-gray-3  00">
+                                <div className="flex items-center gap-2 mb-4 p-2 bg-gray-50 rounded border border-gray-300">
                                     <button
                                         onClick={() => formatText(section.id, 'bold')}
                                         className="p-2 hover:bg-gray-200 rounded transition-colors"
@@ -345,9 +450,8 @@ export default function SpecialtiesPage() {
                                 <p>Нажмите &quot;Добавить секцию&quot; чтобы создать первый блок контента</p>
                             </div>
                         )}
-                    </div >
-                )
-                }
+                    </div>
+                )}
             </div>
         </>
     )
