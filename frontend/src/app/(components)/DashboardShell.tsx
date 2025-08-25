@@ -13,15 +13,55 @@ import {
 } from "lucide-react";
 
 const items: SidebarItem[] = [
-  { option: "Главная", link: "/dashboard", icon: <Home size={20} /> },
-  { option: "Кафедры", link: "/dashboard/departments", icon: <Book size={20} /> },
-  { option: "Факультеты", link: "/dashboard/faculties", icon: <GraduationCap size={20} /> },
-  { option: "Специальности", link: "/dashboard/specialties", icon: <Telescope size={20} /> },
-  { option: "Сотрудники", link: "/dashboard/employees", icon: <IdCardLanyard size={20} /> },
-  { option: "Миграции", link: "/dashboard/migration", icon: <PackageOpen size={20} /> },
-  { option: "Настройки", link: "/dashboard/settings", icon: <Settings size={20} /> },
+  {
+    option: "Главная",
+    links: [{ option: "Главная", link: "/dashboard" }],
+    icon: <Home size={20} />
+  },
+  {
+    option: "Кафедры",
+    links: [
+      { option: "Все кафедры", link: "/dashboard/departments" },
+      { option: "Создать кафедру", link: "/dashboard/departments/create" },
+      { option: "Архив", link: "/dashboard/departments/archive" }
+    ],
+    icon: <Book size={20} />
+  },
+  {
+    option: "Факультеты",
+    links: [
+      { option: "Список факультетов", link: "/dashboard/faculties" },
+      { option: "Добавить факультет", link: "/dashboard/faculties/create" }
+    ],
+    icon: <GraduationCap size={20} />
+  },
+  {
+    option: "Специальности",
+    links: [{ option: "Все специальности", link: "/dashboard/specialties" },
+            {option: "Добавить специальность", link: "/dashboard/specialties/create"}
+    ],
+    icon: <Telescope size={20} />
+  },
+  {
+    option: "Сотрудники",
+    links: [
+      { option: "Все сотрудники", link: "/dashboard/employees" },
+      { option: "Добавить сотрудника", link: "/dashboard/employees/create" },
+      { option: "Отчеты", link: "/dashboard/employees/reports" }
+    ],
+    icon: <IdCardLanyard size={20} />
+  },
+  {
+    option: "Миграции",
+    links: [{ option: "Миграции", link: "/dashboard/migration" }],
+    icon: <PackageOpen size={20} />
+  },
+  {
+    option: "Настройки",
+    links: [{ option: "Настройки", link: "/dashboard/settings" }],
+    icon: <Settings size={20} />
+  },
 ];
-
 export default function DashboardShell({ children }: { children: React.ReactNode }) {
   return (
     <AlertMessagesProvider>

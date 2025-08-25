@@ -29,6 +29,20 @@ export default function Header() {
     getMe()
   }, [])
 
+
+  useEffect(() => {
+    const checkIfMobile = () => {
+      if (window.innerWidth > 1024) {
+        setIsOpen(false)
+      }
+    };
+
+    checkIfMobile();
+    window.addEventListener('resize', checkIfMobile);
+
+    return () => window.removeEventListener('resize', checkIfMobile);
+  }, [isOpen]);
+
   return (
     <header className="w-full px-6 py-4 flex items-center justify-between bg-white shadow-md fixed top-0 left-0 z-50">
       <Link href="/" className="flex items-center gap-2">
