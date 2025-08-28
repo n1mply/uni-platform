@@ -1,4 +1,5 @@
 from sqlalchemy import select
+
 from models.faculty_department import FacultyDepartment
 from models.university import University
 from models.faculty import Faculty
@@ -7,6 +8,8 @@ from models.contact import Contact
 from models.employee import Employee
 from models.credentials import UniversityCredentials
 from models.request import UniversityRequest
+from models.specialty import Specialty
+
 from security.password import verify_password
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -176,3 +179,13 @@ async def get_free_employees_by_id(id: int, session: AsyncSession):
     if not free_employees:
         raise HTTPException(status_code=404, detail='Не удалось найти свободных сотрудников')
     return free_employees
+
+
+async def get_specs_by_id(id:int, session: AsyncSession):
+    result = await session.execute(
+        select(Specialty)
+        .where(Specialty.university_id==id)
+    )
+
+    specs = result.scalars().all()
+    return specs

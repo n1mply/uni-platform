@@ -9,6 +9,7 @@ from routes.uni_router import uni_router
 from routes.auth_router import auth_router
 from routes.bot_router import bot_router
 from routes.faculty_router import faculty_router
+from routes.specialty_router import spec_router
 from db import init_db
 
 from contextlib import asynccontextmanager
@@ -42,6 +43,7 @@ app.include_router(contact_router)
 app.include_router(department_router)
 app.include_router(employee_router)
 app.include_router(faculty_router)
+app.include_router(spec_router)
 
 
 app.mount("/static", StaticFiles(directory="static"), name="static")

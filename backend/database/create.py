@@ -4,12 +4,15 @@ from sqlalchemy import select
 from schemas.update_university_schema import DepartmentPOSTModel
 from security.password import hash_password
 from db import init_db, check_tables_exist
+
 from models.university import University
 from models.contact import Contact, ContactTypeEnum
 from models.faculty import Faculty
 from models.department import Department
 from models.employee import Employee
 from models.credentials import UniversityCredentials
+from models.specialty import Specialty
+
 from schemas.university_schema import UniversityModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -189,3 +192,9 @@ async def add_department_by_id(id: int, data: DepartmentPOSTModel, session: Asyn
             status_code=500,
             detail="Произошла ошибка при создании кафедры"
         )
+    
+
+
+
+async def add_specialty_by_id(id: int, data: DepartmentPOSTModel, session: AsyncSession):
+    return

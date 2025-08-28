@@ -24,6 +24,8 @@ class University(Base):
     faculties: Mapped[list["Faculty"]] = relationship("Faculty", back_populates="university", cascade="all, delete-orphan") # pyright: ignore[reportUndefinedVariable]
     departments: Mapped[list["Department"]] = relationship("Department", back_populates="university", cascade="all, delete-orphan") # pyright: ignore[reportUndefinedVariable]
     employees: Mapped[list["Employee"]] = relationship("Employee", back_populates="university", cascade="all, delete-orphan") # pyright: ignore[reportUndefinedVariable]
+    specialties: Mapped[list["Specialty"]] = relationship("Specialty",back_populates="university",cascade="all, delete-orphan") # pyright: ignore[reportUndefinedVariable]
+
     
     credentials: Mapped["UniversityCredentials"] = relationship( # pyright: ignore[reportUndefinedVariable]
         "UniversityCredentials",

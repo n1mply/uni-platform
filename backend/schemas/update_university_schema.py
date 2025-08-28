@@ -42,3 +42,8 @@ class DepartmentPOSTModel(BaseModel):
     email: EmailStr
     address: Annotated[str, MinLen(60), MaxLen(255)]
     head_id: Optional[int] = None
+
+
+
+class SpecialtyPOSTModel(BaseModel):
+    pass

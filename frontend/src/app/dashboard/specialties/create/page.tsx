@@ -88,7 +88,7 @@ export default function SpecialtiesPage() {
                 if (!section.content.trim()) {
                     errors.push(`Секция ${index + 1}: содержание обязательно`);
                 } else if (section.content.length > 150000) {
-                    errors.push(`Секция ${index + 1}: содержание не должно превышать 150000 элементов(можно вы добавили слишком много изображений)`);
+                    errors.push(`Секция ${index + 1}: содержание не должно превышать 150000 элементов(возможно вы добавили слишком много изображений)`);
                     console.log(section.content.length)
                 }
             });
