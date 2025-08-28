@@ -1,4 +1,4 @@
-from database.read import get_faculties_by_department_id
+from database.read import get_faculties_by_department_id, get_faculties_by_id
 from security.token import auth_required
 from db import get_async_session
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,6 +6,21 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Request
 
 
 faculty_router = APIRouter(prefix='/faculty', tags=['Faculties'])
+
+
+@faculty_router.get('/get/all')
+@auth_required
+async def get_faculties(
+    request: Request,
+    session: AsyncSession = Depends(get_async_session)):
+    try:
+        token_payload = request.state.token_payload
+        u_id = token_payload['university_id']
+        
+        faculties = await get_faculties_by_id(id=u_id, session=session)
+        return {'data': faculties[::-1]}
+    except Exception as e:
+        raise HTTPException(status_code=500)
 
 
 @faculty_router.get("/get/relations/department/{department_id}")

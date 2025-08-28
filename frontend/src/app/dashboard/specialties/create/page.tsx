@@ -12,12 +12,12 @@ interface Section {
     content: string
 }
 
-type TypeOfEducation = {
-    type: "Дневной" | "Заочный" | "Вечерний";
-};
+// type TypeOfEducation = {
+//     type: "Дневной" | "Заочный" | "Вечерний";
+// };
 
 export default function SpecialtiesPage() {
-    const { showAlert, hideAlert } = useAlertContext();
+    const { showAlert } = useAlertContext();
 
     const [isCreating, setIsCreating] = useState(false)
     const [sections, setSections] = useState<Section[]>([])
@@ -30,6 +30,53 @@ export default function SpecialtiesPage() {
     const [department, setDepartment] = useState('')
     const [typeOfEducation, setTypeOfEducation] = useState('')
     const [isActive, setIsActive] = useState(false)
+
+    const [allFaculties, setAllFaculties] = useState<Faculty[]>()
+    const [allDepartments, setAllDepartments] = useState<Department[]>()
+
+
+
+
+    useEffect(() => {
+        const getDepartments = async () => {
+            try {
+                const response = await fetch(`/api/department/get/all`, {
+                    method: 'GET',
+                    credentials: 'include',
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setAllDepartments(data.data)
+                    console.log(data.data)
+                }
+            } catch {
+                showAlert(["Ошибка при получении кафедры"]);
+            }
+        }
+        getDepartments()
+    }, [showAlert])
+
+    useEffect(() => {
+        const getFaculties = async () => {
+            try {
+                const response = await fetch(`/api/faculty/get/all`, {
+                    method: 'GET',
+                    credentials: 'include',
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setAllFaculties(data.data)
+                    console.log(data.data)
+                }
+            } catch {
+                showAlert(["Ошибка при получении факультетов"]);
+            }
+        }
+        getFaculties()
+    }, [showAlert])
+
 
     // Функция валидации формы
     const validateForm = (): { isValid: boolean; errors: string[] } => {
@@ -61,14 +108,12 @@ export default function SpecialtiesPage() {
             errors.push('Вид получения образования обязателен для выбора');
         }
 
-        // Валидация факультета
-        if (!faculty) {
-            errors.push('Факультет обязателен для выбора');
+        if (faculty && !allFaculties?.some(f => f?.name === faculty)) {
+            errors.push('Пожалуйста, выберите факультет из списка');
         }
 
-        // Валидация кафедры
-        if (!department) {
-            errors.push('Кафедра обязательна для выбора');
+        if (department && !allDepartments?.some(d => d?.name === department)) {
+            errors.push('Пожалуйста, выберите кафедру из списка');
         }
 
         // Валидация секций
@@ -87,7 +132,7 @@ export default function SpecialtiesPage() {
 
                 if (!section.content.trim()) {
                     errors.push(`Секция ${index + 1}: содержание обязательно`);
-                } else if (section.content.length > 150000) {
+                } else if (section.content.length > 500000) {
                     errors.push(`Секция ${index + 1}: содержание не должно превышать 150000 элементов(возможно вы добавили слишком много изображений)`);
                     console.log(section.content.length)
                 }
@@ -100,15 +145,19 @@ export default function SpecialtiesPage() {
         };
     }
 
+    function sleep(ms:number) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
     // Проверка валидности формы в реальном времени
     useEffect(() => {
         const validation = validateForm();
         setIsActive(validation.isValid);
     }, [name, qualification, duration, typeOfEducation, faculty, department, sections]);
 
-    const saveSpecialty = () => {
+    const saveSpecialty = async () => {
         const validation = validateForm();
-        
+
         if (!validation.isValid) {
             // Показываем ошибки пользователю
             showAlert(validation.errors);
@@ -116,33 +165,50 @@ export default function SpecialtiesPage() {
         }
 
         try {
+            const f_id = faculty ? allFaculties?.find((f) => f?.name === faculty)?.id : null
+            const d_id = department ? allDepartments?.find((d) => d?.name === department)?.id : null
+
+
             const payload = {
                 name,
                 qualification,
-                duration,
-                typeOfEducation,
-                faculty,
-                department,
-                sections: sections.map(section => ({
+                duration: Number(duration),
+                type_of_education: typeOfEducation,
+                faculty_id: f_id,
+                department_id: d_id,
+                description_data: sections.map(section => ({
                     title: section.title,
                     content: section.content
                 })),
-                createdAt: new Date().toISOString()
             };
-            
-            console.log('Описание специальности:', payload);
-            
-            showAlert(['Специальность добавлена'], false);
-            
-            return { success: true, data: payload };
-            
+
+            console.log('Данные специальности:', payload);
+
+            const response = await fetch('/api/specialty/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(payload),
+            });
+
+            if (response.ok) {
+                showAlert(['Специальность добавлена!'], false);
+                await sleep(2000);
+                location.reload();
+            } else {
+                const errorData = await response.json().catch(() => ({}));
+                showAlert([errorData.message || 'Не удалось создать кафедру']);
+            }
+
         } catch (error) {
             showAlert(['Не удалось добавить специальность']);
             return { success: false, error };
         }
     }
 
-        // Добавляем стили для редакторов при монтировании компонента
+    // Добавляем стили для редакторов при монтировании компонента
     useEffect(() => {
         // Создаем стили для редактора
         const style = document.createElement('style')
@@ -302,7 +368,7 @@ export default function SpecialtiesPage() {
                     <div className='flex gap-2 flex-wrap sm:flex-nowrap'>
                         <SmartSelect
                             id='department'
-                            options={['Кафедра 1', 'Кафедра 2', 'Кафедра 3']} // Замените на реальные данные
+                            options={allDepartments?.length > 0 ? allDepartments?.map((d) => (d?.name)) : []}
                             value={department}
                             onChange={(option) => setDepartment(option)}
                             label='Выпускающая кафедра'
@@ -310,7 +376,7 @@ export default function SpecialtiesPage() {
                         />
                         <SmartSelect
                             id='faculty'
-                            options={['Факультет 1', 'Факультет 2', 'Факультет 3']} // Замените на реальные данные
+                            options={allFaculties?.length > 0 ? allFaculties?.map((f) => (f?.name)) : []}
                             value={faculty}
                             onChange={(option) => setFaculty(option)}
                             label='Привязанный факультет'

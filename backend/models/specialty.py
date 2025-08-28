@@ -7,9 +7,9 @@ from sqlalchemy.dialects.postgresql import JSONB, insert
 
 
 class SpecialtyTypeEnum(str, enum.Enum):
-    daytime = "дневная"
-    correspondence = "заочная"
-    evening = "вечерняя"
+    daytime = "Дневной"
+    correspondence = "Заочный"
+    evening = "Вечерний"
 
 
 class Specialty(Base):

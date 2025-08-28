@@ -189,3 +189,13 @@ async def get_specs_by_id(id:int, session: AsyncSession):
 
     specs = result.scalars().all()
     return specs
+
+
+async def get_faculties_by_id(id:int, session: AsyncSession):
+    result = await session.execute(
+        select(Faculty)
+        .where(Faculty.university_id==id)
+    )
+
+    faculties = result.scalars().all()
+    return faculties

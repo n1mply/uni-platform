@@ -1,5 +1,5 @@
-from pydantic import BaseModel, EmailStr
-from typing import Annotated, Optional, Literal
+from pydantic import BaseModel, EmailStr, Field
+from typing import Annotated, Optional, Literal, List
 from annotated_types import MinLen, MaxLen
 
 
@@ -45,5 +45,15 @@ class DepartmentPOSTModel(BaseModel):
 
 
 
+class DescriptionItem(BaseModel):
+    title: Annotated[str, MinLen(3), MaxLen(100)]
+    content: str
+
 class SpecialtyPOSTModel(BaseModel):
-    pass
+    name: Annotated[str, MinLen(3), MaxLen(100)]
+    qualification: Annotated[str, MinLen(3), MaxLen(100)]
+    duration: int = Field(..., ge=1)
+    type_of_education: Literal['Дневной', 'Заочный', 'Вечерний']
+    department_id: Optional[int] = None
+    faculty_id: Optional[int] = None
+    description_data: Optional[List[DescriptionItem]] = None
