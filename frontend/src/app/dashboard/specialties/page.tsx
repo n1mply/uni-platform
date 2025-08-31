@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, Telescope, BookOpen, Calendar, Building2, GraduationCap, Eye } from 'lucide-react';
+import { Search, Telescope, BookOpen, Calendar, Building2, GraduationCap, Eye, Edit3, Save, X, Trash2 } from 'lucide-react';
+import FloatingInput from '@/app/(components)/FloatingInput';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAlertContext } from '@/app/(context)/AlertContext';
 
 interface DescriptionItem {
@@ -21,9 +23,19 @@ interface Specialty {
   description_data: DescriptionItem[] | null;
 }
 
-
-// Компонент карточки специальности
-function SpecialtyCard({ specialty, onClick }: { specialty: Specialty; onClick: () => void }) {
+function SpecialtyCard({
+  specialty,
+  onClick,
+  isDragging,
+  onDragStart,
+  onDragEnd
+}: {
+  specialty: Specialty;
+  onClick: () => void;
+  isDragging: boolean;
+  onDragStart: () => void;
+  onDragEnd: () => void;
+}) {
   const getEducationTypeIcon = (type: string) => {
     switch (type) {
       case 'Дневной':
@@ -58,8 +70,12 @@ function SpecialtyCard({ specialty, onClick }: { specialty: Specialty; onClick: 
 
   return (
     <div
+      draggable
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
       onClick={onClick}
-      className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer hover:border-blue-300 group"
+      className={`bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-grab hover:border-blue-300 group ${isDragging ? 'opacity-50 scale-95 rotate-2 shadow-xl border-blue-400' : ''
+        }`}
     >
       <div className="flex items-start justify-between mb-3">
         <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 flex-1 pr-2">
@@ -84,13 +100,142 @@ function SpecialtyCard({ specialty, onClick }: { specialty: Specialty; onClick: 
   );
 }
 
+function EditingArea({
+  specialty,
+  onSave,
+  onCancel,
+  isDropZone,
+  onDrop,
+  onDragOver,
+  onDragLeave
+}: {
+  specialty: Specialty | null;
+  onSave: (specialty: Specialty) => void;
+  onCancel: () => void;
+  isDropZone: boolean;
+  onDrop: (e: React.DragEvent) => void;
+  onDragOver: (e: React.DragEvent) => void;
+  onDragLeave: (e: React.DragEvent) => void;
+}) {
+  const [editedSpecialty, setEditedSpecialty] = useState<Specialty | null>(specialty);
+  const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    if (specialty) {
+      setEditedSpecialty({ ...specialty });
+      setIsEditing(true);
+    }
+  }, [specialty]);
+
+  const handleSave = () => {
+    if (editedSpecialty) {
+      onSave(editedSpecialty);
+      setIsEditing(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setEditedSpecialty(null);
+    onCancel();
+  };
+
+
+  if (!editedSpecialty) {
+    return (
+      <div
+        className={`flex-1 flex items-center justify-center transition-all duration-300 border-2 border-dashed ${isDropZone
+          ? 'border-blue-400 bg-blue-50 shadow-lg scale-100'
+          : 'border-gray-300 bg-gray-50'
+          }`}
+        onDrop={onDrop}
+        onDragOver={onDragOver}
+        onDragLeave={onDragLeave}
+      >
+        <div className="text-center text-gray-600 max-w-md p-8">
+          <motion.div
+            animate={{ scale: isDropZone ? 1.05 : 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Telescope className={`mx-auto h-16 w-16 mb-4 transition-colors duration-300 ${isDropZone ? 'text-blue-500' : 'text-gray-400'
+              }`} />
+          </motion.div>
+
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={isDropZone ? 'drop' : 'drag'}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="h-28 flex flex-col justify-center"
+            >
+              {isDropZone ? (
+                <>
+                  <h2 className="text-2xl font-semibold mb-4 text-blue-700">
+                    Отпустите для редактирования
+                  </h2>
+                  <p className="text-lg text-blue-600">
+                    Специальность готова к редактированию!
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h2 className="text-2xl font-semibold mb-4 text-gray-700">
+                    Перетащите специальность сюда
+                  </h2>
+                  <p className="text-lg text-gray-500">
+                    Перетащите карточку специальности из списка справа в эту область для начала редактирования
+                  </p>
+                </>
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className='flex-1 flex p-8'>
+      <div className='max-w-2xl w-full bg-white rounded-xl shadow-sm border border-gray-200 p-4 mx-auto'>
+        <div className="flex items-center gap-3 mb-4">
+          <Edit3 className="h-6 w-6 text-blue-600" />
+          <h2 className="text-xl font-bold text-gray-900">Редактирование специальности</h2>
+        </div>
+        <div className='space-y-10'>
+          <FloatingInput
+            id='name'
+            label='Название'
+            type='text'
+            value={editedSpecialty.name}
+            onChange={(value) => setEditedSpecialty({ ...editedSpecialty, name: value })}
+            className=''
+          />
+          <FloatingInput
+            id='qualification'
+            label='Квалификация'
+            type='text'
+            value={editedSpecialty.qualification}
+            onChange={(value) => setEditedSpecialty({ ...editedSpecialty, qualification: value })}
+            className=''
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function SpecialtyManagementPage() {
-  const {showAlert} = useAlertContext()
+  const { showAlert } = useAlertContext()
+
   const [specialties, setSpecialties] = useState<Specialty[]>([]);
   const [filteredSpecialties, setFilteredSpecialties] = useState<Specialty[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [selectedSpecialty, setSelectedSpecialty] = useState<Specialty | null>(null);
+  const [draggedSpecialty, setDraggedSpecialty] = useState<Specialty | null>(null);
+  const [isDropZone, setIsDropZone] = useState(false);
 
   const fetchSpecialties = async () => {
     try {
@@ -130,11 +275,57 @@ export default function SpecialtyManagementPage() {
   }, [searchTerm, specialties]);
 
   const handleSpecialtyClick = (specialty: Specialty) => {
-    setSelectedSpecialty(specialty);
+    if (!draggedSpecialty) {
+      setSelectedSpecialty(specialty);
+    }
+  };
+
+  const handleDragStart = (specialty: Specialty) => {
+    setDraggedSpecialty(specialty);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedSpecialty(null);
+    setIsDropZone(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (draggedSpecialty) {
+      setSelectedSpecialty(draggedSpecialty);
+      setIsDropZone(false);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDropZone(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX;
+    const y = e.clientY;
+
+    if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+      setIsDropZone(false);
+    }
+  };
+
+  const handleSave = (updatedSpecialty: Specialty) => {
+    setSpecialties(prev =>
+      prev.map(s => s.id === updatedSpecialty.id ? updatedSpecialty : s)
+    );
+    setSelectedSpecialty(null);
+    // API Save
+    console.log('Сохранена специальность:', updatedSpecialty);
+  };
+
+  const handleCancel = () => {
+    setSelectedSpecialty(null);
   };
 
   const handleSearch = () => {
-
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -146,7 +337,7 @@ export default function SpecialtyManagementPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-blue-600"></div>
       </div>
     );
   }
@@ -154,87 +345,26 @@ export default function SpecialtyManagementPage() {
   return (
     <div className="h-screen flex flex-col bg-gray-50">
       <div className="flex-shrink-0 bg-white pb-4">
-        <h1 className="text-2xl font-bold text-gray-800">Все специальности</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-gray-800">Все специальности</h1>
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+          </div>
+        </div>
       </div>
 
       <div className="flex-1 flex overflow-hidden">
-        <div className="flex-1 flex items-center justify-center p-8">
-          {selectedSpecialty ? (
-            <div className="max-w-2xl w-full bg-white rounded-xl shadow-sm border-gray-200 p-8">
-              <div className="flex items-start justify-between mb-6">
-                <div className="flex-1">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                    {selectedSpecialty.name}
-                  </h2>
-                  <p className="text-lg text-gray-600 mb-4">
-                    {selectedSpecialty.qualification}
-                  </p>
-                </div>
-                <div className="ml-4 flex items-center space-x-2">
-                  {(() => {
-                    switch (selectedSpecialty.type_of_education) {
-                      case 'Дневной':
-                        return <Calendar className="h-6 w-6 text-blue-600" />;
-                      case 'Заочный':
-                        return <BookOpen className="h-6 w-6 text-green-600" />;
-                      case 'Вечерний':
-                        return <Building2 className="h-6 w-6 text-purple-600" />;
-                      default:
-                        return <GraduationCap className="h-6 w-6 text-gray-600" />;
-                    }
-                  })()}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h3 className="font-semibold text-gray-700 mb-2">Форма обучения</h3>
-                  <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-                    selectedSpecialty.type_of_education === 'Дневной' ? 'bg-blue-100 text-blue-800' :
-                    selectedSpecialty.type_of_education === 'Заочный' ? 'bg-green-100 text-green-800' :
-                    selectedSpecialty.type_of_education === 'Вечерний' ? 'bg-purple-100 text-purple-800' :
-                    'bg-gray-100 text-gray-800'
-                  }`}>
-                    {selectedSpecialty.type_of_education}
-                  </span>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h3 className="font-semibold text-gray-700 mb-2">Длительность</h3>
-                  <p className="text-lg font-medium text-gray-900">
-                    {selectedSpecialty.duration} {
-                      selectedSpecialty.duration === 1 ? 'год' :
-                      selectedSpecialty.duration >= 2 && selectedSpecialty.duration <= 4 ? 'года' :
-                      'лет'
-                    }
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-3">
-                <button className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                  Редактировать
-                </button>
-                <button className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors font-medium">
-                  Просмотр
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center text-gray-600 max-w-md">
-              <Telescope className="mx-auto h-16 w-16 text-gray-400 mb-4" />
-              <h2 className="text-2xl font-semibold mb-4 text-gray-700">
-                Выберите специальность
-              </h2>
-              <p className="text-lg text-gray-500">
-                Выберите специальность из списка справа для её просмотра и редактирования.
-                Вы также можете воспользоваться поиском по названию.
-              </p>
-            </div>
-          )}
-        </div>
+        <EditingArea
+          specialty={selectedSpecialty}
+          onSave={handleSave}
+          onCancel={handleCancel}
+          isDropZone={isDropZone}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+        />
 
         <div className="w-80 bg-white border-gray-200 flex flex-col">
-          <div className="flex-shrink-0 pl-4 pb-2 pt-1 border-gray-100">
+          <div className="flex-shrink-0 pl-4 pt-1 border-gray-100">
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <input
@@ -248,7 +378,7 @@ export default function SpecialtyManagementPage() {
               </div>
               <button
                 onClick={handleSearch}
-                className="px-3 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all active:scale-95 duration-200 flex items-center justify-center"
+                className="px-3 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-blue-500 focus:ring-offset-2 transition-all active:scale-95 duration-200 flex items-center justify-center"
                 aria-label="Найти"
               >
                 <Search className="h-4 w-4" />
@@ -270,15 +400,18 @@ export default function SpecialtyManagementPage() {
                     key={specialty.id}
                     specialty={specialty}
                     onClick={() => handleSpecialtyClick(specialty)}
+                    isDragging={draggedSpecialty?.id === specialty.id}
+                    onDragStart={() => handleDragStart(specialty)}
+                    onDragEnd={handleDragEnd}
                   />
                 ))
               )}
             </div>
           </div>
 
-          <div className="flex-shrink-0 p-4 border-t border-white bg-white">
+          <div className="flex-shrink-0 p-4 border-t border-gray-100 bg-white">
             <p className="text-sm text-gray-600 text-center">
-              Найдено: {filteredSpecialties.length} из {specialties.length} специальностей
+              Найдено: <span className="font-medium">{filteredSpecialties.length}</span> из <span className="font-medium">{specialties.length}</span> специальностей
             </p>
           </div>
         </div>
