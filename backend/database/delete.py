@@ -1,4 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
+from models.specialty import Specialty
 from models.department import Department
 from models.contact import Contact
 from sqlalchemy import delete
@@ -47,3 +48,27 @@ async def delete_department_by_id(university_id: int, department_id: int, sessio
         if isinstance(e, HTTPException):
             raise
         raise HTTPException(status_code=500, detail='Ошибка при удалении кафедры')
+    
+
+
+
+async def delete_specialty_by_id(university_id: int, specialty_id: int, session: AsyncSession):
+    try:
+        result = await session.execute(
+            delete(Specialty).where(
+                (Specialty.id == specialty_id) &
+                (Specialty.university_id == university_id)
+            )
+        )
+        
+        if result.rowcount == 0:
+            raise HTTPException(status_code=404, detail='Специальности с таким id не существует!')
+        
+        await session.commit()
+        return True
+        
+    except Exception as e:
+        await session.rollback()
+        if isinstance(e, HTTPException):
+            raise
+        raise HTTPException(status_code=500, detail='Ошибка при удалении специальности')

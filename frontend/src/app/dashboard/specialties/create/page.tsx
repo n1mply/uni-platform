@@ -199,7 +199,7 @@ export default function SpecialtiesPage() {
                 location.reload();
             } else {
                 const errorData = await response.json().catch(() => ({}));
-                showAlert([errorData.message || 'Не удалось создать кафедру']);
+                showAlert([errorData.message || 'Не удалось добавить специальность']);
             }
 
         } catch (error) {

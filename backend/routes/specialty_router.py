@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, Request
+from fastapi import APIRouter, Depends, HTTPException, Path, Response, Request
+from database.delete import delete_specialty_by_id
 from database.create import add_specialty_by_id
 from db import get_async_session
 from security.token import auth_required
@@ -6,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database.read import get_specs_by_id
 from schemas.update_university_schema import SpecialtyPOSTModel
 from services.media_service import parse_desc_object
+from database.update import update_specialty_by_id
 
 spec_router = APIRouter(prefix='/specialty', tags=['Specialty'])
 
@@ -56,3 +58,33 @@ async def get_specs(
     except Exception as e:
         raise HTTPException(status_code=500)
     
+
+
+@spec_router.put("/update/base/{specialty_id}")
+@auth_required
+async def update_department(
+    request: Request,
+    data: SpecialtyPOSTModel,
+    session: AsyncSession = Depends(get_async_session),
+    specialty_id: int = Path(...)
+):
+    token_payload = request.state.token_payload
+    u_id = token_payload['university_id']
+    print(data)
+    data = await update_specialty_by_id(specialty_id=specialty_id ,session=session, university_id=u_id, update_data=data)
+    if data:
+        return {'status': 'ok'}
+    
+
+@spec_router.get("/delete/{specialty_id}")
+@auth_required
+async def delete_spec(
+    request: Request,
+    session: AsyncSession = Depends(get_async_session),
+    specialty_id: int = Path(...)
+):
+    token_payload = request.state.token_payload
+    u_id = token_payload['university_id']
+    data = await delete_specialty_by_id(university_id=u_id, specialty_id=specialty_id ,session=session)
+    if data:
+        return {'status': 'ok'}

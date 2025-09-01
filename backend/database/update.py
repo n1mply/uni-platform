@@ -1,10 +1,11 @@
 from fastapi import HTTPException
 from sqlalchemy import select, update
 from sqlalchemy.exc import NoResultFound
+from models.specialty import Specialty
 from models.department import Department
 from models.university import University
 from models.employee import Employee
-from schemas.update_university_schema import BaseResponseModel, DepartmentUpdateModel
+from schemas.update_university_schema import BaseResponseModel, DepartmentUpdateModel, SpecialtyPOSTModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -129,3 +130,43 @@ async def update_department_by_id(
             detail=f"Ошибка при обновлении кафедры: {str(e)}"
         )
         
+
+async def update_specialty_by_id(specialty_id: int, session: AsyncSession, university_id: int, update_data: SpecialtyPOSTModel)->Specialty:
+    try:
+        stmt = select(Specialty).where(
+            (Specialty.id == specialty_id) &
+            (Specialty.university_id == university_id)
+        )
+        result = await session.execute(stmt)
+        spec = result.scalar_one()
+
+        description_data = (
+            [item.dict() for item in update_data.description_data]
+            if update_data.description_data
+            else None
+        )
+        
+        spec.name = update_data.name
+        spec.qualification = update_data.qualification
+        spec.duration = update_data.duration
+        spec.department_id = update_data.department_id
+        spec.faculty_id = update_data.faculty_id
+        spec.type_of_education = update_data.type_of_education
+        spec.description_data = description_data
+        
+        await session.commit()
+        await session.refresh(spec)
+        return spec
+    
+    except NoResultFound:
+        await session.rollback()
+        raise HTTPException(
+            status_code=404,
+            detail=f"Специальность в университете с id: {id} не найдена."
+        )
+    except Exception as e:
+        await session.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Ошибка при обновлении специальности: {str(e)}"
+        )

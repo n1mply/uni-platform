@@ -5,6 +5,8 @@ import { Search, Telescope, BookOpen, Calendar, Building2, GraduationCap, Eye, E
 import FloatingInput from '@/app/(components)/FloatingInput';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAlertContext } from '@/app/(context)/AlertContext';
+import SmartSelect from '@/app/(components)/SmartSelect';
+import { Department, Faculty } from '../departments/page'
 
 interface DescriptionItem {
   title: string;
@@ -78,7 +80,7 @@ function SpecialtyCard({
         }`}
     >
       <div className="flex items-start justify-between mb-3">
-        <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 flex-1 pr-2">
+        <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 flex-1 pr-2 text-sm md:text-base">
           {specialty.name}
         </h3>
         <div className="flex items-center space-x-1 flex-shrink-0">
@@ -104,14 +106,16 @@ function EditingArea({
   specialty,
   onSave,
   onCancel,
+  onDelete,
   isDropZone,
   onDrop,
   onDragOver,
   onDragLeave
 }: {
   specialty: Specialty | null;
-  onSave: (specialty: Specialty) => void;
+  onSave: (specialty: Specialty, faculty: string, department: string, allFaculties: Faculty[], allDepartments: Department[]) => void;
   onCancel: () => void;
+  onDelete: (specailty_id: number) => void;
   isDropZone: boolean;
   onDrop: (e: React.DragEvent) => void;
   onDragOver: (e: React.DragEvent) => void;
@@ -119,6 +123,11 @@ function EditingArea({
 }) {
   const [editedSpecialty, setEditedSpecialty] = useState<Specialty | null>(specialty);
   const [isEditing, setIsEditing] = useState(false);
+  const [allFaculties, setAllFaculties] = useState<Faculty[]>([])
+  const [allDepartments, setAllDepartments] = useState<Department[]>([])
+  const [faculty, setFaculty] = useState('')
+  const [department, setDepartment] = useState('')
+  const { showAlert } = useAlertContext()
 
   useEffect(() => {
     if (specialty) {
@@ -127,12 +136,61 @@ function EditingArea({
     }
   }, [specialty]);
 
+  useEffect(() => {
+    const getDepartments = async () => {
+      try {
+        const response = await fetch(`/api/department/get/all`, {
+          method: 'GET',
+          credentials: 'include',
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setAllDepartments(data.data)
+          const baseDepartment = editedSpecialty?.department_id ? data.data?.find((d: Department) => d?.id == editedSpecialty?.department_id)?.name : ''
+          setDepartment(baseDepartment || '')
+        }
+      } catch {
+        showAlert(["Ошибка при получении кафедры"]);
+      }
+    }
+    getDepartments()
+  }, [editedSpecialty?.department_id, showAlert])
+
+  useEffect(() => {
+    const getFaculties = async () => {
+      try {
+        const response = await fetch(`/api/faculty/get/all`, {
+          method: 'GET',
+          credentials: 'include',
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setAllFaculties(data.data)
+          const baseFaculty = editedSpecialty?.faculty_id ? data.data?.find((f: Faculty) => f?.id == editedSpecialty?.faculty_id)?.name : ''
+          setFaculty(baseFaculty || '')
+        }
+      } catch {
+        showAlert(["Ошибка при получении факультетов"]);
+      }
+    }
+    getFaculties()
+  }, [editedSpecialty?.faculty_id, showAlert])
+
   const handleSave = () => {
     if (editedSpecialty) {
-      onSave(editedSpecialty);
+      onSave(editedSpecialty, faculty, department, allFaculties, allDepartments);
       setIsEditing(false);
     }
   };
+
+
+  const handleDelete = () => {
+    onDelete(editedSpecialty.id)
+    setIsEditing(false);
+    setEditedSpecialty(null);
+  }
 
   const handleCancel = () => {
     setIsEditing(false);
@@ -144,7 +202,7 @@ function EditingArea({
   if (!editedSpecialty) {
     return (
       <div
-        className={`flex-1 flex items-center justify-center transition-all duration-300 border-2 border-dashed ${isDropZone
+        className={`flex-1 flex sm:pt-20 items-start justify-center transition-all duration-300 h-full ${isDropZone
           ? 'border-blue-400 bg-blue-50 shadow-lg scale-100'
           : 'border-gray-300 bg-gray-50'
           }`}
@@ -152,12 +210,12 @@ function EditingArea({
         onDragOver={onDragOver}
         onDragLeave={onDragLeave}
       >
-        <div className="text-center text-gray-600 max-w-md p-8">
+        <div className="text-center text-gray-600 max-w-md p-4 md:p-8 flex flex-col justify-between gap-4">
           <motion.div
             animate={{ scale: isDropZone ? 1.05 : 1 }}
             transition={{ duration: 0.3 }}
           >
-            <Telescope className={`mx-auto h-16 w-16 mb-4 transition-colors duration-300 ${isDropZone ? 'text-blue-500' : 'text-gray-400'
+            <Telescope className={`mx-auto h-12 w-12 md:h-16 md:w-16 mb-4 transition-colors duration-300 ${isDropZone ? 'text-blue-500' : 'text-gray-400'
               }`} />
           </motion.div>
 
@@ -168,24 +226,24 @@ function EditingArea({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="h-28 flex flex-col justify-center"
+              className="h-20 md:h-28 flex flex-col justify-center"
             >
               {isDropZone ? (
                 <>
-                  <h2 className="text-2xl font-semibold mb-4 text-blue-700">
+                  <h2 className="text-xl md:text-2xl font-semibold mb-2 md:mb-4 text-blue-700">
                     Отпустите для редактирования
                   </h2>
-                  <p className="text-lg text-blue-600">
+                  <p className="text-sm md:text-lg text-blue-600">
                     Специальность готова к редактированию!
                   </p>
                 </>
               ) : (
                 <>
-                  <h2 className="text-2xl font-semibold mb-4 text-gray-700">
+                  <h2 className="text-xl md:text-2xl font-semibold mb-2 md:mb-4 text-gray-700">
                     Перетащите специальность сюда
                   </h2>
-                  <p className="text-lg text-gray-500">
-                    Перетащите карточку специальности из списка справа в эту область для начала редактирования
+                  <p className="text-sm md:text-lg text-gray-500">
+                    Перетащите карточку специальности из списка для редактирования
                   </p>
                 </>
               )}
@@ -197,20 +255,20 @@ function EditingArea({
   }
 
   return (
-    <div className='flex-1 flex p-8'>
+    <div className='flex-1 flex p-2 md:p-6 overflow-auto'>
       <div className='max-w-2xl w-full bg-white rounded-xl shadow-sm border border-gray-200 p-4 mx-auto'>
         <div className="flex items-center gap-3 mb-4">
-          <Edit3 className="h-6 w-6 text-blue-600" />
-          <h2 className="text-xl font-bold text-gray-900">Редактирование специальности</h2>
+          <Edit3 className=" text-blue-600" />
+          <h2 className="text-base md:text-xl font-bold text-gray-900">Редактирование специальности</h2>
         </div>
-        <div className='space-y-10'>
+        <div className='mt-4 md:mt-6 flex flex-col gap-3 md:gap-4 w-full items-center justify-between'>
           <FloatingInput
             id='name'
             label='Название'
             type='text'
             value={editedSpecialty.name}
             onChange={(value) => setEditedSpecialty({ ...editedSpecialty, name: value })}
-            className=''
+            className='relative w-full md:w-[90%]'
           />
           <FloatingInput
             id='qualification'
@@ -218,8 +276,69 @@ function EditingArea({
             type='text'
             value={editedSpecialty.qualification}
             onChange={(value) => setEditedSpecialty({ ...editedSpecialty, qualification: value })}
-            className=''
+            className='relative w-full md:w-[90%]'
           />
+          <div className='w-full md:w-[90%] flex flex-col md:flex-row gap-3'>
+            <FloatingInput
+              id='duration'
+              label='Срок обучения'
+              type='text'
+              value={editedSpecialty.duration.toString()}
+              onChange={(value) => setEditedSpecialty({ ...editedSpecialty, duration: parseInt(value) || 0 })}
+              className='relative w-full md:w-1/2'
+            />
+            <SmartSelect
+              id='typeOfEducation'
+              options={['Дневной', 'Вечерний', 'Заочный']}
+              value={editedSpecialty.type_of_education}
+              onChange={(value) => setEditedSpecialty({ ...editedSpecialty, type_of_education: value })}
+              label='Вид получения'
+              className='relative w-full md:w-1/2'
+            />
+          </div>
+          <div className='w-full md:w-[90%] flex flex-col md:flex-row gap-3'>
+            <SmartSelect
+              id='department'
+              options={allDepartments?.length > 0 ? allDepartments?.map((d) => (d?.name)) : []}
+              value={department}
+              onChange={(option) => setDepartment(option)}
+              label='Кафедра'
+              className='relative w-full md:w-1/2'
+            />
+            <SmartSelect
+              id='faculty'
+              options={allFaculties?.length > 0 ? allFaculties?.map((f) => (f?.name)) : []}
+              value={faculty}
+              onChange={(option) => setFaculty(option)}
+              label='Факультет'
+              className='relative w-full md:w-1/2'
+            />
+          </div>
+        </div>
+        <div className="mt-4 md:mt-6 flex flex-col gap-3 md:gap-4 w-full justify-center items-center">
+          <button
+            onClick={handleSave}
+            className="flex-1 w-full md:w-[90%] bg-blue-600 text-white py-2 md:py-3 px-4 rounded-lg hover:bg-blue-700 transition-all duration-200 font-medium flex items-center justify-center gap-2 active:scale-95 text-sm md:text-base"
+          >
+            <Save className="h-5 w-5" />
+            Сохранить
+          </button>
+
+          <div className='w-full md:w-[90%] flex flex-col md:flex-row gap-3'>
+            <button
+              onClick={handleDelete}
+              className="flex-1 bg-gray-100 text-gray-700 py-2 md:py-3 px-4 rounded-lg hover:bg-red-500 hover:text-white transition-all duration-200 font-medium flex items-center justify-center gap-2 active:scale-95 text-sm md:text-base"
+            >
+              <Trash2 className="h-5 w-5" />
+              Удалить
+            </button>
+            <button
+              onClick={handleCancel}
+              className="flex-1 bg-gray-100 text-gray-700 py-2 md:py-3 px-4 rounded-lg hover:bg-gray-200 transition-all duration-200 font-medium flex items-center justify-center gap-2 active:scale-95 text-sm md:text-base"
+            >
+              Отмена
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -312,18 +431,70 @@ export default function SpecialtyManagementPage() {
     }
   };
 
-  const handleSave = (updatedSpecialty: Specialty) => {
+  const handleSave = async (updatedSpecialty: Specialty, faculty: string, department: string, allFaculties: Faculty[], allDepartments: Department[]) => {
     setSpecialties(prev =>
       prev.map(s => s.id === updatedSpecialty.id ? updatedSpecialty : s)
     );
+
+    const f_id = faculty ? allFaculties?.find((f) => f?.name === faculty)?.id : null
+    const d_id = department ? allDepartments?.find((d) => d?.name === department)?.id : null
+
+    const payload = {
+      name: updatedSpecialty.name,
+      qualification: updatedSpecialty.qualification,
+      duration: Number(updatedSpecialty.duration),
+      type_of_education: updatedSpecialty.type_of_education,
+      faculty_id: f_id,
+      department_id: d_id,
+      description_data: updatedSpecialty.description_data
+    };
+
+    const response = await fetch(`/api/specialty/update/base/${updatedSpecialty.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(payload),
+    });
+
+    if (response.ok) {
+      showAlert(['Специальность обновлена!'], false);
+      location.reload();
+    } else {
+      const errorData = await response.json().catch(() => ({}));
+      showAlert([errorData.message || 'Не удалось обновить специальность']);
+    }
+
+
     setSelectedSpecialty(null);
-    // API Save
-    console.log('Сохранена специальность:', updatedSpecialty);
+    console.log('Сохранена специальность:', payload);
   };
 
   const handleCancel = () => {
     setSelectedSpecialty(null);
   };
+
+  const handleDelete = async (specailty_id: number) => {
+    try {
+      const response = await fetch(`/api/specialty/delete/${specailty_id}`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        showAlert(["Удалено успешно"], false);
+        location.reload()
+        console.log("Удалено:", data);
+      } else {
+        showAlert(["Ошибка при удалении кафедры"]);
+      }
+    }
+    catch {
+
+    }
+  }
 
   const handleSearch = () => {
   };
@@ -337,34 +508,35 @@ export default function SpecialtyManagementPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
-      <div className="flex-shrink-0 bg-white pb-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-800">Все специальности</h1>
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-          </div>
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <div className="flex-shrink-0 bg-white pb-5 border-b border-gray-200">
+        <div className="max-w-7xl w-full">
+          <h1 className="text-xl md:text-2xl font-bold text-gray-800">Все специальности</h1>
         </div>
       </div>
 
-      <div className="flex-1 flex overflow-hidden">
-        <EditingArea
-          specialty={selectedSpecialty}
-          onSave={handleSave}
-          onCancel={handleCancel}
-          isDropZone={isDropZone}
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-        />
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+        <div className="flex-1 min-h-[400px] lg:min-h-auto border-b lg:border-b-0 lg:border-r border-gray-200">
+          <EditingArea
+            specialty={selectedSpecialty}
+            onSave={handleSave}
+            onCancel={handleCancel}
+            onDelete={handleDelete}
+            isDropZone={isDropZone}
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+          />
+        </div>
 
-        <div className="w-80 bg-white border-gray-200 flex flex-col">
-          <div className="flex-shrink-0 pl-4 pt-1 border-gray-100">
+        <div className="w-full lg:w-80 xl:w-96 bg-white flex flex-col">
+          <div className="flex-shrink-0 p-4 border-b border-gray-200">
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <input
@@ -389,10 +561,10 @@ export default function SpecialtyManagementPage() {
           <div className="flex-1 overflow-y-auto">
             <div className="p-4 space-y-3">
               {filteredSpecialties.length === 0 ? (
-                <div className="text-center text-gray-500 py-12">
-                  <Eye className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                  <p className="font-medium">Специальности не найдены</p>
-                  <p className="text-sm mt-2">Попробуйте изменить поисковый запрос</p>
+                <div className="text-center text-gray-500 py-8">
+                  <Eye className="mx-auto h-10 w-10 text-gray-400 mb-3" />
+                  <p className="font-medium text-sm md:text-base">Специальности не найдены</p>
+                  <p className="text-xs md:text-sm mt-1">Попробуйте изменить поисковый запрос</p>
                 </div>
               ) : (
                 filteredSpecialties.map((specialty) => (
@@ -409,8 +581,8 @@ export default function SpecialtyManagementPage() {
             </div>
           </div>
 
-          <div className="flex-shrink-0 p-4 border-t border-gray-100 bg-white">
-            <p className="text-sm text-gray-600 text-center">
+          <div className="flex-shrink-0 p-4 border-t border-gray-200 bg-white">
+            <p className="text-xs md:text-sm text-gray-600 text-center">
               Найдено: <span className="font-medium">{filteredSpecialties.length}</span> из <span className="font-medium">{specialties.length}</span> специальностей
             </p>
           </div>
