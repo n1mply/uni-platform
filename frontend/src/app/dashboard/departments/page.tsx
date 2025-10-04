@@ -9,6 +9,8 @@ import DepartmentEditModal from "@/app/(components)/DepartmentEditModal";
 import FloatingInput from "@/app/(components)/FloatingInput";
 import SmartSelect from "@/app/(components)/SmartSelect";
 import { z } from "zod";
+import { motion, AnimatePresence } from "framer-motion";
+
 
 const emailSchema = z.string().email("Некорректный email");
 const phoneSchema = z
@@ -383,93 +385,100 @@ export default function DepartmentsPage({ }) {
                         <Search className="h-5 w-5" />
                     </button>
                 </div>
+
                 <div className="w-full sm:w-auto">
                     <button
-                        onClick={() => {
-                            setAddDepartment(!addDepartment)
-                        }}
-                        className="w-full sm:w-auto cursor-pointer flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none transition-all active:scale-[0.97] duration-300">
+                        onClick={() => setAddDepartment(!addDepartment)}
+                        className="w-full sm:w-auto cursor-pointer flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none transition-all active:scale-[0.97] duration-300"
+                    >
                         <Plus />
                         <span className="ml-2">Добавить</span>
                     </button>
                 </div>
             </div>
 
-            {addDepartment && (
-                <div className="border border-gray-300 rounded-lg p-4 mb-4">
-                    <div className="flex flex-col sm:flex-row gap-4">
-                        <div className="w-full sm:w-1/2">
-                            <p className="text-gray-900 w-full mb-5">Основная информация</p>
-                            <div className="grid grid-cols-1 gap-4 mb-5">
-                                <FloatingInput
-                                    id="name"
-                                    label="Название кафедры"
-                                    value={name}
-                                    onChange={(val) => setName(val)}
-                                    className="relative"
-                                />
+            {/* 🔽 Анимированный блок */}
+            <AnimatePresence>
+                {addDepartment && (
+                    <motion.div
+                        key="add-department"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.35, ease: "easeInOut" }}
+                        className="overflow-hidden"
+                    >
+                        <div className="border border-gray-300 rounded-lg p-4 mb-4 bg-white shadow-sm">
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <div className="w-full sm:w-1/2">
+                                    <p className="text-gray-900 w-full mb-5">Основная информация</p>
+                                    <div className="grid grid-cols-1 gap-4 mb-5">
+                                        <FloatingInput
+                                            id="name"
+                                            label="Название кафедры"
+                                            value={name}
+                                            onChange={(val) => setName(val)}
+                                            className="relative"
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                                        <FloatingInput
+                                            id="email"
+                                            label="Почта"
+                                            value={email}
+                                            onChange={(val) => setEmail(val)}
+                                            className="relative"
+                                        />
+                                        <FloatingInput
+                                            id="phone"
+                                            label="Номер телефона"
+                                            value={phone}
+                                            type="tel"
+                                            onChange={(val) => setPhone(val)}
+                                            className="relative"
+                                        />
+                                    </div>
+
+                                    <FloatingInput
+                                        id="adress"
+                                        label="Адрес"
+                                        value={adress}
+                                        onChange={(val) => setAdress(val)}
+                                        className="relative"
+                                    />
+                                </div>
+
+                                <div className="w-full sm:w-1/2">
+                                    <p className="text-gray-900 w-full mb-5">Расширить кафедру</p>
+                                    <SmartSelect
+                                        options={freeEmployees.map((employee) => employee?.full_name)}
+                                        value={newEmployee}
+                                        onChange={(option) => setNewEmployee(option)}
+                                        id="employees"
+                                        label="Заведующий кафедрой"
+                                    />
+                                </div>
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-                                <FloatingInput
-                                    id="email"
-                                    label="Почта"
-                                    value={email}
-                                    onChange={(val) => setEmail(val)}
-                                    className="relative"
-                                />
-                                <FloatingInput
-                                    id="name"
-                                    label="Номер телефона"
-                                    value={phone}
-                                    type="tel"
-                                    onChange={(val) => setPhone(val)}
-                                    className="relative"
-                                />
-                            </div>
-
-                            <div className="">
-                                <FloatingInput
-                                    id="Adress"
-                                    label="Адрес"
-                                    value={adress}
-                                    onChange={(val) => setAdress(val)}
-                                    className="relative"
-                                />
+                            <div className="flex flex-wrap justify-end gap-2 mt-4">
+                                <button
+                                    onClick={() => setAddDepartment(false)}
+                                    className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+                                >
+                                    Отмена
+                                </button>
+                                <button
+                                    onClick={() => handleCreate()}
+                                    className="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
+                                >
+                                    Создать
+                                </button>
                             </div>
                         </div>
-
-
-                        <div className="w-full sm:w-1/2">
-                            <p className="text-gray-900 w-full mb-5">Расширить кафедру</p>
-                            <SmartSelect
-                                options={freeEmployees.map((employee) => (employee?.full_name))}
-                                value={newEmployee}
-                                onChange={(option) => setNewEmployee(option)}
-                                id={'employees'}
-                                label="Заведующий кафедрой"
-                            />
-                        </div>
-                    </div>
-
-
-
-                    <div className="flex flex-wrap justify-end gap-2 mt-4">
-                        <button
-                            onClick={() => setAddDepartment(false)}
-                            className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
-                        >
-                            Отмена
-                        </button>
-                        <button
-                            onClick={() => handleCreate()}
-                            className="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
-                        >
-                            Создать
-                        </button>
-                    </div>
-                </div>
-            )}
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
 
             <div className="relative">

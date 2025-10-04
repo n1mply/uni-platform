@@ -1,11 +1,11 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { createPortal } from 'react-dom'
 import FloatingInput from '@/app/(components)/FloatingInput'
 import { ImageState } from '@/app/(context)/UniversityFormContext';
 import DragNDrop from "@/app/(components)/DragNDrop";
-import { Plus, X } from 'lucide-react';
+import { Plus } from 'lucide-react';
+import { createPortal } from 'react-dom';
 
 
 // Компонент модального окна
@@ -50,18 +50,18 @@ function FacultyModal({ isOpen, onClose, onSubmit }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 bg-black/50 transition-opacity z-50"
+            className="fixed inset-0 bg-black bg-opacity-50 z-50"
             onClick={handleClose}
           />
           
           {/* Modal */}
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none scrollbar-hidden">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-              className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[95vh] overflow-y-auto pointer-events-auto scrollbar-hidden"
+              className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto pointer-events-auto"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
@@ -73,15 +73,15 @@ function FacultyModal({ isOpen, onClose, onSubmit }) {
                   onClick={handleClose}
                   className="text-gray-400 hover:text-gray-600 transition-colors"
                 >
-                  <X size={24} />
+                  <Plus size={24} />
                 </button>
               </div>
 
               {/* Content */}
               <div className="p-6">
                 <div className="flex flex-col gap-4">
-                  <div className='flex flex-col gap-4'>
-                    <div className="flex flex-col w-full">
+                  <div className='flex flex-col sm:flex-row gap-4'>
+                    <div className="flex flex-col w-full sm:w-auto sm:flex-1 sm:min-w-[200px] sm:max-w-[300px]">
                       <p className="mb-2 text-sm text-gray-600">Иконка факультета</p>
                       <DragNDrop
                         image={icon}
@@ -91,7 +91,7 @@ function FacultyModal({ isOpen, onClose, onSubmit }) {
                       />
                     </div>
 
-                    <div className='flex flex-col w-full'>
+                    <div className='flex flex-col w-full sm:flex-1'>
                       <FloatingInput
                         id="name"
                         label="Название факультета"
@@ -157,7 +157,7 @@ export default function FaculiesCreatePage() {
         
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-xl hover:bg-blue-700 focus:outline-none transition-all active:scale-95 duration-200 shadow-md"
+          className="flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-sm hover:bg-blue-700 focus:outline-none transition-all active:scale-95 duration-200 shadow-md"
         >
           <Plus size={20} />
         </button>
@@ -169,7 +169,7 @@ export default function FaculiesCreatePage() {
         onSubmit={handleCreate}
       />
 
-      <p>Совершенно другой контент для теста</p>
+      <p>Совершенно другой контент для тестов</p>
     </>
   )
 }

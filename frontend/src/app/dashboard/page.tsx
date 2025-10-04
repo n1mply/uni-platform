@@ -448,7 +448,7 @@ export default function DashboardPage() {
                         </div>
                     ))}
                 </div>
-                <p className="mt-3 text-sm text-gray-600"><span className="font-medium">ВАЖНО:</span> На контакты не распространются кнопи &quot;Сохранить&quot; и &quot;Сбросить&quot;, действия с контактами происходят мгновенно</p>
+                <p className="mt-3 text-sm text-gray-600"><span className="font-medium">ВАЖНО:</span> На контакты не распространются кнопи &quot;Сохранить&quot; и &quot;Сбросить&quot;, действия с контактами происходят без доп. подтверждения</p>
             </div>
 
             <div className="flex flex-wrap gap-2 mt-10">
