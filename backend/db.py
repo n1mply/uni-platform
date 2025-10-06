@@ -40,13 +40,15 @@ async def create_database():
 async def init_db():
     async with engine.begin() as conn:
         from models.university import University
-        from models.contact import Contact
-        from models.faculty import Faculty
         from models.department import Department
         from models.employee import Employee
-        from models.credentials import UniversityCredentials
+        from models.faculty import Faculty
+        from models.contact import Contact
         from models.request import UniversityRequest
+        from models.credentials import UniversityCredentials
         from models.faculty_department import FacultyDepartment
+        from models.faculty_specialty import FacultySpecialty
+        from models.specialty import Specialty
         
         await conn.run_sync(Base.metadata.create_all)
     print("Таблицы созданы")
@@ -54,13 +56,15 @@ async def init_db():
 async def reset_db():
     async with engine.begin() as conn: 
         from models.university import University
-        from models.contact import Contact
-        from models.faculty import Faculty
         from models.department import Department
         from models.employee import Employee
-        from models.credentials import UniversityCredentials
+        from models.faculty import Faculty
+        from models.contact import Contact
         from models.request import UniversityRequest
+        from models.credentials import UniversityCredentials
         from models.faculty_department import FacultyDepartment
+        from models.faculty_specialty import FacultySpecialty
+        from models.specialty import Specialty
         
         await conn.run_sync(Base.metadata.create_all)
         await conn.run_sync(Base.metadata.reflect)
