@@ -101,18 +101,6 @@ export function UniversityFormProvider({ children }: { children: ReactNode }) {
                             universityTag,
                             contacts,
                         },
-                        structure: {
-                            faculties: [],
-                            departments: []
-                        },
-                        employees: [
-                            {
-                                position: '-/-',
-                                academicDegree: '-/-',
-                                fullName: '-/-',
-                                isDepHead: false,
-                            }
-                        ],
                         credentials: {
                             generatedPassword
                         },

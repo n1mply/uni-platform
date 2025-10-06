@@ -6,7 +6,7 @@ from models.request import UniversityRequest
 from db import get_async_session
 from database.read import get_credentials_by_tag
 from security.jwt import create_access_token
-from schemas.university_schema import UniversityModel
+from schemas.university_schema import UniversityModel, UniversityPOSTModel
 from schemas.university_signin_schema import UniSignIn
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -17,7 +17,7 @@ auth_router = APIRouter(prefix='/auth' ,tags=['Auth'])
 
 @auth_router.post('/signup/university')
 async def sign_up_university(
-    university: UniversityModel,
+    university: UniversityPOSTModel,
     session: AsyncSession = Depends(get_async_session)
 ):
     data = university.model_dump()

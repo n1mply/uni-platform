@@ -67,4 +67,9 @@ class UniversityModel(BaseModel):
     createdAt: Optional[datetime]
     updatedAt: Optional[datetime]
 
-    
+
+class UniversityPOSTModel(BaseModel):
+    baseInfo: BaseInfoModel
+    credentials: CredentialsModel
+    createdAt: Optional[datetime]
+    updatedAt: Optional[datetime]

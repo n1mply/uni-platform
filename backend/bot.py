@@ -129,11 +129,11 @@ async def handle_approval(callback_query: types.CallbackQuery):
             if action == "approve":
                 # Используем сервисную функцию
                 approved_request = await approve_request_service(request_id, session)
-                response_text = f"✅ Заявка ВУЗа {approved_request.data['baseInfo']['shortName']} одобрена!"
+                response_text = f"✅ Заявка ВУЗа одобрена!"
             else:
                 # Используем сервисную функцию
                 rejected_request = await reject_request_service(request_id, session)
-                response_text = f"❌ Заявка ВУЗа {rejected_request.data['baseInfo']['shortName']} отклонена!"
+                response_text = f"❌ Заявка ВУЗа отклонена!"
             
             await callback_query.message.edit_text(
                 text=f"🔄 {response_text}",
