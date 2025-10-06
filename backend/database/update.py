@@ -1,11 +1,12 @@
 from fastapi import HTTPException
 from sqlalchemy import select, update
 from sqlalchemy.exc import NoResultFound
+from models.faculty import Faculty
 from models.specialty import Specialty
 from models.department import Department
 from models.university import University
 from models.employee import Employee
-from schemas.update_university_schema import BaseResponseModel, DepartmentUpdateModel, SpecialtyPOSTModel
+from schemas.update_university_schema import BaseFacultyModel, BaseResponseModel, DepartmentUpdateModel, SpecialtyPOSTModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -169,4 +170,38 @@ async def update_specialty_by_id(specialty_id: int, session: AsyncSession, unive
         raise HTTPException(
             status_code=500,
             detail=f"Ошибка при обновлении специальности: {str(e)}"
+        )
+    
+
+
+
+async def update_faculty_by_id(faculty_id: int ,session: AsyncSession, university_id: int, update_data: BaseFacultyModel):
+    try:
+        stmt = select(Faculty).where(
+            (Faculty.id == faculty_id) &
+            (Faculty.university_id == university_id)
+        )
+        result = await session.execute(stmt)
+        faculty = result.scalar_one()
+
+
+        faculty.name = update_data.name
+        faculty.tag = update_data.tag
+        faculty.icon_path = update_data.icon_path
+
+        await session.commit()
+        await session.refresh(faculty)
+        return faculty
+    
+    except NoResultFound:
+        await session.rollback()
+        raise HTTPException(
+            status_code=404,
+            detail=f"Факультет в университете с id: {id} не найдена."
+        )
+    except Exception as e:
+        await session.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Ошибка при обновлении факультета: {str(e)}"
         )

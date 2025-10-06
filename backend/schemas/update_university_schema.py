@@ -6,7 +6,7 @@ from annotated_types import MinLen, MaxLen
 class ImageBase64Model(BaseModel):
     name: Annotated[str, MinLen(3), MaxLen(100)]
     base64: Annotated[str, MinLen(1)]
-    type: Literal["avatar", "banner"]
+    type: Literal["avatar", "banner", "icon"]
 
 
 class BasePutModel(BaseModel):
@@ -27,7 +27,6 @@ class BaseResponseModel(BaseModel):
     banner: Optional[str] = None
     
     
-    
 class DepartmentUpdateModel(BaseModel):
     name: Annotated[str, MinLen(3), MaxLen(100)]
     phone: Annotated[str, MinLen(8), MaxLen(100)]
@@ -44,7 +43,6 @@ class DepartmentPOSTModel(BaseModel):
     head_id: Optional[int] = None
 
 
-
 class DescriptionItem(BaseModel):
     title: Annotated[str, MinLen(3), MaxLen(100)]
     content: str
@@ -57,3 +55,14 @@ class SpecialtyPOSTModel(BaseModel):
     department_id: Optional[int] = None
     faculty_id: Optional[int] = None
     description_data: Optional[List[DescriptionItem]] = None
+
+
+class FacultyPOSTModel(BaseModel):
+    name: Annotated[str, MinLen(6), MaxLen(100)]
+    tag: Annotated[str, MinLen(3), MaxLen(100)]
+    icon: Optional[ImageBase64Model]
+
+class BaseFacultyModel(BaseModel):
+    name: Annotated[str, MinLen(6), MaxLen(100)]
+    tag: Annotated[str, MinLen(3), MaxLen(100)]
+    icon_path: Annotated[str, MinLen(1), MaxLen(400)]

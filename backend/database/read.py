@@ -9,6 +9,7 @@ from models.employee import Employee
 from models.credentials import UniversityCredentials
 from models.request import UniversityRequest
 from models.specialty import Specialty
+from models.faculty_specialty import FacultySpecialty
 
 from security.password import verify_password
 from fastapi import HTTPException
@@ -199,3 +200,23 @@ async def get_faculties_by_id(id:int, session: AsyncSession):
 
     faculties = result.scalars().all()
     return faculties
+
+
+
+from models.specialty import Specialty
+from models.faculty_specialty import FacultySpecialty
+
+async def get_free_specialties_by_id(id: int, session: AsyncSession):
+    result = await session.execute(
+        select(Specialty).where(
+            (Specialty.university_id == id) &
+            (~Specialty.id.in_(
+                select(FacultySpecialty.specialty_id)
+            ))
+        )
+    )
+    
+    free_specialties = result.scalars().all()
+    if not free_specialties:
+        raise HTTPException(status_code=404, detail='Не удалось найти свободные специальности')
+    return free_specialties

@@ -1,7 +1,7 @@
 from sqlite3 import IntegrityError
 from fastapi import HTTPException
 from sqlalchemy import select
-from schemas.update_university_schema import DepartmentPOSTModel, SpecialtyPOSTModel
+from schemas.update_university_schema import BaseFacultyModel, DepartmentPOSTModel, SpecialtyPOSTModel
 from security.password import hash_password
 from db import init_db, check_tables_exist
 
@@ -227,4 +227,27 @@ async def add_specialty_by_id(id: int, data: SpecialtyPOSTModel, session: AsyncS
         raise HTTPException(
             status_code=500,
             detail="Произошла ошибка при создании специальности"
+        )
+    
+
+async def add_faculty_by_id(id: int, data: BaseFacultyModel, session: AsyncSession):
+    try:
+        faculty = Faculty(
+            name=data.name,
+            tag=data.tag,
+            icon_path=data.icon_path,
+            university_id=id
+        )
+        session.add(faculty)
+        await session.commit()
+        
+        return True
+    except HTTPException:
+        raise
+    except Exception as e:
+        await session.rollback()
+        print(f"❌ Ошибка при добавлении факультета: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Произошла ошибка при создании факультета"
         )
